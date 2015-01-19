@@ -21,158 +21,117 @@
  ==============================================================================
  */
 
-#ifndef __DEF_KIWI_COLOR__
-#define __DEF_KIWI_COLOR__
+#ifndef __DEF_KIWI_GUI_COLOR__
+#define __DEF_KIWI_GUI_COLOR__
 
-#include "Element.h"
+#include "Defs.h"
 
 namespace Kiwi
 {
-    // ================================================================================ //
-    //                                      COLOR                                       //
-    // ================================================================================ //
-    
-    class Color
+    namespace Gui
     {
-    private:
-        double m_red;
-        double m_green;
-        double m_blue;
-        double m_alpha;
+        // ================================================================================ //
+        //                                      COLOR                                       //
+        // ================================================================================ //
         
-    public:
-        
-        Color() noexcept :
-        m_red(0.), m_green(0.), m_blue(0.), m_alpha(1.)
+        class Color
         {
-            ;
-        }
-        
-        Color(const double red, const double green, const double blue, const double alpha = 1.) noexcept :
-        m_red(clip(red, 0., 1.)), m_green(clip(green, 0., 1.)), m_blue(clip(blue, 0., 1.)), m_alpha(clip(alpha, 0., 1.))
-        {
-            ;
-        }
-        
-        Color(ElemVector const& elements) noexcept :
-        m_red(0.), m_green(0.), m_blue(0.), m_alpha(1.)
-        {
-			const ElemVector::size_type size = elements.size();
-			if(size && elements[0].isNumber())
-			{
-				m_red = clip((double)elements[0], 0., 1.);
-			}
-			if(size > 1 && elements[1].isNumber())
-			{
-				m_green = clip((double)elements[1], 0., 1.);
-			}
-			if(size > 2 && elements[2].isNumber())
-			{
-				m_blue = clip((double)elements[2], 0., 1.);
-			}
-			if(size > 2 && elements[3].isNumber())
-			{
-				m_alpha = clip((double)elements[3], 0., 1.);
-			}
-        }
-		
-        Color(Color const& color) noexcept :
-        m_red(color.m_red), m_green(color.m_green), m_blue(color.m_blue), m_alpha(color.m_alpha)
-        {
-            ;
-        }
-        
-        ~Color()
-        {
-            ;
-        }
-        
-        double red() const noexcept
-        {
-            return m_red;
-        }
-        
-        double green() const noexcept
-        {
-            return m_green;
-        }
-        
-        double blue() const noexcept
-        {
-            return m_blue;
-        }
-        
-        double alpha() const noexcept
-        {
-            return m_alpha;
-        }
-        
-        void red(const double value) noexcept
-        {
-            m_red = clip(value, 0., 1.);
-        }
-        
-        void green(const double value) noexcept
-        {
-            m_green = clip(value, 0., 1.);
-        }
-        
-        void blue(const double value) noexcept
-        {
-            m_blue = clip(value, 0., 1.);
-        }
-        
-        void alpha(const double value) noexcept
-        {
-            m_alpha = clip(value, 0., 1.);
-        }
-        
-        inline Color& operator=(ElemVector const& elements) noexcept
-        {
-            const ElemVector::size_type size = elements.size();
-            if(size && elements[0].isNumber())
+        private:
+            double m_red;
+            double m_green;
+            double m_blue;
+            double m_alpha;
+            
+        public:
+            
+            Color() noexcept :
+            m_red(0.), m_green(0.), m_blue(0.), m_alpha(1.)
             {
-                m_red = clip((double)elements[0], 0., 1.);
+                ;
             }
-            if(size > 1 && elements[1].isNumber())
+            
+            Color(const double red, const double green, const double blue, const double alpha = 1.) noexcept :
+            m_red(clip(red, 0., 1.)), m_green(clip(green, 0., 1.)), m_blue(clip(blue, 0., 1.)), m_alpha(clip(alpha, 0., 1.))
             {
-                m_green = clip((double)elements[1], 0., 1.);
+                ;
             }
-            if(size > 2 && elements[2].isNumber())
+            
+            Color(Color const& color) noexcept :
+            m_red(color.m_red), m_green(color.m_green), m_blue(color.m_blue), m_alpha(color.m_alpha)
             {
-                m_blue = clip((double)elements[2], 0., 1.);
+                ;
             }
-            if(size > 2 && elements[3].isNumber())
+            
+            ~Color()
             {
-                m_alpha = clip((double)elements[3], 0., 1.);
+                ;
             }
-            return *this;
-        }
-        
-        inline Color& operator=(Color const& color) noexcept
-        {
-            m_red = color.m_red;
-            m_green = color.m_green;
-            m_blue = color.m_blue;
-            m_alpha = color.m_alpha;
-            return *this;
-        }
-        
-        inline operator ElemVector() const noexcept
-        {
-            return {m_red, m_green, m_blue, m_alpha};
-        }
-        
-        inline Color brighter(const double value) const noexcept
-        {
-            return Color(red() + value, green() + value, blue() + value, alpha());
-        }
-        
-        inline Color darker(const double value) const noexcept
-        {
-            return Color(red() - value, green() - value, blue() - value, alpha());
-        }
-    };
+            
+            double red() const noexcept
+            {
+                return m_red;
+            }
+            
+            double green() const noexcept
+            {
+                return m_green;
+            }
+            
+            double blue() const noexcept
+            {
+                return m_blue;
+            }
+            
+            double alpha() const noexcept
+            {
+                return m_alpha;
+            }
+            
+            void red(const double value) noexcept
+            {
+                m_red = clip(value, 0., 1.);
+            }
+            
+            void green(const double value) noexcept
+            {
+                m_green = clip(value, 0., 1.);
+            }
+            
+            void blue(const double value) noexcept
+            {
+                m_blue = clip(value, 0., 1.);
+            }
+            
+            void alpha(const double value) noexcept
+            {
+                m_alpha = clip(value, 0., 1.);
+            }
+            
+            inline Color& operator=(Color const& color) noexcept
+            {
+                m_red = color.m_red;
+                m_green = color.m_green;
+                m_blue = color.m_blue;
+                m_alpha = color.m_alpha;
+                return *this;
+            }
+                        
+            inline Color brighter(const double value) const noexcept
+            {
+                return Color(red() + value, green() + value, blue() + value, alpha());
+            }
+            
+            inline Color darker(const double value) const noexcept
+            {
+                return Color(red() - value, green() - value, blue() - value, alpha());
+            }
+            
+            inline Color withAlpha(const double value) const noexcept
+            {
+                return Color(red(), green(), blue(), clip(value, 0., 1.));
+            }
+        };
+    }
 }
 
 #endif

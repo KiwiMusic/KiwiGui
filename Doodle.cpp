@@ -19,13 +19,17 @@
  To release a closed-source product which uses KIWI, contact : guillotpierre6@gmail.com
  
  ==============================================================================
-*/
+ */
 
-#ifndef __DEF_KIWI_LIB__
-#define __DEF_KIWI_LIB__
+#include "Doodle.h"
 
-#include "KiwiBase/Core.h"
-
-#endif
-
-
+namespace Kiwi
+{
+    namespace Gui
+    {
+        void Doodle::drawText(string const& text, Rectangle const& rect, Font::Justification j, bool wrap)
+        {
+            drawText(text, rect.x(), rect.y(), rect.width(), rect.height(), j, wrap);
+        }
+    }
+}

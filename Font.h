@@ -21,116 +21,77 @@
  ==============================================================================
  */
 
-#ifndef __DEF_KIWI_FONT__
-#define __DEF_KIWI_FONT__
+#ifndef __DEF_KIWI_GUI_FONT__
+#define __DEF_KIWI_GUI_FONT__
 
 #include "Defs.h"
-#include "Tools.h"
 #include "Point.h"
 
 namespace Kiwi
 {
-    // ================================================================================ //
-    //                                      FONT                                        //
-    // ================================================================================ //
-    
-    class Font
+    namespace Gui
     {
-    public:
-        enum Justification
-        {
-            Left                    = 1,
-            Right                   = 2,
-            HorizontallyCentered    = 4,
-            Top                     = 8,
-            TopLeft                 = 9,
-            TopRight                = 10,
-            CentredTop              = 12,
-            Bottom                  = 16,
-            BottomLeft              = 17,
-            BottomRight             = 18,
-            CentredBottom           = 20,
-            VerticallyCentred       = 32,
-            CentredLeft             = 33,
-            CentredRight            = 34,
-            Centred                 = 36,
-            HorizontallyJustified   = 64,
-        };
+        // ================================================================================ //
+        //                                      FONT                                        //
+        // ================================================================================ //
         
-        enum Face
+        class Font
         {
-            Normal      = 0,
-            Bold        = 1,
-            Italic      = 2,
-            Underlined  = 4
-        };
-        
-        string          name;
-        unsigned long   size;
-        Face            face;
-        
-        Font() noexcept :
-        name("Arial"), size(12.), face(Normal)
-        {
+        public:
+            enum Justification
+            {
+                Left                    = 1,
+                Right                   = 2,
+                HorizontallyCentered    = 4,
+                Top                     = 8,
+                TopLeft                 = 9,
+                TopRight                = 10,
+                CentredTop              = 12,
+                Bottom                  = 16,
+                BottomLeft              = 17,
+                BottomRight             = 18,
+                CentredBottom           = 20,
+                VerticallyCentred       = 32,
+                CentredLeft             = 33,
+                CentredRight            = 34,
+                Centred                 = 36,
+                HorizontallyJustified   = 64,
+            };
             
-        }
-        
-        Font(string const& _name, unsigned long _size, Face _face = Normal) noexcept :
-        name(_name), size(_size), face(_face)
-        {
-            ;
-        }
-        
-        ~Font()
-        {
-            ;
-        }
-        /*
-        static string getStringSelection(Font const& font, string const& text, double const x1, double const x2) noexcept
-        {
-            string rtext, ctext;
-            unsigned long pos = 0;
-            while(pos < text.size())
+            enum Face
             {
-                ctext += text[pos];
-                Point size = Font::getStringSize(font, ctext);
-                if(size.x() >= x1 && size.x() <= x2)
-                {
-                    rtext += text[pos++];
-                }
-                else if(size.x() > x2)
-                {
-                    return rtext;
-                }
-            }
-            return rtext;
-        }
-        
-        static Point getStringPosition(Font const& font, string const& text, double const x1, double const x2) noexcept
-        {
-            Point rpoint(0, 0.);
-            string ctext;
-            unsigned long pos = 0;
-            while(pos < text.size())
+                Normal      = 0,
+                Bold        = 1,
+                Italic      = 2,
+                Underlined  = 4
+            };
+            
+            string          name;
+            unsigned long   size;
+            Face            face;
+            
+            Font() noexcept :
+            name("Arial"), size(12.), face(Normal)
             {
-                ctext += text[pos];
-                Point size = Font::getStringSize(font, ctext);
-                if(size.x() <= x1)
-                {
-                    rpoint.x(size.x());
-                }
-                else if(size.x() > x1 && size.x() <= x2)
-                {
-                    rpoint.y(size.x());
-                }
-                else if(size.x() > x2)
-                {
-                    return rpoint;
-                }
+                
             }
-            return rpoint;
-        }*/
-    };
+            
+            Font(string const& _name, unsigned long _size, Face _face = Normal) noexcept :
+            name(_name), size(_size), face(_face)
+            {
+                ;
+            }
+            
+            ~Font()
+            {
+                ;
+            }
+            
+            static Point getStringSize(Font const& font, string const& text) noexcept;
+            
+            static Point getStringSize(Font const& font, wstring const& text) noexcept;
+        };
+    }
 }
 
 #endif
