@@ -80,7 +80,7 @@ namespace Kiwi
         }
         
         // Solve a 3rd degree equation, return the number of solution and the solution are in solution1, solution2 and solution3.
-        template <typename Type> unsigned long solve(Type a, Type b, Type c, Type const d, Type &solution1, Type &solution2,  Type &solution3)
+        template <typename Type> ulong solve(Type a, Type b, Type c, Type const d, Type &solution1, Type &solution2,  Type &solution3)
         {
             if(abs(a) > 0.)
             {
@@ -192,7 +192,7 @@ namespace Kiwi
             return to_string(__val);
         }
         
-        inline string toString(unsigned long long __val)
+        inline string toString(ulong long __val)
         {
             return to_string(__val);
         }

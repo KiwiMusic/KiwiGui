@@ -67,7 +67,7 @@ namespace Kiwi
             };
             
             string          name;
-            unsigned long   size;
+            ulong   size;
             Face            face;
             
             Font() noexcept :
@@ -76,7 +76,7 @@ namespace Kiwi
                 
             }
             
-            Font(string const& _name, unsigned long _size, Face _face = Normal) noexcept :
+            Font(string const& _name, ulong _size, Face _face = Normal) noexcept :
             name(_name), size(_size), face(_face)
             {
                 ;
