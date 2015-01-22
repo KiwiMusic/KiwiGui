@@ -72,6 +72,7 @@ namespace Kiwi
 #ifndef ulong
     typedef unsigned long ulong;
 #endif
+    
     namespace Gui
     {
         template <typename Type> Type clip(const Type& n, const Type& lower, const Type& upper)

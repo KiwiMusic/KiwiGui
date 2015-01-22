@@ -24,8 +24,7 @@
 #ifndef __DEF_KIWI_TEXT__
 #define __DEF_KIWI_TEXT__
 
-#include "Doodle.h"
-#include "Event.h"
+#include "Sketcher.h"
 
 namespace Kiwi
 {
@@ -153,7 +152,7 @@ namespace Kiwi
             
             bool receive(Event::Mouse const& event);
             bool receive(Event::Keyboard const& event);
-            bool receive(Event::Focus::Type event);
+            bool receive(Event::Focus event);
             bool draw(Doodle& doodle) const;
             
             static string getStringSelection(Font const& font, string const& text, double const x1, double const x2) noexcept;

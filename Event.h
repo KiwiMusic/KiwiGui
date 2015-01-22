@@ -66,19 +66,9 @@ namespace Kiwi
             //                                      FOCUS                                       //
             // ================================================================================ //
             
-            //! The focus event
-            /**
-             The focus event
-             */
-            class Focus
-            {
-            public:
-                enum Type
-                {
-                    In = 0,
-                    Out = 1,
-                };
-            };
+            typedef bool Focus;
+            static const bool In  = 0;
+            static const bool Out = 1;
             
             
             // ================================================================================ //

@@ -462,7 +462,7 @@ namespace Kiwi
             return false;
         }
         
-        bool TextEditor::receive(Event::Focus::Type event)
+        bool TextEditor::receive(Event::Focus event)
         {
             return true;
         }
