@@ -321,74 +321,86 @@ namespace Kiwi
                 };
                 
             private:
-                
-                const wchar_t   m_character;
+				const int		m_keycode;
                 const long      m_modifiers;
+				const wchar_t   m_character;
             public:
                 
-                Keyboard(char character, long modifiers) noexcept
-                : m_character(character), m_modifiers(modifiers)
+                Keyboard(const int keycode, const long modifiers, const wchar_t character) noexcept
+                : m_keycode(keycode), m_modifiers(modifiers), m_character(character)
                 {
                     ;
                 }
-                
-                ~Keyboard()
-                {
-                    ;
-                }
-                
-                inline char getCharacter() const noexcept
-                {
-                    char nchar;
-                    if(wcstombs(&nchar, &m_character, sizeof(char)) != -1)
-                    {
-                        return nchar;
-                    }
-                    else
-                    {
-                        nchar = ' ';
-                        return nchar;
-                    }
-                }
+				
+				Keyboard(const int keycode) noexcept
+				: m_keycode(keycode), m_modifiers(Nothing), m_character(0)
+				{
+					;
+				}
+				
+				Keyboard(const int keycode, const long modifiers) noexcept
+				: m_keycode(keycode), m_modifiers(modifiers), m_character(0)
+				{
+					;
+				}
+				
+				//! Creates a copy of another Keyboard.
+				Keyboard(const Keyboard& other) noexcept
+				: m_keycode(other.getKeyCode()), m_modifiers(other.getModifiers()),
+				m_character(other.getCharacter())
+				{
+					;
+				}
+				
+				~Keyboard() {};
+				
+				//! Compares two Keyboard objects.
+				bool operator==(const Keyboard& other) const noexcept
+				{
+					return m_modifiers == other.getModifiers()
+						&& (m_character == other.getCharacter()
+							|| m_character == 0
+							|| other.getCharacter() == 0)
+						&& (m_keycode == other.getKeyCode()
+							|| (m_keycode < 256
+								&& other.getKeyCode() < 256
+								&& towlower(getKeyCode()) == towlower(other.getKeyCode())));
+				}
+				
+				//! Compares two Keyboard objects.
+				bool operator!= (const Keyboard& other) const noexcept
+				{
+					return ! operator== (other);
+				}
                 
                 inline bool isCharacter() const noexcept
                 {
-                    char nchar;
-                    if(wcstombs(&nchar, &m_character, sizeof(char)) != -1)
-                    {
-                        return true;
-                    }
-                    return false;
+                    return m_character != 0;
                 }
                 
-                inline wchar_t getWideCharacter() const noexcept
+                inline wchar_t getCharacter() const noexcept
                 {
                     return m_character;
                 }
-                
-                inline bool isWideCharacter() const noexcept
-                {
-                    char nchar;
-                    if(wcstombs(&nchar, &m_character, sizeof(char)) == -1)
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-                
+				
+				inline int getKeyCode() const noexcept
+				{
+					return m_keycode;
+				}
+				
                 inline bool isAlphabetic() const noexcept
                 {
-                    return isalpha(m_character);
+                    return iswalpha(m_character);
                 }
                 
                 inline bool isAlphanumeric() const noexcept
                 {
-                    return isalnum(m_character);
+                    return iswalnum(m_character);
                 }
                 
                 inline bool isNumber() const noexcept
                 {
-                    return isdigit(m_character);
+                    return iswdigit(m_character);
                 }
                 
                 inline bool isSpace() const noexcept
@@ -398,7 +410,7 @@ namespace Kiwi
                 
                 inline bool isEscape() const noexcept
                 {
-                    return m_character == Escape;
+                    return m_keycode == Escape;
                 }
                 
                 inline bool isReturn() const noexcept
@@ -413,7 +425,7 @@ namespace Kiwi
                 
                 inline bool isDelete() const noexcept
                 {
-                    return m_character == 0xF728;
+                    return m_character == Delete;
                 }
                 
                 inline bool isBackspace() const noexcept
@@ -425,6 +437,11 @@ namespace Kiwi
                 {
                     return m_character == Insert;
                 }
+				
+				inline bool hasArrowKey() const noexcept
+				{
+					return isUp() || isDown() || isLeft() || isRight();
+				}
                 
                 inline bool isUp() const noexcept
                 {
@@ -567,6 +584,18 @@ namespace Kiwi
             }
             return text;
         }
+		
+		inline string toString(Event::Keyboard const& event)
+		{
+			string text = "Keyboard : ";
+			if (event.isCharacter())
+			{
+				text += "\n";
+				text += "- character : ";
+				text += event.getCharacter();
+			}
+			return text;
+		}
     }
 }
 

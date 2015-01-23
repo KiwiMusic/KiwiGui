@@ -180,7 +180,12 @@ namespace Kiwi
             {
                 return Rectangle(centre, Point()).expanded(size * 0.5);
             }
-            
+			
+			inline Rectangle withZeroOrigin()
+			{
+				return Rectangle(0., 0., m_size.x(), m_size.y());
+			}
+			
             /** Moves the x position, adjusting the width so that the right-hand edge remains in the same place.
              If the x is moved to be on the right of the current right-hand edge, the width will be set to zero.
              */

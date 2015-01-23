@@ -105,11 +105,11 @@ namespace Kiwi
             virtual inline Rectangle getBounds() = 0;
             
             //! Set the color.
-            /** The sets the color that now will be used by the doodle.
-             @param colot The color.
+            /** The function sets the color that now will be used by the doodle.
+             @param color The color.
              */
             virtual void setColor(Color const& color) = 0;
-            
+			
             //! Set the font.
             /** The sets the font that now will be used by the doodle.
              @param font The font.
@@ -121,7 +121,7 @@ namespace Kiwi
              */
             virtual void fillAll() = 0;
             
-            //! Draw a line of text within a rectangle.
+            //! Draws a line of text within a rectangle.
             /** The function draws a line of text within a rectangle.
              @param text The text.
              @param x The abscissa of the rectangle.
@@ -141,6 +141,32 @@ namespace Kiwi
              @param truncated If the text should be truncated if it goes out the boundaries.
              */
             virtual void drawText(string const& text, Rectangle const& rect, Font::Justification j, bool wrap = false);
+			
+			//! Tries to draw a text string inside a given rectangle.
+			/** The function tries to draw a text string inside a given space.
+			 If the text is too big, it'll be squashed horizontally or broken over multiple lines
+			 if the maximumLinesToUse value allows this. If the text just won't fit into the space,
+			 it'll cram as much as possible in there, and put some ellipsis at the end to show that
+			 it's been truncated.
+			 A Justification parameter lets you specify how the text is laid out within the rectangle,
+			 both horizontally and vertically.
+			 minimumHorizontalScale parameter specifies how much the text can be squashed horizontally
+			 to try to squeeze it into the space. If you don't want any horizontal scaling to occur, you
+			 can set this value to 1.0f.
+			 @see drawText
+			 */
+			virtual void drawFittedText(string const& text, const double x, const double y, const double w, const double h, Font::Justification j, const long maximumNumberOfLines, const double minimumHorizontalScale) = 0;
+			
+			//! Tries to draw a text string inside a given rectangle.
+			/** The function tries to draw a text string inside a given space.
+			 @see drawFittedText
+			 */
+			virtual void drawFittedText(string const& text, Rectangle const& rect, Font::Justification j, const long maximumNumberOfLines, const double minimumHorizontalScale)
+			{
+				drawFittedText(text, rect.x(), rect.y(), rect.width(), rect.height(), j, maximumNumberOfLines, minimumHorizontalScale);
+			}
+			
+			virtual void drawMultiLineText(wstring const& text, const long startX, const long baselineY, const long maximumLineWidth) const = 0;
             
             //! Fill a path.
             /** The function fills a page.
