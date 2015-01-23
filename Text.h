@@ -37,24 +37,29 @@ namespace Kiwi
         
         class TextEditor
         {
-        public:
-            enum Behavior
-            {
-                Truncated   = 0,
-                Wrapped     = 1
-            };
-            
         private:
             wstring             m_text;
             wstring::size_type  m_marker_start;
             wstring::size_type  m_marker_end;
+			
+			/*
+			string             m_text;
+			string::size_type  m_marker_start;
+			string::size_type  m_marker_end;
+			*/
+			
+			bool				m_multiline;
+			bool				m_word_wrap;
+			bool				m_return_key_starts_new_line;
+			bool				m_tab_key_used;
+			bool				m_select_all_when_focused;
             
             Font                m_font;
             Font::Justification m_justification;
-            Color               m_color;
+            Color               m_text_color;
             vector<string>      m_displayed_text;
             
-            Point               m_size;
+            Rectangle           m_bounds;
             double              m_padding_top;
             double              m_padding_left;
             double              m_padding_bottom;
@@ -64,14 +69,19 @@ namespace Kiwi
             double              m_displayed_height;
             double              m_line_spacing;
             
-            long                m_behavior;
-            
             Point               m_text_size;
             Point               m_text_displayed_size;
-            
+			
             void updateBoundaries();
             void truncate();
             void wrap();
+			
+			wstring string_to_wstring(const string& str) const;
+			string wstring_to_string(const wstring& wstr) const;
+			
+			class Listener;
+			typedef shared_ptr<Listener>    sListener;
+			typedef weak_ptr<Listener>      wListener;
         public:
             
             //! Constructor.
@@ -82,21 +92,91 @@ namespace Kiwi
             //! Constructor.
             /** The function initialize a texteditor with a string.
              */
-            TextEditor(string const& text) noexcept;
+            TextEditor(string const& text);
             
             //! Destructor.
             /** The function initialize a text with a string.
              */
             virtual ~TextEditor();
-            
-            //std::wstring str = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes("some string");
-            
-            //! Get is the text is empty.
-            /** The function retrieves is the text is empty.
-             @return true if the text is empty, otherwise false.
-             */
-            bool isEmpty() const noexcept;
-            
+			
+			//! Puts the editor into either multi- or single-line mode.
+			/** This function puts the editor into either multi- or single-line mode.
+			 By default, the editor will be in single-line mode, so use this if you need a multi-line editor.
+			 See also the setReturnKeyStartsNewLine() method, which will also need to be turned
+			 on if you want a multi-line editor with line-breaks.
+			 @see isMultiLine, setReturnKeyStartsNewLine
+			 */
+			void setMultiLine(const bool shouldBeMultiLine, const bool shouldWordWrap = true);
+			
+			//! Returns true if the editor is in multi-line mode.
+			/** This Function returns true if the editor is in multi-line mode.
+			 */
+			bool isMultiLine() const noexcept;
+
+			//! Selects all the text when texteditor is focused on.
+			/** If set to true (false by default), focusing on the editor will highlight all its text.
+			 This is useful for boxes where you expect the user to re-enter all the
+			 text when they focus on, rather than editing what's already there.
+			 */
+			void setSelectAllWhenFocused(const bool b);
+			
+			//! Changes the behaviour of the return key.
+			/** The function changes the behaviour of the return key.
+			 If set to true, the return key will insert a new-line into the text; if false
+			 it will trigger a call to the TextEditor::Listener::textEditorReturnKeyPressed()
+			 method. By default this is set to false, and when true it will only insert
+			 new-lines when in multi-line mode (see setMultiLine()). 
+			 */
+			void setReturnKeyStartsNewLine(const bool shouldStartNewLine);
+			
+			//! Indicates whether the tab key accepted as character or not (default is not).
+			/** Indicates whether the tab key should be accepted and used to input a tab character, or whether it gets ignored.
+			 */
+			void setTabKeyUsedAsCharacter(const bool shouldTabKeyBeUsed);
+			
+			//! Sets the font to be used by the text editor.
+			/** The function sets the font to be used by the text editor.
+			 @param font The font.
+			 */
+			void setFont(Font const& font) noexcept;
+			
+			//! Sets the justification of the text editor.
+			/** The function sets the justification of the text editor.
+			 @param justification The justification.
+			 */
+			void setJustification(Font::Justification const& justification) noexcept;
+			
+			//! Sets the color of the text.
+			/** The function sets the color of the text.
+			 @param color The color to use to draw the text.
+			 */
+			void setTextColor(Color const& color) noexcept;
+
+			//! Sets the bounds of the text editor relative to its parent origin.
+			/** The function sets the bounds of the text editor relative to its parent origin.
+			 @param bounds The bounds of the text editor relative to its parent origin.
+			 */
+			void setBounds(Rectangle const& bounds) noexcept;
+			
+			void setPadding(double const top, double const right, double const bottom, double const left) noexcept;
+			void setPaddingTop(double const top) noexcept;
+			void setPaddingLeft(double const left) noexcept;
+			void setPaddingBottom(double const bottom) noexcept;
+			void setPaddingRight(double const right) noexcept;
+			
+			void setLineSpacing(double const lineSpacing) noexcept;
+			
+			bool receive(Event::Mouse const& event);
+			bool receive(Event::Keyboard const& event);
+			bool receive(Event::Focus::Type event);
+			bool draw(Doodle& doodle) const;
+			
+			//! Get is the text is empty.
+			/** The function retrieves is the text is empty.
+			 @return true if the text is empty, otherwise false.
+			 */
+			bool isEmpty() const noexcept;
+			
             //! Get the number of lines.
             /** The function retrieves the number of lines.
              @return The number of lines in the text.
@@ -111,50 +191,8 @@ namespace Kiwi
             {
                 return m_text.size();
             }
-            
-            inline wstring const& to_wstring() noexcept
-            {
-                return m_text;
-            }
-            
-            /*
-             wstring s2ws(const std::string& str)
-             {
-             typedef codecvt_utf8<wchar_t> convert_typeX;
-             std::wstring_convert<convert_typeX, wchar_t> converterX;
-             
-             return converterX.from_bytes(str);
-             }
-             
-             string ws2s(const std::wstring& wstr)
-             {
-             typedef std::codecvt_utf8<wchar_t> convert_typeX;
-             std::wstring_convert<convert_typeX, wchar_t> converterX;
-             
-             return converterX.to_bytes(wstr);
-             }
-             */
-            
-            void setFont(Font const& font) noexcept;
-            void setJustification(Font::Justification const& j) noexcept;
-            void setColor(Color const& color) noexcept;
-            
-            void setBehavior(Behavior behavior) noexcept;
-            void setSize(Point const& size) noexcept;
-            
-            void setPadding(double const top, double const left, double const bottom, double const right) noexcept;
-            void setPaddingTop(double const top) noexcept;
-            void setPaddingLeft(double const left) noexcept;
-            void setPaddingBottom(double const bottom) noexcept;
-            void setPaddingRight(double const right) noexcept;
-            
-            void setLineSpacing(double const linespacing) noexcept;
+			
             void setText(string const& text);
-            
-            bool receive(Event::Mouse const& event);
-            bool receive(Event::Keyboard const& event);
-            bool receive(Event::Focus::Type event);
-            bool draw(Doodle& doodle) const;
             
             static string getStringSelection(Font const& font, string const& text, double const x1, double const x2) noexcept;
             
@@ -170,6 +208,7 @@ namespace Kiwi
             
             void eraseSelection();
             void insertCharacter(const wchar_t c);
+			//void insertCharacter(const char c);
         };
     }
     

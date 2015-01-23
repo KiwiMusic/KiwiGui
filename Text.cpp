@@ -34,132 +34,74 @@ namespace Kiwi
         TextEditor::TextEditor() :
         m_marker_start(0),
         m_marker_end(0),
-        m_justification(Font::Justification::VerticallyCentred),
-        m_color(0., 0., 0, 1.),
+		m_multiline(false),
+        m_justification(Font::Justification::TopLeft),
+        m_text_color(0., 0., 0, 1.),
         m_padding_top(0.),
         m_padding_left(0.),
         m_padding_bottom(0.),
         m_padding_right(0.),
-        m_line_spacing(0.),
-        m_behavior(Wrapped)
+        m_line_spacing(0.)
         {
             ;
         }
-        
+		
+		TextEditor::TextEditor(string const& text) :
+		m_marker_start(0),
+		m_marker_end(0),
+		m_multiline(false),
+		m_justification(Font::Justification::TopLeft),
+		m_text_color(0., 0., 0, 1.),
+		m_padding_top(0.),
+		m_padding_left(0.),
+		m_padding_bottom(0.),
+		m_padding_right(0.),
+		m_line_spacing(0.)
+		{
+			//m_text = string_to_wstring(text);
+			//setText(text);
+		}
+		
         TextEditor::~TextEditor()
         {
             m_text.clear();
         }
-        
+		
+		void TextEditor::setMultiLine(const bool shouldBeMultiLine, const bool shouldWordWrap)
+		{
+			if (m_multiline != shouldBeMultiLine || m_word_wrap != (shouldWordWrap && shouldBeMultiLine))
+			{
+				m_multiline = shouldBeMultiLine;
+				m_word_wrap = shouldWordWrap && shouldBeMultiLine;
+				
+				//resized();
+			}
+		}
+		
+		bool TextEditor::isMultiLine() const noexcept
+		{
+			return m_multiline;
+		}
+		
         bool TextEditor::isEmpty() const noexcept
         {
             return m_text.empty();
         }
-        
-        ulong TextEditor::getNumberOfLines() const noexcept
-        {
-            if(isEmpty())
-            {
-                return 0;
-            }
-            else
-            {
-                ulong nlines = 1;
-                string::size_type pos = string::npos;
-                while((pos = m_text.find('\n', pos)) != string::npos)
-                {
-                    nlines++;
-                }
-                return nlines;
-            }
-        }
-        
-        bool TextEditor::isSelectionEmpty() const noexcept
-        {
-            return m_marker_end == m_marker_start;
-        }
-        
-        void TextEditor::selectAll() noexcept
-        {
-            m_marker_start  = 0;
-            m_marker_end    = m_text.size() - 1;
-        }
-        
-        void TextEditor::addPreviousCharacterToSelection() noexcept
-        {
-            if(!isEmpty() && m_marker_start)
-            {
-                m_marker_start--;
-            }
-        }
-        
-        void TextEditor::addNextCharacterToSelection() noexcept
-        {
-            if(!isEmpty() && m_marker_end != m_text.size() - 1)
-            {
-                m_marker_end++;
-            }
-        }
-        
-        void TextEditor::addPreviousWordToSelection() noexcept
-        {
-            if(!isEmpty() && m_marker_start)
-            {
-                while(m_text[m_marker_start] == ' ' && m_marker_start)
-                {
-                    m_marker_start--;
-                }
-                if(m_marker_start)
-                {
-                    m_marker_start = m_text.rfind(' ', m_marker_start);
-                    if(m_marker_start == string::npos)
-                    {
-                        m_marker_start = 0;
-                    }
-                    else
-                    {
-                        m_marker_start++;
-                    }
-                }
-            }
-        }
-        
-        void TextEditor::addNextWordToSelection() noexcept
-        {
-            if(!isEmpty() && m_marker_end != m_text.size() - 1)
-            {
-                while(m_text[m_marker_end] == ' ' && m_marker_end != m_text.size() - 1)
-                {
-                    m_marker_end++;
-                }
-                if(m_marker_end != m_text.size() - 1)
-                {
-                    m_marker_end = m_text.find(' ', m_marker_end);
-                    if(m_marker_end == string::npos)
-                    {
-                        m_marker_end = m_text.size() - 1;
-                    }
-                    else
-                    {
-                        m_marker_end--;
-                    }
-                }
-            }
-        }
-        
-        void TextEditor::eraseSelection()
-        {
-            if(!isEmpty() && !isSelectionEmpty())
-            {
-                auto it = m_text.erase(m_text.begin() + m_marker_start, m_text.begin() + m_marker_end);
-                m_marker_end = m_marker_start = it - m_text.begin();
-            }
-        }
-        
-        void TextEditor::insertCharacter(const wchar_t c)
-        {
-            m_text.replace(m_marker_start, m_marker_end - m_marker_start, &c);
-        }
+		
+		void TextEditor::setSelectAllWhenFocused(const bool b)
+		{
+			m_select_all_when_focused = b;
+		}
+		
+		void TextEditor::setReturnKeyStartsNewLine(const bool shouldStartNewLine)
+		{
+			m_return_key_starts_new_line = shouldStartNewLine;
+		}
+		
+		void TextEditor::setTabKeyUsedAsCharacter(const bool shouldTabKeyBeUsed)
+		{
+			m_tab_key_used = shouldTabKeyBeUsed;
+		}
         
         void TextEditor::setFont(Font const& font) noexcept
         {
@@ -172,78 +114,83 @@ namespace Kiwi
             m_justification = j;
         }
         
-        void TextEditor::setColor(Color const& color) noexcept
+        void TextEditor::setTextColor(Color const& color) noexcept
         {
-            m_color = color;
+            m_text_color = color;
         }
         
-        void TextEditor::setSize(Point const& size) noexcept
+        void TextEditor::setBounds(Rectangle const& bounds) noexcept
         {
-            m_size = size;
-            m_displayed_width   = m_size.x() - m_padding_left - m_padding_right;
-            m_displayed_height  = m_size.y() - m_padding_top  - m_padding_bottom;
-            updateBoundaries();
+			if(m_bounds != bounds)
+			{
+				m_bounds = bounds;
+				m_displayed_width   = m_bounds.width() - m_padding_left - m_padding_right;
+				m_displayed_height  = m_bounds.height() - m_padding_top  - m_padding_bottom;
+				updateBoundaries();
+			}
         }
-        
-        void TextEditor::setPadding(double const top, double const left, double const bottom, double const right) noexcept
+		
+        void TextEditor::setPadding(double const top, double const right, double const bottom, double const left) noexcept
         {
-            m_padding_top    = top;
-            m_padding_left   = left;
-            m_padding_bottom = bottom;
-            m_padding_right  = right;
-            m_displayed_width   = m_size.x() - m_padding_left - m_padding_right;
-            m_displayed_height  = m_size.y() - m_padding_top  - m_padding_bottom;
-            updateBoundaries();
+			if(m_padding_top != top || m_padding_right != right || m_padding_bottom != bottom || m_padding_left != left)
+			{
+				m_padding_top    = top;
+				m_padding_right  = right;
+				m_padding_bottom = bottom;
+				m_padding_left   = left;
+				m_displayed_width   = m_bounds.width() - m_padding_left - m_padding_right;
+				m_displayed_height  = m_bounds.height() - m_padding_top  - m_padding_bottom;
+				updateBoundaries();
+			}
         }
-        
+		
         void TextEditor::setPaddingTop(double const top) noexcept
         {
-            m_padding_top    = top;
-            m_displayed_height  = m_size.y() - m_padding_top  - m_padding_bottom;
-            updateBoundaries();
+			if(m_padding_top != top)
+			{
+				m_padding_top    = top;
+				m_displayed_height  = m_bounds.height() - m_padding_top  - m_padding_bottom;
+				updateBoundaries();
+			}
         }
         
         void TextEditor::setPaddingLeft(double const left) noexcept
         {
-            m_padding_left   = left;
-            m_displayed_width   = m_size.x() - m_padding_left - m_padding_right;
-            updateBoundaries();
+			if(m_padding_left != left)
+			{
+				m_padding_left   = left;
+				m_displayed_width   = m_bounds.width() - m_padding_left - m_padding_right;
+				updateBoundaries();
+			}
         }
         
         void TextEditor::setPaddingBottom(double const bottom) noexcept
         {
-            m_padding_bottom = bottom;
-            m_displayed_height  = m_size.y() - m_padding_top  - m_padding_bottom;
-            updateBoundaries();
+			if(m_padding_bottom != bottom)
+			{
+				m_padding_bottom = bottom;
+				m_displayed_height  = m_bounds.height() - m_padding_top  - m_padding_bottom;
+				updateBoundaries();
+			}
         }
         
         void TextEditor::setPaddingRight(double const right) noexcept
         {
-            m_padding_right  = right;
-            m_displayed_width   = m_size.x() - m_padding_left - m_padding_right;
-            updateBoundaries();
+			if(m_padding_right != right)
+			{
+				m_padding_right  = right;
+				m_displayed_width   = m_bounds.width() - m_padding_left - m_padding_right;
+				updateBoundaries();
+			}
         }
         
-        void TextEditor::setLineSpacing(double const linespacing) noexcept
+        void TextEditor::setLineSpacing(double const lineSpacing) noexcept
         {
-            m_line_spacing = linespacing;
-            updateBoundaries();
-        }
-        
-        void TextEditor::setBehavior(Behavior behavior) noexcept
-        {
-            if(behavior != m_behavior)
-            {
-                m_behavior = behavior;
-                if(m_behavior)
-                {
-                    wrap();
-                }
-                else
-                {
-                    truncate();
-                }
-            }
+			if(m_line_spacing != lineSpacing)
+			{
+				m_line_spacing = lineSpacing;
+				updateBoundaries();
+			}
         }
         
         void TextEditor::setText(string const& text)
@@ -254,7 +201,122 @@ namespace Kiwi
             }
             updateBoundaries();
         }
-        
+		
+		ulong TextEditor::getNumberOfLines() const noexcept
+		{
+			if(!isEmpty())
+			{
+				ulong nlines = 1;
+				string::size_type pos = string::npos;
+				while((pos = m_text.find('\n', pos)) != string::npos)
+				{
+					nlines++;
+				}
+				return nlines;
+			}
+			
+			return 0;
+		}
+		
+		bool TextEditor::isSelectionEmpty() const noexcept
+		{
+			return m_marker_end == m_marker_start;
+		}
+		
+		void TextEditor::selectAll() noexcept
+		{
+			m_marker_start  = 0;
+			m_marker_end    = m_text.size();
+		}
+		
+		void TextEditor::addPreviousCharacterToSelection() noexcept
+		{
+			if(!isEmpty() && m_marker_start > 0)
+			{
+				m_marker_start--;
+			}
+		}
+		
+		void TextEditor::addNextCharacterToSelection() noexcept
+		{
+			if(!isEmpty() && m_marker_end < m_text.size())
+			{
+				m_marker_end++;
+			}
+		}
+		
+		void TextEditor::addPreviousWordToSelection() noexcept
+		{
+			if(!isEmpty() && m_marker_start)
+			{
+				while(m_text[m_marker_start] == ' ' && m_marker_start)
+				{
+					m_marker_start--;
+				}
+				if(m_marker_start)
+				{
+					m_marker_start = m_text.rfind(' ', m_marker_start);
+					if(m_marker_start == string::npos)
+					{
+						m_marker_start = 0;
+					}
+					else
+					{
+						m_marker_start++;
+					}
+				}
+			}
+		}
+		
+		void TextEditor::addNextWordToSelection() noexcept
+		{
+			if(!isEmpty() && m_marker_end != m_text.size() - 1)
+			{
+				while(m_text[m_marker_end] == ' ' && m_marker_end != m_text.size() - 1)
+				{
+					m_marker_end++;
+				}
+				if(m_marker_end != m_text.size() - 1)
+				{
+					m_marker_end = m_text.find(' ', m_marker_end);
+					if(m_marker_end == string::npos)
+					{
+						m_marker_end = m_text.size() - 1;
+					}
+					else
+					{
+						m_marker_end--;
+					}
+				}
+			}
+		}
+		
+		void TextEditor::eraseSelection()
+		{
+			if(!isEmpty() && !isSelectionEmpty())
+			{
+				auto it = m_text.erase(m_text.begin() + m_marker_start, m_text.begin() + m_marker_end);
+				m_marker_end = m_marker_start = it - m_text.begin();
+			}
+		}
+		
+		void TextEditor::insertCharacter(const wchar_t c)
+		{
+			wcout << L"insert wchar : " << c << L" !!" << endl;
+			
+			//m_text.replace(m_marker_start, m_marker_end - m_marker_start, &c);
+			
+			if (m_marker_start == m_text.length())
+			{
+				m_text.push_back(c);
+				m_marker_end = m_marker_start = m_text.length();
+			}
+			else
+			{
+				m_text.replace(m_marker_start, m_marker_end - m_marker_start, &c);
+			}
+		}
+		
         string TextEditor::getStringSelection(Font const& font, string const& text, double const x1, double const x2) noexcept
         {
             string rtext, ctext;
@@ -274,7 +336,7 @@ namespace Kiwi
             }
             return rtext;
         }
-        
+		
         Point TextEditor::getStringPosition(Font const& font, string const& text, double const x1, double const x2) noexcept
         {
             Point rpoint(0, 0.);
@@ -381,13 +443,13 @@ namespace Kiwi
         
         void TextEditor::updateBoundaries()
         {
-            if(m_behavior)
+            if(!m_multiline)
             {
-                wrap();
+				truncate();
             }
-            else
+            else if(m_word_wrap)
             {
-                truncate();
+				wrap();
             }
         }
         
@@ -420,69 +482,145 @@ namespace Kiwi
             return true;
         }
         
-        bool TextEditor::receive(Event::Keyboard const& event)
+        bool TextEditor::receive(Event::Keyboard const& e)
         {
-            if(event.hasCmd() && event.getCharacter() == 'a')
+			cout << "texteditor receive : " << toString(e) << endl;
+			
+			if (e.isCharacter())
+			{
+				cout << "texteditor valid char : " << endl;
+			}
+			else
+			{
+				cout << "texteditor unprinted char : " << endl;
+			}
+			
+			cout << "texteditor int char : " << toString((int)e.getCharacter()) << endl;
+			cout << "texteditor keycode : " << toString(e.getKeyCode()) << endl;
+			
+			
+			
+			
+			
+			if(e == Event::Keyboard('a', Event::Modifier::Cmd))
+			{
+				cout << "textedit : select all " << endl;
+				selectAll();
+				return true;
+			}
+			else if(e == Event::Keyboard('c', Event::Modifier::Cmd))
+			{
+				cout << "textedit : copy " << endl;
+				return true;
+			}
+			else if(e == Event::Keyboard('v', Event::Modifier::Cmd))
+			{
+				cout << "textedit : paste " << endl;
+				return true;
+			}
+			else if(e == Event::Keyboard('x', Event::Modifier::Cmd))
+			{
+				cout << "textedit : cut " << endl;
+				return true;
+			}
+			else if(e.hasArrowKey())
+			{
+				if (e.hasShift())
+				{
+					
+				}
+				return true;
+			}
+            else if(e.isBackspace())
             {
-                selectAll();
+				cout << "textedit : backspace " << endl;
+				if (!isEmpty())
+				{
+					if(isSelectionEmpty())
+					{
+						addPreviousCharacterToSelection();
+					}
+					eraseSelection();
+					updateBoundaries();
+				}
+
                 return true;
             }
-            else if(event.hasShift() & event.hasLeft())
+            else if(e.isReturn())
             {
-                ;
-            }
-            else if(event.isBackspace() && !isEmpty())
-            {
-                if(isSelectionEmpty())
-                {
-                    addPreviousCharacterToSelection();
-                }
-                eraseSelection();
-                updateBoundaries();
+				if (m_return_key_starts_new_line)
+				{
+					insertCharacter(L'\t');
+					updateBoundaries();
+				}
+				else
+				{
+					// call returnKeyHasBeenPressed
+				}
                 return true;
             }
-            else if(event.isReturn())
+            else if(e.isTab())
             {
-                insertCharacter(L'\n');
-                updateBoundaries();
-                return true;
+				if (m_tab_key_used)
+				{
+					insertCharacter(L'\t');
+					updateBoundaries();
+					return true;
+				}
+				return false;
             }
-            else if(event.isTab())
-            {
-                insertCharacter(L'\t');
-                updateBoundaries();
-                return true;
-            }
-            else if(event.isCharacter())
-            {
-                insertCharacter(event.getWideCharacter());
-                updateBoundaries();
-                return true;
-            }
+			else
+			{
+				//wcout << L" 1 text : " << m_text << endl;
+				//cout << "textlen : " << m_text.length() << endl;
+				
+				insertCharacter(e.getCharacter());
+				updateBoundaries();
+				
+				//wcout << L" 2 text : " << m_text << endl;
+				//cout << "textlen : " << m_text.length() << endl;
+				return true;
+			}
             return false;
         }
-        
+		
         bool TextEditor::receive(Event::Focus::Type event)
         {
             return true;
         }
         
-        bool TextEditor::draw(Doodle& doodle) const
+        bool TextEditor::draw(Doodle& d) const
         {
+			//cout << "texteditor draw" << endl;
             if(!isEmpty())
             {
-                doodle.setFont(m_font);
-                doodle.setColor(m_color);
-                const double width  = doodle.getWidth() - m_padding_left - m_padding_right;
-                const double height = Font::getStringSize(m_font, "/").y();
+                d.setFont(m_font);
+                d.setColor(m_text_color);
+                //const double width  = d.getWidth() - m_padding_left - m_padding_right;
+                //const double height = Font::getStringSize(m_font, "/").y();
+				
+				if(isMultiLine())
+				{
+					d.drawMultiLineText(m_text, m_padding_left, m_font.getSize(), m_displayed_width);
+				}
+				else
+				{
+					//d.drawText(wstring_to_string(m_text), m_bounds, m_justification);
+				}
+				
+				const Point fontSize = Font::getStringSize(m_font, "/");
+				double caretX = fontSize.x() * m_marker_start + m_padding_left;
+				d.drawLine(caretX, m_padding_top, caretX, fontSize.y(), 1.);
+				
+				/*
                 for(vector<string>::size_type i = 0; i < m_displayed_text.size(); i++)
                 {
-                    doodle.drawText(m_displayed_text[i], m_padding_left, height * i + m_padding_top, width, height, m_justification);
+                    d.drawText(m_displayed_text[i], m_padding_left, height * i + m_padding_top, width, height, m_justification);
                     cout << "line " << i << " " << m_displayed_text[i] << endl;
                 }
-                
-                cout << endl;
+				*/
             }
+			
             return true;
         }
     }
