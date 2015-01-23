@@ -27,7 +27,6 @@
 #include "Event.h"
 #include "Doodle.h"
 #include "Sketcher.h"
-#include "Text.h"
 
 
 #endif
