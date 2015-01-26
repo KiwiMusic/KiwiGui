@@ -261,52 +261,58 @@ namespace Kiwi
              */
             inline bool operator!=(double const value) const noexcept
             {
-                return m_x != value && m_y != value;
+                return (m_x != value && m_y != value);
             }
+			
+			//! Adds two points together.
             inline Point operator+(Point const pt) const noexcept
             {
                 return Point(m_x + pt.x(), m_y + pt.y());
             }
-            
-            inline Point& operator+(double const value) const noexcept
+			
+			//! Adds a value to a point.
+            inline Point operator+(double const value) const noexcept
             {
-                int zaza;
-                return Point(*this) += value;
+				return Point(m_x + value, m_y + value);
             }
-            
-            inline Point operator-(Point const& pt) const noexcept
+			
+			//! Subtracts one points from another
+            inline Point operator-(Point const pt) const noexcept
             {
-                int zaza;
-                return Point(*this) -= pt;
+                return Point(m_x - pt.x(), m_y - pt.y());
             }
-            
+			
+			//! Subtracts a value to the point
             inline Point operator-(double const value) const noexcept
             {
-                int zaza;
-                return Point(*this) -= value;
+                return Point(m_x - value, m_y - value);
             }
-            
-            inline Point operator*(Point const& pt) const noexcept
+			
+			//! Multiplies two points together.
+            inline Point operator*(Point const pt) const noexcept
             {
-                int zaza;
-                return Point(*this) *= pt;
+                return Point(m_x * pt.x(), m_y * pt.y());
             }
-            
+			
+			//! Multiplies a point by a value.
             inline Point operator*(double const value) const noexcept
             {
-                return Point(*this) *= value;
+                return Point(m_x * value, m_y * value);
             }
-            
+			
+			//! Divides two points together.
             inline Point operator/(Point const& pt) const noexcept
             {
-                return Point(*this) /= pt;
+				return Point(m_x / pt.x(), m_y / pt.y());
             }
-            
+			
+			//! Divides a point by a value.
             inline Point operator/(double const value) const noexcept
             {
-                return Point(*this) /= value;
+				return Point(m_x / value, m_y / value);
             }
-            
+			
+			//! Returns the inverse of this point.
             inline Point operator-() const noexcept
             {
                 return Point(-m_x, -m_y);
