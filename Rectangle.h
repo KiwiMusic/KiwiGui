@@ -175,13 +175,30 @@ namespace Kiwi
                 m_size.x(max(size.x(), 0.));
                 m_size.y(max(size.y(), 0.));
             }
-            
+			
+			//! Retrieves the rectangle centre.
+			/** The function retrieves the rectangle centre.
+			 @return The rectangle centre as a point.
+			 */
+			inline Point centre() noexcept
+			{
+				return Point(x() + width() * 0.5, y() + height() * 0.5);
+			}
+			
+			/** Returns a rectangle with a centre position. */
             inline static Rectangle withCentre(Point const& centre, Point const& size)
             {
                 return Rectangle(centre, Point()).expanded(size * 0.5);
             }
 			
-			inline Rectangle withZeroOrigin()
+			/** Returns a rectangle whose size is the same as this one, but with a new top-left position */
+			inline Rectangle withPosition(Point const& newpos) const noexcept
+			{
+				return Rectangle(newpos.x(), newpos.y(), m_size.x(), m_size.y());
+			}
+			
+			/** Returns a rectangle whose size is the same as this one, but whose top-left position is (0, 0). */
+			inline Rectangle withZeroOrigin() const noexcept
 			{
 				return Rectangle(0., 0., m_size.x(), m_size.y());
 			}
@@ -417,54 +434,78 @@ namespace Kiwi
             {
                 return x() + width() > other.x() && y() + height() > other.y() && x() < other.x() + other.width() && y() < other.y() + other.height();
             }
-            
-            inline void expand(double const value) noexcept
+			
+			//! Expands the rectangle by a given amount.
+			/** Effectively, its new size is (x - pt.x, y - pt.y, width + pt.x * 2, height + pt.y * 2).
+			 @see expanded, reduce, reduced
+			 */
+			inline void expand(Point const& pt) noexcept
+			{
+				position(m_position - pt);
+				width(max(0., width() + pt.x() * 2));
+				height(max(0., height() + pt.y() * 2));
+			}
+			
+			//! Expands the rectangle by a given amount.
+			/** Effectively, its new size is (x - delta, y - delta, width + delta * 2, height + delta * 2).
+			 @see expanded, reduce, reduced
+			 */
+            inline void expand(double const delta) noexcept
             {
-                m_position -= value * 0.5;
-                m_size     += value;
+				expand(Point(delta, delta));
             }
-            
-            inline void reduce(double const value) noexcept
-            {
-                m_position += value * 0.5;
-                m_size     -= value;
-            }
-            
-            inline void expand(Point const& pt) noexcept
-            {
-                m_position -= pt * 0.5;
-                m_size     += pt;
-            }
-            
+			
+			//! Returns a rectangle that is larger than this one by a given amount.
+			/** Effectively, the rectangle returned is (x - pt.x, y - pt.y, width + pt.x * 2, height + pt.y * 2).
+			 @see expand, reduce, reduced
+			 */
+			Rectangle expanded(Point const& pt) const noexcept
+			{
+				const double w = max(0., width() + pt.x() * 2);
+				const double h = max(0., height() + pt.y() * 2);
+				return Rectangle(m_position.x() - pt.x(), m_position.y() - pt.y(), w, h);
+			}
+			
+			//! Returns a rectangle that is larger than this one by a given amount.
+			/** Effectively, its new size is (x - delta, y - delta, width + delta * 2, height + delta * 2).
+			 @see expanded, reduce, reduced
+			 */
+			Rectangle expanded(const double delta) const noexcept
+			{
+				return expanded(Point(delta, delta));
+			}
+			
+			//! Shrinks the rectangle by a given amount.
+			/** Effectively, its new size is (x + pt.x, y + pt.y, width - pt.x * 2, height - pt.y * 2).
+			 @see reduced, expand, expanded
+			 */
             inline void reduce(Point const& pt) noexcept
             {
-                m_position += pt * 0.5;
-                m_size     -= pt;
+                expand(-pt);
             }
-            
-            Rectangle expanded(Point const& pt) const noexcept
-            {
-                Point pos = m_position;
-                Point size = m_size;
-                pos -= pt * 0.5;
-                size += pt;
-                return Rectangle(pos, size);
-            }
-            
-            Rectangle expanded(const double delta) const noexcept
-            {
-                return expanded(Point(delta, delta));
-            }
-            
+			
+			//! Shrinks the rectangle by a given amount.
+			/** Effectively, its new size is (x + delta, y + delta, width - delta * 2, height - delta * 2).
+			 @see reduced, expand, expanded
+			 */
+			inline void reduce(double const delta) noexcept
+			{
+				expand(Point(-delta, -delta));
+			}
+			
+			//! Returns a rectangle that is smaller than this one by a given amount.
+			/** Effectively, the rectangle returned is (x + pt.x, y + pt.y, width - pt.x * 2, height - pt.y * 2).
+			 @see reduce, expand, expanded
+			 */
             Rectangle reduced(Point const& pt) const noexcept
             {
-                Point pos = m_position;
-                Point size = m_size;
-                pos += pt * 0.5;
-                size -= pt;
-                return Rectangle(pos, size);
+				return expanded(-pt);
             }
-            
+			
+			//! Returns a rectangle that is smaller than this one by a given amount.
+			/** Effectively, the rectangle returned is (x + delta, y + delta, width - delta * 2, height - delta * 2).
+			 @see reduce, expand, expanded
+			 */
             Rectangle reduced(const double delta) const noexcept
             {
                 return reduced(Point(delta, delta));

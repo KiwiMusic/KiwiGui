@@ -89,7 +89,12 @@ namespace Kiwi
                 
             }
         };
-        
+		
+		typedef shared_ptr<Sketcher>          sSketcher;
+		typedef weak_ptr<Sketcher>            wSketcher;
+		typedef shared_ptr<const Sketcher>    scSketcher;
+		typedef weak_ptr<const Sketcher>      wcSketcher;
+		
         class Mouser
         {
         public:
@@ -157,40 +162,6 @@ namespace Kiwi
         typedef weak_ptr<Keyboarder>            wKeyboarder;
         typedef shared_ptr<const Keyboarder>    scKeyboarder;
         typedef weak_ptr<const Keyboarder>      wcKeyboarder;
-        
-        class Writer
-        {
-            class Owner
-            {
-            public:
-                void setText();
-                void setTextBounds();
-            };
-            
-            Owner own;
-            
-            virtual void textChanged() = 0;
-            virtual void returnPressed() = 0;
-            virtual void escapePressed() = 0;
-            virtual void getText(wstring const& text) = 0;
-            
-            void setText(wstring const& text)
-            {
-                own.setText();
-            }
-            
-            void setTextBounds(Rectangle const& rect)
-            {
-                own.setTextBounds();
-            }
-            
-        private:
-            friend class Owner;
-            void setOwner(Owner const& _own)
-            {
-                own = _own;
-            }
-        };
     }
 }
 

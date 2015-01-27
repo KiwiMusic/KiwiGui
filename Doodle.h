@@ -116,11 +116,20 @@ namespace Kiwi
              */
             virtual void setFont(Font const& font) = 0;
             
-            //! Fill the doodle with a color.
-            /** The function fills the entire doodle with a color.
+            //! Fill the doodle with the current color.
+            /** The function fills the entire doodle with the current color.
              */
             virtual void fillAll() = 0;
-            
+			
+			//! Fill the doodle with a color.
+			/** The function fills the entire doodle with a color.
+			 */
+			virtual void fillAll(Color const& color)
+			{
+				setColor(color);
+				fillAll();
+			}
+			
             //! Draws a line of text within a rectangle.
             /** The function draws a line of text within a rectangle.
              @param text The text.
