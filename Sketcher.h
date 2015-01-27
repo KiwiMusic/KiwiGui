@@ -37,11 +37,43 @@ namespace Kiwi
         
         class Sketcher
         {
-            
+		public:
+			class View;
+			typedef shared_ptr<View>    sView;
+			typedef weak_ptr<View>      wView;
+		protected:
+			//! Send a notification to each views that the box needs to be redrawn.
+			/** The function sends a notification to each views that the box should be redrawn.
+			 */
+			void redraw() noexcept
+			{
+				m_views_mutex.lock();
+				auto it = m_views.begin();
+				while(it != m_views.end())
+				{
+					if((*it).expired())
+					{
+						it = m_views.erase(it);
+					}
+					else
+					{
+						sView view = (*it).lock();
+						view->redraw();
+						++it;
+					}
+				}
+				m_views_mutex.unlock();
+			}
+			
         public:
             class View
             {
+				friend void Sketcher::redraw() noexcept;
             protected:
+				//! Receives the notification that the sketcher needs to be redrawn.
+				/** This function is called by the sketcher whenever it needs to be redrawn.
+				 The view sublasses must implement this method to draw the sketcher.
+				 */
                 virtual void redraw() = 0;
                 
             public:
@@ -55,8 +87,6 @@ namespace Kiwi
                     ;
                 }
             };
-            typedef shared_ptr<View>    sView;
-            typedef weak_ptr<View>      wView;
             
         private:
             
@@ -72,28 +102,49 @@ namespace Kiwi
             {
                 ;
             }
-            
+			
+			//! Adds a view to the sketcher.
+			/** The function adds a view to the sketcher. The view will then be notified whenever the sketcher needs to be redrawn.
+			 @param view The view to add.
+			 */
+			void addView(sView view)
+			{
+				if(view)
+				{
+					lock_guard<mutex> guard(m_views_mutex);
+					m_views.insert(view);
+				}
+			}
+			
+			//! Removes a view from the sketcher.
+			/** The function removes a view from the sketcher. The view will no longer be notified when the sketcher needs to be redrawn.
+			 If the view wasn't a sketcher's view, the function does nothing.
+			 @param view The view to remove.
+			 */
+			void removeView(sView view)
+			{
+				if(view)
+				{
+					lock_guard<mutex> guard(m_views_mutex);
+					m_views.erase(view);
+				}
+			}
+			
             //! The paint method that should be override.
-            /** The function shoulds draw some stuff in the doodle. Return false if you don't want to draw then the box manager will draw the text of the box, othersize return true.
-             @param doodle    A doodle to draw.
+            /** The function shoulds draw some stuff in the doodle.
+             @param doodle A doodle to draw.
              */
             virtual void draw(Doodle& doodle) const = 0;
-            
-        protected:
-            
-            //! Send a notification to the view that the box should be redraw.
-            /** The function sends a notification to the view that the box should be redraw.
-             */
-            void redraw() const noexcept
-            {
-                
-            }
         };
 		
 		typedef shared_ptr<Sketcher>          sSketcher;
 		typedef weak_ptr<Sketcher>            wSketcher;
 		typedef shared_ptr<const Sketcher>    scSketcher;
 		typedef weak_ptr<const Sketcher>      wcSketcher;
+		
+		// ================================================================================ //
+		//                                      MOUSER                                      //
+		// ================================================================================ //
 		
         class Mouser
         {
@@ -119,7 +170,11 @@ namespace Kiwi
         typedef weak_ptr<Mouser>            wMouser;
         typedef shared_ptr<const Mouser>    scMouser;
         typedef weak_ptr<const Mouser>      wcMouser;
-        
+		
+		// ================================================================================ //
+		//                                     KEYBOARDER                                   //
+		// ================================================================================ //
+		
         class Keyboarder
         {
         public:
