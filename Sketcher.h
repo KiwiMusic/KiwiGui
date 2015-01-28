@@ -89,9 +89,9 @@ namespace Kiwi
             };
             
         private:
-            
             set<wView, owner_less<wView>>   m_views;
             mutable mutex                   m_views_mutex;
+			
         public:
             Sketcher()
             {

@@ -176,6 +176,20 @@ namespace Kiwi
                 m_size.y(max(size.y(), 0.));
             }
 			
+			//! Returns a Rectangle from the positions of two opposite corners.
+			inline static Rectangle fromOppositeCorners(Point const& corner1, Point const& corner2) noexcept
+			{
+				const double x = min(corner1.x(), corner2.x());
+				const double y = min(corner1.y(), corner2.y());
+				double w = corner1.x() - corner2.x();
+				double h = corner1.y() - corner2.y();
+				
+				if (w < 0) w = -w;
+				if (h < 0) h = -h;
+				
+				return Rectangle(x, y, w, h);
+			}
+			
 			//! Retrieves the rectangle centre.
 			/** The function retrieves the rectangle centre.
 			 @return The rectangle centre as a point.
