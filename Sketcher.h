@@ -201,16 +201,6 @@ namespace Kiwi
             {
                 return false;
             }
-            
-        protected:
-            
-            //! Send a notification to the controler that the box should be redraw.
-            /** The function sends a notification to the controler that the box should be redraw.
-             */
-            void grabKeyboardFocus() const noexcept
-            {
-                ;
-            }
         };
         
         typedef shared_ptr<Keyboarder>          sKeyboarder;
