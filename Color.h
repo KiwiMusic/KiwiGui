@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_COLOR__
 #define __DEF_KIWI_GUI_COLOR__
 
-#include "Defs.h"
+#include "Path.h"
 
 namespace Kiwi
 {
@@ -62,47 +62,47 @@ namespace Kiwi
                 ;
             }
             
-            ~Color()
+            ~Color() noexcept
             {
                 ;
             }
             
-            double red() const noexcept
+            inline double red() const noexcept
             {
                 return m_red;
             }
             
-            double green() const noexcept
+            inline double green() const noexcept
             {
                 return m_green;
             }
             
-            double blue() const noexcept
+            inline double blue() const noexcept
             {
                 return m_blue;
             }
             
-            double alpha() const noexcept
+            inline double alpha() const noexcept
             {
                 return m_alpha;
             }
             
-            void red(const double value) noexcept
+            inline void red(const double value) noexcept
             {
                 m_red = clip(value, 0., 1.);
             }
             
-            void green(const double value) noexcept
+            inline void green(const double value) noexcept
             {
                 m_green = clip(value, 0., 1.);
             }
             
-            void blue(const double value) noexcept
+            inline void blue(const double value) noexcept
             {
                 m_blue = clip(value, 0., 1.);
             }
             
-            void alpha(const double value) noexcept
+            inline void alpha(const double value) noexcept
             {
                 m_alpha = clip(value, 0., 1.);
             }
@@ -114,6 +114,22 @@ namespace Kiwi
                 m_blue = color.m_blue;
                 m_alpha = color.m_alpha;
                 return *this;
+            }
+            
+            inline bool operator!=(Color const& color) noexcept
+            {
+                return m_red != color.m_red ||
+                m_green != color.m_green ||
+                m_blue != color.m_blue ||
+                m_alpha != color.m_alpha;
+            }
+            
+            inline bool operator==(Color const& color) noexcept
+            {
+                return m_red == color.m_red &&
+                m_green == color.m_green &&
+                m_blue == color.m_blue &&
+                m_alpha == color.m_alpha;
             }
                         
             inline Color brighter(const double value) const noexcept
@@ -131,6 +147,11 @@ namespace Kiwi
                 return Color(red(), green(), blue(), clip(value, 0., 1.));
             }
         };
+    }
+    
+    inline string toString(Gui::Color const& __val)
+    {
+        return toString(__val.red(), true) + ", " + toString(__val.green(), true) + ", " + toString(__val.blue(), true) + ", " + toString(__val.alpha(), true);
     }
 }
 

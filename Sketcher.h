@@ -24,8 +24,7 @@
 #ifndef __DEF_KIWI_GUI_SKETCHER__
 #define __DEF_KIWI_GUI_SKETCHER__
 
-#include "Doodle.h"
-#include "Event.h"
+#include "Attribute.h"
 
 namespace Kiwi
 {
@@ -35,178 +34,125 @@ namespace Kiwi
         //                                      SKETCHER                                    //
         // ================================================================================ //
         
-        class Sketcher
+        //! The sketcher...
+        /** The sketcher...
+         */
+        class Sketcher : virtual public Attr::Manager
         {
 		public:
-			class View;
-			typedef shared_ptr<View>    sView;
-			typedef weak_ptr<View>      wView;
-		protected:
-			//! Send a notification to each views that the box needs to be redrawn.
-			/** The function sends a notification to each views that the box should be redrawn.
-			 */
-			void redraw() noexcept
-			{
-				m_views_mutex.lock();
-				auto it = m_views.begin();
-				while(it != m_views.end())
-				{
-					if((*it).expired())
-					{
-						it = m_views.erase(it);
-					}
-					else
-					{
-						sView view = (*it).lock();
-						view->redraw();
-						++it;
-					}
-				}
-				m_views_mutex.unlock();
-			}
+            class Listener;
+            typedef shared_ptr<Listener>        sListener;
+            typedef weak_ptr<Listener>          wListener;
+            typedef shared_ptr<const Listener>  scListener;
+            typedef weak_ptr<const Listener>    wcListener;
 			
-        public:
-            class View
-            {
-				friend void Sketcher::redraw() noexcept;
-            protected:
-				//! Receives the notification that the sketcher needs to be redrawn.
-				/** This function is called by the sketcher whenever it needs to be redrawn.
-				 The view sublasses must implement this method to draw the sketcher.
-				 */
-                virtual void redraw() = 0;
-                
-            public:
-                View() noexcept
-                {
-                    ;
-                }
-                
-                virtual ~View()
-                {
-                    ;
-                }
-            };
-            
+        protected:
+            const sAttrPoint  m_position;
+            const sAttrSize   m_size;
         private:
-            set<wView, owner_less<wView>>   m_views;
-            mutable mutex                   m_views_mutex;
+            set<wListener,
+            owner_less<wListener>> m_lists;
+            mutable mutex          m_lists_mutex;
 			
         public:
-            Sketcher()
-            {
-                ;
-            }
             
-            virtual ~Sketcher()
+            //! Constructor.
+            /** The function does nothing.
+             */
+            Sketcher() noexcept;
+            
+            //! Destructor.
+            /** The function does nothing.
+             */
+            virtual ~Sketcher();
+            
+            template<class T, class ...Args> static shared_ptr<T> create(Args&& ...args)
             {
-                ;
+                shared_ptr<T> sketcher = make_shared<T>(forward<Args>(args)...);
+                if(sketcher)
+                {
+                    sketcher->Sketcher::initialize();
+                    sketcher->initialize();
+                }
+                return sketcher;
             }
 			
-			//! Adds a view to the sketcher.
-			/** The function adds a view to the sketcher. The view will then be notified whenever the sketcher needs to be redrawn.
-			 @param view The view to add.
+			//! Adds a listener to the sketcher.
+			/** The function adds a listener to the sketcher.
+			 @param listener The listener to add.
 			 */
-			void addView(sView view)
-			{
-				if(view)
-				{
-					lock_guard<mutex> guard(m_views_mutex);
-					m_views.insert(view);
-				}
-			}
+            void addListener(sListener listener);
 			
-			//! Removes a view from the sketcher.
-			/** The function removes a view from the sketcher. The view will no longer be notified when the sketcher needs to be redrawn.
-			 If the view wasn't a sketcher's view, the function does nothing.
-			 @param view The view to remove.
+			//! Removes a listener from the sketcher.
+			/** The function removes a listener from the sketcher. 
+             @param listener The listener to remove.
 			 */
-			void removeView(sView view)
-			{
-				if(view)
-				{
-					lock_guard<mutex> guard(m_views_mutex);
-					m_views.erase(view);
-				}
-			}
+            void removeListener(sListener listener);
 			
             //! The paint method that should be override.
             /** The function shoulds draw some stuff in the doodle.
              @param doodle A doodle to draw.
              */
             virtual void draw(Doodle& doodle) const = 0;
-        };
-		
-		typedef shared_ptr<Sketcher>          sSketcher;
-		typedef weak_ptr<Sketcher>            wSketcher;
-		typedef shared_ptr<const Sketcher>    scSketcher;
-		typedef weak_ptr<const Sketcher>      wcSketcher;
-		
-		// ================================================================================ //
-		//                                      MOUSER                                      //
-		// ================================================================================ //
-		
-        class Mouser
-        {
-        public:
-            Mouser() noexcept
-            {
-                ;
-            }
             
-            virtual ~Mouser()
-            {
-                ;
-            }
-            
-            //! The receive method that should be override.
-            /** The function shoulds perform some stuff.
-             @param event    A mouse event.
+            //! Retrieve the position of the box.
+            /** The function retrieves the position of the box.
+             @return The position of the box.
              */
-            virtual bool receive(Event::Mouse const& event) = 0;
-        };
-        
-        typedef shared_ptr<Mouser>          sMouser;
-        typedef weak_ptr<Mouser>            wMouser;
-        typedef shared_ptr<const Mouser>    scMouser;
-        typedef weak_ptr<const Mouser>      wcMouser;
-		
-		// ================================================================================ //
-		//                                     KEYBOARDER                                   //
-		// ================================================================================ //
-		
-        class Keyboarder
-        {
-        public:
-            Keyboarder() noexcept
+            inline Point getPosition() const noexcept
             {
-                ;
+                return m_position->getValue();
             }
             
-            virtual ~Keyboarder()
-            {
-                ;
-            }
-            //! The receive method that should be override.
-            /** The function shoulds perform some stuff.
-             @param event    A keyboard event.
+            //! Retrieve the size of the box.
+            /** The function retrieves the size of the box.
+             @return The size of the box.
              */
-            virtual bool receive(Event::Keyboard const& event) = 0;
+            inline Size getSize() const noexcept
+            {
+                return m_size->getValue();
+            }
             
-            //! The receive method that should be override.
-            /** The function shoulds perform some stuff.
-             @param event    A focus event.
+            //! Retrieve the bounds of the box.
+            /** The function retrieves the bounds of the box.
+             @return The bounds of the box.
              */
-            virtual bool receive(Event::Focus event)
+            inline Rectangle getBounds() const noexcept
             {
-                return false;
+                 return Rectangle(m_position->getValue(), m_size->getValue());
             }
+            
+        protected:
+            
+            //! Send a notification to each listeners that the object needs to be redrawn.
+            /** The function sends a notification to each listeners that the object should be redrawn.
+             */
+            void redraw() noexcept;
         };
         
-        typedef shared_ptr<Keyboarder>          sKeyboarder;
-        typedef weak_ptr<Keyboarder>            wKeyboarder;
-        typedef shared_ptr<const Keyboarder>    scKeyboarder;
-        typedef weak_ptr<const Keyboarder>      wcKeyboarder;
+        //! The sketcher listener...
+        /** The sketcher listener...
+         */
+        class Sketcher::Listener
+        {
+        public:
+            
+            Listener() noexcept
+            {
+                ;
+            }
+            
+            virtual ~Listener()
+            {
+                ;
+            }
+            
+            //! Receives the notification that the sketcher needs to be redrawn.
+            /** This function is called by the sketcher whenever it needs to be redrawn.
+             The listener sublasses must implement this method to draw the sketcher.
+             */
+            virtual void redraw() = 0;
+        };
     }
 }
 
