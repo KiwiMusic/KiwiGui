@@ -21,23 +21,9 @@
  ==============================================================================
  */
 
-#ifndef __DEF_KIWI_GUI__
-#define __DEF_KIWI_GUI__
+#ifndef __DEF_KIWI_GUI_MODULES__
+#define __DEF_KIWI_GUI_MODULES__
 
-#include "Point.h"
-#include "Size.h"
-#include "Rectangle.h"
-#include "Path.h"
-#include "Color.h"
-#include "Font.h"
-#include "Doodle.h"
-#include "Attribute.h"
-#include "Sketcher.h"
-#include "Mouser.h"
-#include "Keyboarder.h"
-#include "TextField.h"
-#include "Modules/Modules.h"
+#include "Classic.h"
 
 #endif
-
-

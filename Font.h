@@ -24,8 +24,7 @@
 #ifndef __DEF_KIWI_GUI_FONT__
 #define __DEF_KIWI_GUI_FONT__
 
-#include "Defs.h"
-#include "Point.h"
+#include "Color.h"
 
 namespace Kiwi
 {

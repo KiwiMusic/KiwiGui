@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_TEXTFIELD__
 #define __DEF_KIWI_GUI_TEXTFIELD__
 
-#include "Defs.h"
+#include "Keyboarder.h"
 
 namespace Kiwi
 {
@@ -71,7 +71,7 @@ namespace Kiwi
 			//                                 TEXTFIELD OWNER                                  //
 			// ================================================================================ //
 			
-            class Owner // ex : box
+            class Owner // ex : object
             {
 			private:
 				wstring						m_text;
