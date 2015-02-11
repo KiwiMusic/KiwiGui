@@ -24,12 +24,27 @@
 #ifndef __DEF_KIWI_GUI_CLASSIC__
 #define __DEF_KIWI_GUI_CLASSIC__
 
-#include "../Textfield.h"
+#include "../Writer.h"
 
 namespace Kiwi
 {
     namespace Gui
     {
+		/*
+		class Default : public Gui::Writer
+		{
+		protected:
+			sAttrColor    m_color_background;
+			sAttrColor    m_color_border;
+		public:
+			Default() noexcept;
+			virtual ~Default();
+			
+			bool textFilter(wstring& newtext) override;
+			void textChanged() override;
+		};
+		*/
+		
         class Bang : virtual public Sketcher, virtual public Mouser
         {
         protected:

@@ -500,6 +500,24 @@ namespace Kiwi
              @return the attributes.
              */
             sAttr getAttr(string const& name) const noexcept;
+			
+			//! Retrieve an attribute.
+			/** The function retrieves an attribute.
+			 @param name the name of the attribute.
+			 @return the attributes.
+			 */
+			template<class T> inline shared_ptr<AttrTyped<T>> getAttrTyped(string const& name) const noexcept
+			{
+				sAttr attr = getAttr(name);
+				if(attr)
+				{
+					return attr->getShared<T>();
+				}
+				else
+				{
+					return nullptr;
+				}
+			}
 
         protected:
             //! ...

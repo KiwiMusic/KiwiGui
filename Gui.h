@@ -30,12 +30,13 @@
 #include "Path.h"
 #include "Color.h"
 #include "Font.h"
+#include "TextLayout.h"
 #include "Doodle.h"
 #include "Attribute.h"
 #include "Sketcher.h"
 #include "Mouser.h"
 #include "Keyboarder.h"
-#include "TextField.h"
+#include "Writer.h"
 #include "Modules/Modules.h"
 
 #endif

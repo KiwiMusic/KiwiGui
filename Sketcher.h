@@ -95,27 +95,27 @@ namespace Kiwi
              */
             virtual void draw(Doodle& doodle) const = 0;
             
-            //! Retrieve the position of the box.
-            /** The function retrieves the position of the box.
-             @return The position of the box.
+            //! Retrieve the position of the object.
+            /** The function retrieves the position of the object.
+             @return The position of the object.
              */
             inline Point getPosition() const noexcept
             {
                 return m_position->getValue();
             }
             
-            //! Retrieve the size of the box.
-            /** The function retrieves the size of the box.
-             @return The size of the box.
+            //! Retrieve the size of the object.
+            /** The function retrieves the size of the object.
+             @return The size of the object.
              */
             inline Size getSize() const noexcept
             {
                 return m_size->getValue();
             }
             
-            //! Retrieve the bounds of the box.
-            /** The function retrieves the bounds of the box.
-             @return The bounds of the box.
+            //! Retrieve the bounds of the object.
+            /** The function retrieves the bounds of the object.
+             @return The bounds of the object.
              */
             inline Rectangle getBounds() const noexcept
             {

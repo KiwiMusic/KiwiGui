@@ -132,7 +132,25 @@ namespace Kiwi
             {
                 return m_ratio;
             }
-            
+			
+			//! Retrieve the minimum width.
+			/** The function retrieves the minimum width.
+			 @return The minimum width.
+			 */
+			inline double minWidth() const noexcept
+			{
+				return m_min_width;
+			}
+			
+			//! Retrieve the minimum height.
+			/** The function retrieves the minimum height.
+			 @return The minimum height.
+			 */
+			inline double minHeight() const noexcept
+			{
+				return m_min_height;
+			}
+			
             //! ...
             /** ...
              @return ...

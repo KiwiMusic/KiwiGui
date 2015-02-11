@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_TEXTFIELD__
 #define __DEF_KIWI_GUI_TEXTFIELD__
 
-#include "Sketcher.h"
+#include "Keyboarder.h"
 
 namespace Kiwi
 {
@@ -34,10 +34,11 @@ namespace Kiwi
 		//										WRITER										//
 		// ================================================================================ //
 		
-		class Writer : public Gui::Sketcher, public Gui::Keyboarder, public enable_shared_from_this<Writer>// => box
+		class Writer : virtual public Gui::Sketcher, public Gui::Keyboarder, protected Gui::Mouser
 		{
 			typedef shared_ptr<Writer>			sWriter;
 			typedef weak_ptr<Writer>			wWriter;
+			
 		public:
 			class TextField;
 			typedef shared_ptr<TextField>			sTextField;
@@ -51,7 +52,7 @@ namespace Kiwi
 			//									  WRITER VIEW									//
 			// ================================================================================ //
 			
-			class View // => BoxView
+			class View // => ObjectView
 			{
 			public:
 				virtual ~View() {};
@@ -98,6 +99,19 @@ namespace Kiwi
 			 @param view The view to remove.
 			 */
 			void removeView(sView view);
+			
+			
+			bool receive(Mouser::Event const& event) override
+			{
+				int TODO;
+				return false;
+			};
+		
+			bool receive(Keyboarder::Event const& event) override
+			{
+				int TODO;
+				return false;
+			};
 
 			//! Retrieves the textfield.
 			/** This function retrievs the textfield.
