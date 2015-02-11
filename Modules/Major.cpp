@@ -19,12 +19,42 @@
  To release a closed-source product which uses KIWI, contact : guillotpierre6@gmail.com
  
  ==============================================================================
- */
-
-#ifndef __DEF_KIWI_GUI_MODULES__
-#define __DEF_KIWI_GUI_MODULES__
+*/
 
 #include "Major.h"
-#include "Classic.h"
 
-#endif
+namespace Kiwi
+{
+    namespace Gui
+    {
+        // ================================================================================ //
+        //                                      BANG                                        //
+        // ================================================================================ //
+        
+        Chord::Chord() noexcept
+        {
+            ;
+        }
+        
+        Chord::~Chord()
+        {
+            ;
+        }
+        
+        bool Chord::receive(Mouser::Event const& event)
+        {
+            return false;
+        }
+        
+        void Chord::draw(Gui::Doodle& d) const
+        {
+            ;
+        }
+        
+        bool Chord::notify(sAttr attr)
+        {
+            return true;
+        }
+    }
+}
+

@@ -48,11 +48,11 @@ namespace Kiwi
         class Button : virtual public Sketcher, virtual public Mouser
         {
         protected:
-            sAttrColor    m_color_background;
-            sAttrColor    m_color_border;
-            sAttrColor    m_color_circle;
-            sAttrColor    m_color_led;
-            atomic_bool   m_led;
+            const sAttrColor    m_color_background;
+            const sAttrColor    m_color_border;
+            const sAttrColor    m_color_circle;
+            const sAttrColor    m_color_led;
+            atomic_bool         m_led;
         public:
             Button() noexcept;
             virtual ~Button();
