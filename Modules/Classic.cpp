@@ -31,7 +31,7 @@ namespace Kiwi
         //                                      BANG                                        //
         // ================================================================================ //
         
-        Bang::Bang() noexcept : m_led(false)
+        Button::Button() noexcept : m_led(false)
         {
             m_size->setValue(Size(20., 20., 1., 10., 10.));
             m_color_background  = Attr::create("bgcolor", "Background Color", "Color", Color(0.52, 0.52, 0.52, 1.));
@@ -44,12 +44,12 @@ namespace Kiwi
             addAttr(m_color_led);
         }
         
-        Bang::~Bang()
+        Button::~Button()
         {
             ;
         }
         
-        bool Bang::receive(Mouser::Event const& event)
+        bool Button::receive(Mouser::Event const& event)
         {
             if(event.isDown())
             {
@@ -67,7 +67,7 @@ namespace Kiwi
             return false;
         }
         
-        void Bang::draw(Gui::Doodle& d) const
+        void Button::draw(Gui::Doodle& d) const
         {
             const double borderSize = 1;
             const Rectangle ledRect = d.getBounds().reduced(d.getWidth() * 0.2);
@@ -85,7 +85,7 @@ namespace Kiwi
             }
         }
         
-        bool Bang::notify(sAttr attr)
+        bool Button::notify(sAttr attr)
         {
             if(attr == m_color_circle || attr == m_color_background || attr == m_color_border)
             {

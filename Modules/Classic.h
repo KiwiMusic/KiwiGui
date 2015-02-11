@@ -45,7 +45,7 @@ namespace Kiwi
 		};
 		*/
 		
-        class Bang : virtual public Sketcher, virtual public Mouser
+        class Button : virtual public Sketcher, virtual public Mouser
         {
         protected:
             sAttrColor    m_color_background;
@@ -54,8 +54,8 @@ namespace Kiwi
             sAttrColor    m_color_led;
             atomic_bool   m_led;
         public:
-            Bang() noexcept;
-            virtual ~Bang();
+            Button() noexcept;
+            virtual ~Button();
             bool receive(Mouser::Event const& event) override;
             void draw(Doodle& doodle) const override;
             bool notify(sAttr attr) override;
