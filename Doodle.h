@@ -174,13 +174,13 @@ namespace Kiwi
 			virtual void drawMultiLineText(wstring const& text, const long startX, const long baselineY, const long maximumLineWidth) const = 0;
             
             //! Fill a path.
-            /** The function fills a page.
+            /** The function fills a path.
              @param path The path.
              */
             virtual void fillPath(Path const& path) = 0;
             
             //! Draw a path.
-            /** The function draws a page.
+            /** The function draws a patcher.
              @param path The path.
              @param thickness The thickness of the parth.
              */
