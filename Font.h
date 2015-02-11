@@ -231,24 +231,6 @@ namespace Kiwi
 				const ulong flags = getStyle();
 				setStyle(shouldBeUnderlined ? (flags | Underlined) : (flags & ~Underlined));
 			}
-			
-			//! Get the display size of a string.
-			/** The function retrieves the display size of a string.
-			 @return The display size of a string.
-			 */
-            static Point getStringSize(Font const& font, string const& text) noexcept;
-			
-			//! Get the display size of a string.
-			/** The function retrieves the display size of a string.
-			 @return The display size of a string.
-			 */
-            static Point getStringSize(Font const& font, wstring const& text) noexcept;
-			
-			//! Get the display height of a fixed width text.
-			/** The function retrieves the display height of a fixed width text
-			 @return The display height of a fixed width text.
-			 */
-			static double getStringHeight(Font const& font, string const text, const float textWidth) noexcept;
         };
     }
 }
