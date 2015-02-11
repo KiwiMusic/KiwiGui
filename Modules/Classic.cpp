@@ -31,13 +31,14 @@ namespace Kiwi
         //                                      BANG                                        //
         // ================================================================================ //
         
-        Button::Button() noexcept : m_led(false)
+        Button::Button() noexcept :
+        m_color_background( Attr::create("bgcolor",     "Background Color", "Color", Color(0.52, 0.52, 0.52, 1.))),
+        m_color_border(     Attr::create("bdcolor",     "Border Color",     "Color", Color(0.52, 0.52, 0.52, 1.))),
+        m_color_circle(     Attr::create("circlecolor", "Circle Color",     "Color", Color(0.52, 0.52, 0.52, 1.))),
+        m_color_led(        Attr::create("ledcolor",    "Led Color",        "Color", Color(0.6, 0.6, 0.6, 1.))),
+        m_led(false)
         {
             m_size->setValue(Size(20., 20., 1., 10., 10.));
-            m_color_background  = Attr::create("bgcolor", "Background Color", "Color", Color(0.52, 0.52, 0.52, 1.));
-            m_color_border      = Attr::create("bdcolor", "Border Color", "Color", Color(0.52, 0.52, 0.52, 1.));
-            m_color_circle      = Attr::create("circlecolor", "Circle Color", "Color", Color(0.52, 0.52, 0.52, 1.));
-            m_color_led         = Attr::create("ledcolor", "Led Color", "Color", Color(0.6, 0.6, 0.6, 1.));
             addAttr(m_color_background);
             addAttr(m_color_border);
             addAttr(m_color_circle);
