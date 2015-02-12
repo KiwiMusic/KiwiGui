@@ -29,24 +29,22 @@ namespace Kiwi
     //                                      POSITION                                    //
     // ================================================================================ //
     
-    void PointAttr::setValue(string const& text) noexcept
+    void PointValue::setValue(string const& text) noexcept
     {
-        double point[2] = {0., 0.};
-        string::size_type pos;
-        for(ulong i = 0; i < 2; i++)
+        string::size_type pos = text.find_first_of("-0123456789.");
+        if(pos != string::npos)
         {
+            x(stod(text.c_str()+pos));
+            pos = text.find(' ', pos);
             pos = text.find_first_of("-0123456789.");
             if(pos != string::npos)
             {
-                point[i] = stod(text.c_str()+pos);
-                pos = text.find(' ', pos);
+                y(stod(text.c_str()+pos));
             }
         }
-        x(point[0]);
-        y(point[1]);
     }
     
-    void PointAttr::getValue(string& text) const noexcept
+    void PointValue::getValue(string& text) const noexcept
     {
         text = "[" + toString(x()) + ", " + toString(y()) + "]";
     }
@@ -55,7 +53,7 @@ namespace Kiwi
     //                                      SIZE                                        //
     // ================================================================================ //
     
-    SizeAttr::SizeAttr() noexcept :
+    SizeValue::SizeValue() noexcept :
     m_ratio(0.),
     m_min(0., 0.),
     m_point(0., 0.)
@@ -63,7 +61,7 @@ namespace Kiwi
         ;
     }
     
-    SizeAttr::SizeAttr(const double width, const double height, const double ratio, const double min_width, const double min_height) noexcept :
+    SizeValue::SizeValue(const double width, const double height, const double ratio, const double min_width, const double min_height) noexcept :
     m_ratio(max(ratio, 0.)),
     m_min(max(min_width, 0.), max(min_height, 0.)),
     m_point(max(width, m_min.x()), m_ratio ? m_min.x() * m_ratio : max(height, m_min.y()))
@@ -71,7 +69,7 @@ namespace Kiwi
         
     }
     
-    SizeAttr::SizeAttr(SizeAttr const& size) noexcept :
+    SizeValue::SizeValue(SizeValue const& size) noexcept :
     m_ratio(size.m_ratio),
     m_min(size.m_min),
     m_point(size.m_point)
@@ -79,7 +77,7 @@ namespace Kiwi
         ;
     }
     
-    SizeAttr::SizeAttr(Point const& pt) noexcept :
+    SizeValue::SizeValue(Point const& pt) noexcept :
     m_ratio(0.),
     m_min(0., 0.),
     m_point(pt)
@@ -87,29 +85,27 @@ namespace Kiwi
         ;
     }
     
-    SizeAttr::~SizeAttr()
+    SizeValue::~SizeValue()
     {
         ;
     }
     
-    void SizeAttr::setValue(string const& text) noexcept
+    void SizeValue::setValue(string const& text) noexcept
     {
-        double point[2] = {0., 0.};
-        string::size_type pos;
-        for(ulong i = 0; i < 2; i++)
+        string::size_type pos = text.find_first_of("-0123456789.");
+        if(pos != string::npos)
         {
+            width(stod(text.c_str()+pos));
+            pos = text.find(' ', pos);
             pos = text.find_first_of("-0123456789.");
             if(pos != string::npos)
             {
-                point[i] = stod(text.c_str()+pos);
-                pos = text.find(' ', pos);
+                height(stod(text.c_str()+pos));
             }
         }
-        width(point[0]);
-        height(point[1]);
     }
     
-    void SizeAttr::getValue(string& text) const noexcept
+    void SizeValue::getValue(string& text) const noexcept
     {
         text = "[" + toString(width()) + ", " + toString(height()) + "]";
     }
@@ -118,7 +114,7 @@ namespace Kiwi
     //                                      COLOR                                       //
     // ================================================================================ //
     
-    void ColorAttr::setValue(string const& text) noexcept
+    void ColorValue::setValue(string const& text) noexcept
     {
         double point[4] = {0., 0., 0., 0.};
         string::size_type pos;
@@ -137,7 +133,7 @@ namespace Kiwi
         alpha(point[3]);
     }
     
-    void ColorAttr::getValue(string& text) const noexcept
+    void ColorValue::getValue(string& text) const noexcept
     {
         text = "[" + toString(red()) + ", " + toString(green()) + ", " + toString(blue()) + ", " + toString(alpha()) + "]";
     }

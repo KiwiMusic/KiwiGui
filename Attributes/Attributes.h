@@ -29,13 +29,13 @@
 
 namespace Kiwi
 {
-    typedef shared_ptr<Attr::Typed<BoolAttr>>  sAttrBool;
-    typedef shared_ptr<Attr::Typed<Integer>>  sAttrInteger;
+    typedef shared_ptr<Attr::Typed<BoolValue>>  sAttrBool;
+    typedef shared_ptr<Attr::Typed<LongValue>>  sAttrLong;
     
-    typedef shared_ptr<Attr::Typed<PointAttr>>  sAttrPoint;
-    typedef shared_ptr<Attr::Typed<SizeAttr>>   sAttrSize;
-    typedef shared_ptr<Attr::Typed<ColorAttr>>  sAttrColor;
-    typedef SizeAttr Size;
+    typedef shared_ptr<Attr::Typed<PointValue>>  sAttrPoint;
+    typedef shared_ptr<Attr::Typed<SizeValue>>   sAttrSize;
+    typedef shared_ptr<Attr::Typed<ColorValue>>  sAttrColor;
+    typedef SizeValue Size;
 }
 
 #endif

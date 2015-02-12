@@ -32,17 +32,17 @@ namespace Kiwi
     //                                      POSITION                                    //
     // ================================================================================ //
     
-    class PointAttr : public Point, public Attr::Value
+    class PointValue : public Point, public Attr::Value
     {
     public:
         using Point::Point;
         
-        PointAttr()
+        PointValue()
         {
             ;
         }
         
-        PointAttr(Point const& point) noexcept : Point(point)
+        PointValue(Point const& point) noexcept : Point(point)
         {
             ;
         }
@@ -68,7 +68,7 @@ namespace Kiwi
     /**
      The size holds is an unsigned point with a ratio that defines
      */
-    class SizeAttr : public Attr::Value
+    class SizeValue : public Attr::Value
     {
         double m_ratio;
         Point  m_min;
@@ -78,7 +78,7 @@ namespace Kiwi
         //! Constructor.
         /** The function initializes a size null.
          */
-        SizeAttr() noexcept;
+        SizeValue() noexcept;
         
         //! Constructor.
         /** The function initializes a point with two double values.
@@ -86,22 +86,22 @@ namespace Kiwi
          @param height The height.
          @param ratio The ratio between the width and the height.
          */
-        SizeAttr(const double width, const double height, const double ratio = 0., const double min_width = 0., const double min_height = 0.) noexcept;
+        SizeValue(const double width, const double height, const double ratio = 0., const double min_width = 0., const double min_height = 0.) noexcept;
         
         //! Constructor.
         /** The function initializes another size.
          */
-        SizeAttr(SizeAttr const& size) noexcept;
+        SizeValue(SizeValue const& size) noexcept;
         
         //! Constructor.
         /** The function initializes another point.
          */
-        SizeAttr(Point const& pt) noexcept;
+        SizeValue(Point const& pt) noexcept;
         
         //! Destructor.
         /** The function deletes the point.
          */
-        ~SizeAttr();
+        ~SizeValue();
         
         //! Set the attribute value with a string.
         /** The function sets the attribute value with a string.
@@ -211,7 +211,7 @@ namespace Kiwi
         /** ...
          @return ...
          */
-        inline SizeAttr& operator=(SizeAttr const& size) noexcept
+        inline SizeValue& operator=(SizeValue const& size) noexcept
         {
             m_ratio = size.ratio();
             m_min = size.m_min;
@@ -223,7 +223,7 @@ namespace Kiwi
         /** ...
          @return ...
          */
-        inline SizeAttr& operator=(Point const& pt) noexcept
+        inline SizeValue& operator=(Point const& pt) noexcept
         {
             width(pt.x());
             height(pt.y());
@@ -234,7 +234,7 @@ namespace Kiwi
         /** ...
          @return ...
          */
-        inline bool operator!=(SizeAttr const& size) noexcept
+        inline bool operator!=(SizeValue const& size) noexcept
         {
             return width() != size.width() || height() != size.height();
         }
@@ -262,17 +262,17 @@ namespace Kiwi
     //                                      COLOR                                       //
     // ================================================================================ //
     
-    struct ColorAttr : public Color, public Attr::Value
+    struct ColorValue : public Color, public Attr::Value
     {
     public:
         using Color::Color;
         
-        ColorAttr()
+        ColorValue()
         {
             ;
         }
         
-        ColorAttr(Color const& color) noexcept : Color(color)
+        ColorValue(Color const& color) noexcept : Color(color)
         {
             ;
         }

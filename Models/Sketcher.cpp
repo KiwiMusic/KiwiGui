@@ -32,8 +32,8 @@ namespace Kiwi
         // ================================================================================ //
         
         Sketcher::Sketcher() noexcept :
-        m_position(Attr::create("position", "Position", "Appearance", PointAttr(0., 0.))),
-        m_size(Attr::create(    "size",     "Size",     "Appearance", SizeAttr(10., 10.)))
+        m_position(Attr::create("position", "Position", "Appearance", PointValue(0., 0.))),
+        m_size(Attr::create(    "size",     "Size",     "Appearance", SizeValue(10., 10.)))
         {
             addAttr(m_position);
             addAttr(m_size);

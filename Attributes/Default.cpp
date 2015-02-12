@@ -25,7 +25,7 @@
 
 namespace Kiwi
 {
-    void BoolAttr::setValue(string const& text) noexcept
+    void BoolValue::setValue(string const& text) noexcept
     {
         string::size_type pos;
         pos = text.find("true");
@@ -43,13 +43,27 @@ namespace Kiwi
         pos = text.find_first_of("0123456789");
         if(pos != string::npos)
         {
-            m_state = (bool)stoi(text.c_str()+pos);
+            m_state = (bool)stod(text.c_str()+pos);
             return;
         }
     }
     
-    void BoolAttr::getValue(string& text) const noexcept
+    void BoolValue::getValue(string& text) const noexcept
     {
         text = toString(m_state);
+    }
+    
+    void LongValue::setValue(string const& text) noexcept
+    {
+        const string::size_type pos = text.find_first_of("-0123456789");
+        if(pos != string::npos)
+        {
+            m_value = stol(text.c_str()+pos);
+        }
+    }
+    
+    void LongValue::getValue(string& text) const noexcept
+    {
+        text = toString(m_value);
     }
 }

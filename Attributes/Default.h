@@ -32,29 +32,29 @@ namespace Kiwi
     //                                      ONOFF                                       //
     // ================================================================================ //
     
-    class BoolAttr : public Attr::Value
+    class BoolValue : public Attr::Value
     {
     private:
         bool m_state;
         
     public:
         
-        BoolAttr() noexcept : m_state(false)
+        BoolValue() noexcept : m_state(false)
         {
             ;
         }
         
-        BoolAttr(const bool state) noexcept : m_state(state)
+        BoolValue(const bool state) noexcept : m_state(state)
         {
             ;
         }
         
-        BoolAttr(BoolAttr const& other) noexcept : m_state(other.m_state)
+        BoolValue(BoolValue const& other) noexcept : m_state(other.m_state)
         {
             ;
         }
         
-        ~BoolAttr() noexcept
+        ~BoolValue() noexcept
         {
             ;
         }
@@ -86,13 +86,13 @@ namespace Kiwi
             m_state = !m_state;
         }
         
-        inline BoolAttr& operator=(BoolAttr const& other) noexcept
+        inline BoolValue& operator=(BoolValue const& other) noexcept
         {
             m_state = other.m_state;
             return *this;
         }
         
-        inline BoolAttr& operator=(const bool state) noexcept
+        inline BoolValue& operator=(const bool state) noexcept
         {
             m_state = state;
             return *this;
@@ -103,12 +103,12 @@ namespace Kiwi
             return m_state;
         }
         
-        inline bool operator!=(BoolAttr const& other) const noexcept
+        inline bool operator!=(BoolValue const& other) const noexcept
         {
             return m_state != other.m_state;
         }
         
-        inline bool operator==(BoolAttr const& other) const noexcept
+        inline bool operator==(BoolValue const& other) const noexcept
         {
             return m_state == other.m_state;
         }
@@ -118,29 +118,29 @@ namespace Kiwi
     //                                      INTEGER                                     //
     // ================================================================================ //
     
-    class Integer : public Attr::Value
+    class LongValue : public Attr::Value
     {
     private:
         long m_value;
         
     public:
         
-        Integer() noexcept : m_value(0)
+        LongValue() noexcept : m_value(0)
         {
             ;
         }
         
-        Integer(const long value) noexcept : m_value(value)
+        LongValue(const long value) noexcept : m_value(value)
         {
             ;
         }
         
-        Integer(Integer const& other) noexcept : m_value(other.m_value)
+        LongValue(LongValue const& other) noexcept : m_value(other.m_value)
         {
             ;
         }
         
-        ~Integer() noexcept
+        ~LongValue() noexcept
         {
             ;
         }
@@ -167,13 +167,13 @@ namespace Kiwi
             m_value = value;
         }
         
-        inline Integer& operator=(Integer const& other) noexcept
+        inline LongValue& operator=(LongValue const& other) noexcept
         {
             m_value = other.m_value;
             return *this;
         }
         
-        inline Integer& operator=(const long value) noexcept
+        inline LongValue& operator=(const long value) noexcept
         {
             m_value = value;
             return *this;
@@ -184,12 +184,12 @@ namespace Kiwi
             return m_value;
         }
         
-        inline bool operator!=(Integer const& other) const noexcept
+        inline bool operator!=(LongValue const& other) const noexcept
         {
             return m_value != other.m_value;
         }
         
-        inline bool operator==(Integer const& other) const noexcept
+        inline bool operator==(LongValue const& other) const noexcept
         {
             return m_value == other.m_value;
         }
