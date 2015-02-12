@@ -132,5 +132,33 @@ namespace Kiwi
     {
         text = "[" + toString(red()) + ", " + toString(green()) + ", " + toString(blue()) + ", " + toString(alpha()) + "]";
     }
+    
+    // ================================================================================ //
+    //                                      RECTANGLE                                   //
+    // ================================================================================ //
+    
+    void RectangleValue::setValue(string const& text) noexcept
+    {
+        double point[4] = {0., 0., 0., 0.};
+        string::size_type pos;
+        for(ulong i = 0; i < 4; i++)
+        {
+            pos = text.find_first_of("-0123456789.");
+            if(pos != string::npos)
+            {
+                point[i] = stod(text.c_str()+pos);
+                pos = text.find(' ', pos);
+            }
+        }
+        x(point[0]);
+        y(point[1]);
+        width(point[2]);
+        height(point[3]);
+    }
+    
+    void RectangleValue::getValue(string& text) const noexcept
+    {
+        text = "[" + toString(x()) + ", " + toString(y()) + ", " + toString(width()) + ", " + toString(height()) + "]";
+    }
 }
 

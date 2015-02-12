@@ -589,14 +589,7 @@ namespace Kiwi
          */
         virtual void notify(sAttr attr) = 0;
     };
-/*
-typedef shared_ptr<Attr::Typed<bool>>  sAttrBool;
-typedef shared_ptr<Attr::Typed<long>>  sAttrLong;
-typedef shared_ptr<Attr::Typed<double>>sAttrDouble;
-typedef shared_ptr<Attr::Typed<Color>> sAttrColor;
-*/
 }
-
 
 #endif
 

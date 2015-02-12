@@ -115,7 +115,7 @@ namespace Kiwi
     };
     
     // ================================================================================ //
-    //                                      INTEGER                                     //
+    //                                      LONG                                        //
     // ================================================================================ //
     
     class LongValue : public Attr::Value
@@ -190,6 +190,87 @@ namespace Kiwi
         }
         
         inline bool operator==(LongValue const& other) const noexcept
+        {
+            return m_value == other.m_value;
+        }
+    };
+    
+    // ================================================================================ //
+    //                                      DOUBLE                                      //
+    // ================================================================================ //
+    
+    class DoubleValue : public Attr::Value
+    {
+    private:
+        double m_value;
+        
+    public:
+        
+        DoubleValue() noexcept : m_value(0)
+        {
+            ;
+        }
+        
+        DoubleValue(const long value) noexcept : m_value(value)
+        {
+            ;
+        }
+        
+        DoubleValue(DoubleValue const& other) noexcept : m_value(other.m_value)
+        {
+            ;
+        }
+        
+        ~DoubleValue() noexcept
+        {
+            ;
+        }
+        
+        //! Set the attribute value with a string.
+        /** The function sets the attribute value with a string.
+         @param text The value in the string format.
+         */
+        void setValue(string const& text) noexcept override;
+        
+        //! Retrieve the attribute value as a string.
+        /** The function retrieves the attribute value as a string.
+         @param text The value in the string format.
+         */
+        void getValue(string& text) const noexcept override;
+        
+        inline bool value() const noexcept
+        {
+            return m_value;
+        }
+        
+        inline void value(const bool value) noexcept
+        {
+            m_value = value;
+        }
+        
+        inline DoubleValue& operator=(DoubleValue const& other) noexcept
+        {
+            m_value = other.m_value;
+            return *this;
+        }
+        
+        inline DoubleValue& operator=(const double value) noexcept
+        {
+            m_value = value;
+            return *this;
+        }
+        
+        inline operator double() const noexcept
+        {
+            return m_value;
+        }
+        
+        inline bool operator!=(DoubleValue const& other) const noexcept
+        {
+            return m_value != other.m_value;
+        }
+        
+        inline bool operator==(DoubleValue const& other) const noexcept
         {
             return m_value == other.m_value;
         }

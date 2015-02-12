@@ -66,4 +66,18 @@ namespace Kiwi
     {
         text = toString(m_value);
     }
+    
+    void DoubleValue::setValue(string const& text) noexcept
+    {
+        const string::size_type pos = text.find_first_of("-0123456789.");
+        if(pos != string::npos)
+        {
+            m_value = stod(text.c_str()+pos);
+        }
+    }
+    
+    void DoubleValue::getValue(string& text) const noexcept
+    {
+        text = toString(m_value);
+    }
 }

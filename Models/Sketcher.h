@@ -263,7 +263,7 @@ namespace Kiwi
              @param j The justification.
              @param truncated If the text should be truncated if it goes out the boundaries.
              */
-            virtual void drawText(string const& text, double x, double y, double w, double h, Kiwi::Gui::Font::Justification j, bool truncated = false) = 0;
+            virtual void drawText(string const& text, double x, double y, double w, double h, Font::Justification j, bool truncated = false) = 0;
             
             //! Draw a line of text within a rectangle.
             /** The function draws a line of text within a rectangle.
