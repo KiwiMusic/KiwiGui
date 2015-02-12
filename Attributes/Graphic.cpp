@@ -36,7 +36,7 @@ namespace Kiwi
         {
             x(stod(text.c_str()+pos));
             pos = text.find(' ', pos);
-            pos = text.find_first_of("-0123456789.");
+            pos = text.find_first_of("-0123456789.", pos);
             if(pos != string::npos)
             {
                 y(stod(text.c_str()+pos));
@@ -61,12 +61,15 @@ namespace Kiwi
         ;
     }
     
-    SizeValue::SizeValue(const double width, const double height, const double ratio, const double min_width, const double min_height) noexcept :
+    SizeValue::SizeValue(const double width, const double height, const double min_width, const double min_height, const double ratio) noexcept :
     m_ratio(max(ratio, 0.)),
     m_min(max(min_width, 0.), max(min_height, 0.)),
-    m_point(max(width, m_min.x()), m_ratio ? m_min.x() * m_ratio : max(height, m_min.y()))
+    m_point(max(width, m_min.x()), max(height, m_min.y()))
     {
-        
+        if(m_ratio)
+        {
+            m_point.y(m_point.x() * m_ratio);
+        }
     }
     
     SizeValue::SizeValue(SizeValue const& size) noexcept :
@@ -97,7 +100,7 @@ namespace Kiwi
         {
             width(stod(text.c_str()+pos));
             pos = text.find(' ', pos);
-            pos = text.find_first_of("-0123456789.");
+            pos = text.find_first_of("-0123456789.", pos);
             if(pos != string::npos)
             {
                 height(stod(text.c_str()+pos));

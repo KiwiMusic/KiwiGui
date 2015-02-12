@@ -38,7 +38,7 @@ namespace Kiwi
         m_color_led(        Attr::create("ledcolor",    "Led Color",        "Color", ColorValue(0.6, 0.6, 0.6, 1.))),
         m_led(false)
         {
-            m_size->setValue(Size(20., 20., 1., 10., 10.));
+            m_size->setValue(Size(20., 20., 10., 10., 1.));
             addAttr(m_color_background);
             addAttr(m_color_border);
             addAttr(m_color_circle);

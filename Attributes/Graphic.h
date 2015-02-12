@@ -86,7 +86,7 @@ namespace Kiwi
          @param height The height.
          @param ratio The ratio between the width and the height.
          */
-        SizeValue(const double width, const double height, const double ratio = 0., const double min_width = 0., const double min_height = 0.) noexcept;
+        SizeValue(const double width, const double height, const double min_width = 0., const double min_height = 0., const double ratio = 0.) noexcept;
         
         //! Constructor.
         /** The function initializes another size.
