@@ -25,8 +25,5 @@
 
 namespace Kiwi
 {
-    namespace Gui
-    {
-		
-    }
+    ;
 }

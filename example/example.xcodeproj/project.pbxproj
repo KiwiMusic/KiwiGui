@@ -7,20 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8F21B44C1A8129BE00670F15 /* Size.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F21B44A1A8129BE00670F15 /* Size.cpp */; };
 		8F542B2A1A7B67BB005CD0ED /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B291A7B67BB005CD0ED /* main.cpp */; };
-		8F542B481A7B67E3005CD0ED /* Attribute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B311A7B67E3005CD0ED /* Attribute.cpp */; };
-		8F542B491A7B67E3005CD0ED /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B331A7B67E3005CD0ED /* Color.cpp */; };
-		8F542B4A1A7B67E3005CD0ED /* Doodle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B361A7B67E3005CD0ED /* Doodle.cpp */; };
-		8F542B4C1A7B67E3005CD0ED /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B3A1A7B67E3005CD0ED /* Font.cpp */; };
-		8F542B4E1A7B67E3005CD0ED /* Path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B3E1A7B67E3005CD0ED /* Path.cpp */; };
-		8F542B4F1A7B67E3005CD0ED /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B401A7B67E3005CD0ED /* Point.cpp */; };
-		8F542B501A7B67E3005CD0ED /* Rectangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B421A7B67E3005CD0ED /* Rectangle.cpp */; };
-		8F542B511A7B67E3005CD0ED /* Sketcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B441A7B67E3005CD0ED /* Sketcher.cpp */; };
-		8F542B521A7B67E3005CD0ED /* TextField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B461A7B67E3005CD0ED /* TextField.cpp */; };
 		8F542B571A7B7124005CD0ED /* Classic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B541A7B7124005CD0ED /* Classic.cpp */; };
-		8F542B5A1A7B913C005CD0ED /* Mouser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B581A7B913C005CD0ED /* Mouser.cpp */; };
-		8F542B5D1A7B9AB3005CD0ED /* Keyboarder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F542B5B1A7B9AB3005CD0ED /* Keyboarder.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,36 +24,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		8F21B44A1A8129BE00670F15 /* Size.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Size.cpp; path = ../../Size.cpp; sourceTree = "<group>"; };
-		8F21B44B1A8129BE00670F15 /* Size.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Size.h; path = ../../Size.h; sourceTree = "<group>"; };
 		8F542B261A7B67BB005CD0ED /* example */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = example; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F542B291A7B67BB005CD0ED /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		8F542B311A7B67E3005CD0ED /* Attribute.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Attribute.cpp; path = ../../Attribute.cpp; sourceTree = "<group>"; };
-		8F542B321A7B67E3005CD0ED /* Attribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Attribute.h; path = ../../Attribute.h; sourceTree = "<group>"; };
-		8F542B331A7B67E3005CD0ED /* Color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Color.cpp; path = ../../Color.cpp; sourceTree = "<group>"; };
-		8F542B341A7B67E3005CD0ED /* Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Color.h; path = ../../Color.h; sourceTree = "<group>"; };
-		8F542B361A7B67E3005CD0ED /* Doodle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Doodle.cpp; path = ../../Doodle.cpp; sourceTree = "<group>"; };
-		8F542B371A7B67E3005CD0ED /* Doodle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Doodle.h; path = ../../Doodle.h; sourceTree = "<group>"; };
-		8F542B3A1A7B67E3005CD0ED /* Font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Font.cpp; path = ../../Font.cpp; sourceTree = "<group>"; };
-		8F542B3B1A7B67E3005CD0ED /* Font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Font.h; path = ../../Font.h; sourceTree = "<group>"; };
 		8F542B3D1A7B67E3005CD0ED /* Gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Gui.h; path = ../../Gui.h; sourceTree = "<group>"; };
-		8F542B3E1A7B67E3005CD0ED /* Path.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Path.cpp; path = ../../Path.cpp; sourceTree = "<group>"; };
-		8F542B3F1A7B67E3005CD0ED /* Path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Path.h; path = ../../Path.h; sourceTree = "<group>"; };
-		8F542B401A7B67E3005CD0ED /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Point.cpp; path = ../../Point.cpp; sourceTree = "<group>"; };
-		8F542B411A7B67E3005CD0ED /* Point.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Point.h; path = ../../Point.h; sourceTree = "<group>"; };
-		8F542B421A7B67E3005CD0ED /* Rectangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rectangle.cpp; path = ../../Rectangle.cpp; sourceTree = "<group>"; };
-		8F542B431A7B67E3005CD0ED /* Rectangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Rectangle.h; path = ../../Rectangle.h; sourceTree = "<group>"; };
-		8F542B441A7B67E3005CD0ED /* Sketcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sketcher.cpp; path = ../../Sketcher.cpp; sourceTree = "<group>"; };
-		8F542B451A7B67E3005CD0ED /* Sketcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sketcher.h; path = ../../Sketcher.h; sourceTree = "<group>"; };
-		8F542B461A7B67E3005CD0ED /* TextField.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextField.cpp; path = ../../TextField.cpp; sourceTree = "<group>"; };
-		8F542B471A7B67E3005CD0ED /* TextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextField.h; path = ../../TextField.h; sourceTree = "<group>"; };
 		8F542B541A7B7124005CD0ED /* Classic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Classic.cpp; sourceTree = "<group>"; };
 		8F542B551A7B7124005CD0ED /* Classic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Classic.h; sourceTree = "<group>"; };
 		8F542B561A7B7124005CD0ED /* Modules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Modules.h; sourceTree = "<group>"; };
-		8F542B581A7B913C005CD0ED /* Mouser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mouser.cpp; path = ../../Mouser.cpp; sourceTree = "<group>"; };
-		8F542B591A7B913C005CD0ED /* Mouser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mouser.h; path = ../../Mouser.h; sourceTree = "<group>"; };
-		8F542B5B1A7B9AB3005CD0ED /* Keyboarder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Keyboarder.cpp; path = ../../Keyboarder.cpp; sourceTree = "<group>"; };
-		8F542B5C1A7B9AB3005CD0ED /* Keyboarder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Keyboarder.h; path = ../../Keyboarder.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,30 +72,6 @@
 			isa = PBXGroup;
 			children = (
 				8F542B3D1A7B67E3005CD0ED /* Gui.h */,
-				8F542B401A7B67E3005CD0ED /* Point.cpp */,
-				8F542B411A7B67E3005CD0ED /* Point.h */,
-				8F21B44A1A8129BE00670F15 /* Size.cpp */,
-				8F21B44B1A8129BE00670F15 /* Size.h */,
-				8F542B421A7B67E3005CD0ED /* Rectangle.cpp */,
-				8F542B431A7B67E3005CD0ED /* Rectangle.h */,
-				8F542B3E1A7B67E3005CD0ED /* Path.cpp */,
-				8F542B3F1A7B67E3005CD0ED /* Path.h */,
-				8F542B331A7B67E3005CD0ED /* Color.cpp */,
-				8F542B341A7B67E3005CD0ED /* Color.h */,
-				8F542B3A1A7B67E3005CD0ED /* Font.cpp */,
-				8F542B3B1A7B67E3005CD0ED /* Font.h */,
-				8F542B361A7B67E3005CD0ED /* Doodle.cpp */,
-				8F542B371A7B67E3005CD0ED /* Doodle.h */,
-				8F542B311A7B67E3005CD0ED /* Attribute.cpp */,
-				8F542B321A7B67E3005CD0ED /* Attribute.h */,
-				8F542B441A7B67E3005CD0ED /* Sketcher.cpp */,
-				8F542B451A7B67E3005CD0ED /* Sketcher.h */,
-				8F542B581A7B913C005CD0ED /* Mouser.cpp */,
-				8F542B591A7B913C005CD0ED /* Mouser.h */,
-				8F542B5B1A7B9AB3005CD0ED /* Keyboarder.cpp */,
-				8F542B5C1A7B9AB3005CD0ED /* Keyboarder.h */,
-				8F542B461A7B67E3005CD0ED /* TextField.cpp */,
-				8F542B471A7B67E3005CD0ED /* TextField.h */,
 				8F542B531A7B7124005CD0ED /* Modules */,
 			);
 			name = Sources;
@@ -204,19 +144,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8F542B4C1A7B67E3005CD0ED /* Font.cpp in Sources */,
-				8F542B481A7B67E3005CD0ED /* Attribute.cpp in Sources */,
-				8F542B491A7B67E3005CD0ED /* Color.cpp in Sources */,
-				8F542B521A7B67E3005CD0ED /* TextField.cpp in Sources */,
-				8F542B501A7B67E3005CD0ED /* Rectangle.cpp in Sources */,
-				8F542B5A1A7B913C005CD0ED /* Mouser.cpp in Sources */,
-				8F542B511A7B67E3005CD0ED /* Sketcher.cpp in Sources */,
 				8F542B571A7B7124005CD0ED /* Classic.cpp in Sources */,
-				8F542B4F1A7B67E3005CD0ED /* Point.cpp in Sources */,
-				8F542B4A1A7B67E3005CD0ED /* Doodle.cpp in Sources */,
-				8F21B44C1A8129BE00670F15 /* Size.cpp in Sources */,
-				8F542B5D1A7B9AB3005CD0ED /* Keyboarder.cpp in Sources */,
-				8F542B4E1A7B67E3005CD0ED /* Path.cpp in Sources */,
 				8F542B2A1A7B67BB005CD0ED /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -289,6 +289,38 @@ namespace Kiwi
          */
         void getValue(string& text) const noexcept override;
     };
+    
+    // ================================================================================ //
+    //                                      RECTANGLE                                   //
+    // ================================================================================ //
+    
+    struct RectangleValue : public Rectangle, public Attr::Value
+    {
+    public:
+        using Rectangle::Rectangle;
+        
+        RectangleValue()
+        {
+            ;
+        }
+        
+        RectangleValue(Rectangle const& rectangle) noexcept : Rectangle(rectangle)
+        {
+            ;
+        }
+        
+        //! Set the attribute value with a string.
+        /** The function sets the attribute value with a string.
+         @param text The value in the string format.
+         */
+        void setValue(string const& text) noexcept override;
+        
+        //! Retrieve the attribute value as a string.
+        /** The function retrieves the attribute value as a string.
+         @param text The value in the string format.
+         */
+        void getValue(string& text) const noexcept override;
+    };
 }
 
 #endif
