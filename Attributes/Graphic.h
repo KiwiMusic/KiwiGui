@@ -93,11 +93,6 @@ namespace Kiwi
          */
         SizeValue(SizeValue const& size) noexcept;
         
-        //! Constructor.
-        /** The function initializes another point.
-         */
-        SizeValue(Point const& pt) noexcept;
-        
         //! Destructor.
         /** The function deletes the point.
          */

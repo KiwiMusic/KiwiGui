@@ -80,14 +80,6 @@ namespace Kiwi
         ;
     }
     
-    SizeValue::SizeValue(Point const& pt) noexcept :
-    m_ratio(0.),
-    m_min(0., 0.),
-    m_point(pt)
-    {
-        ;
-    }
-    
     SizeValue::~SizeValue()
     {
         ;

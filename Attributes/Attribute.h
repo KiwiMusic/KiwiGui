@@ -380,7 +380,7 @@ namespace Kiwi
          */
         inline void setValueString(string const& value) override
         {
-            T val;
+			T val = m_value;
             val.setValue(value);
             setValue(val);
         }
