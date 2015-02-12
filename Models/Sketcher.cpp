@@ -32,8 +32,8 @@ namespace Kiwi
         // ================================================================================ //
         
         Sketcher::Sketcher() noexcept :
-        m_position(Attr::create("position", "Position", "Appearance", Point(0., 0.))),
-        m_size(Attr::create(    "size",     "Size",     "Appearance", Size(10., 10.)))
+        m_position(Attr::create("position", "Position", "Appearance", PointAttr(0., 0.))),
+        m_size(Attr::create(    "size",     "Size",     "Appearance", SizeAttr(10., 10.)))
         {
             addAttr(m_position);
             addAttr(m_size);
@@ -79,6 +79,11 @@ namespace Kiwi
                     ++it;
                 }
             }
+        }
+        
+        void Doodle::drawText(string const& text, Rectangle const& rect, Font::Justification j, bool wrap)
+        {
+            drawText(text, rect.x(), rect.y(), rect.width(), rect.height(), j, wrap);
         }
     }
 }

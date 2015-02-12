@@ -21,15 +21,142 @@
  ==============================================================================
  */
 
-#ifndef __DEF_KIWI_GUI_DOODLE__
-#define __DEF_KIWI_GUI_DOODLE__
+#ifndef __DEF_KIWI_GUI_SKETCHER__
+#define __DEF_KIWI_GUI_SKETCHER__
 
-#include "Font.h"
+#include "../Graphics/Graphics.h"
+#include "../Attributes/Attributes.h"
 
 namespace Kiwi
 {
     namespace Gui
     {
+        class Doodle;
+        
+        // ================================================================================ //
+        //                                      SKETCHER                                    //
+        // ================================================================================ //
+        
+        //! The sketcher...
+        /** The sketcher...
+         */
+        class Sketcher : virtual public Attr::Manager
+        {
+		public:
+            class Listener;
+            typedef shared_ptr<Listener>        sListener;
+            typedef weak_ptr<Listener>          wListener;
+            typedef shared_ptr<const Listener>  scListener;
+            typedef weak_ptr<const Listener>    wcListener;
+			
+        protected:
+            const sAttrPoint  m_position;
+            const sAttrSize   m_size;
+        private:
+            set<wListener,
+            owner_less<wListener>> m_lists;
+            mutable mutex          m_lists_mutex;
+			
+        public:
+            
+            //! Constructor.
+            /** The function does nothing.
+             */
+            Sketcher() noexcept;
+            
+            //! Destructor.
+            /** The function does nothing.
+             */
+            virtual ~Sketcher();
+            
+            template<class T, class ...Args> static shared_ptr<T> create(Args&& ...args)
+            {
+                shared_ptr<T> sketcher = make_shared<T>(forward<Args>(args)...);
+                if(sketcher)
+                {
+                    sketcher->Sketcher::initialize();
+                    sketcher->initialize();
+                }
+                return sketcher;
+            }
+			
+			//! Adds a listener to the sketcher.
+			/** The function adds a listener to the sketcher.
+			 @param listener The listener to add.
+			 */
+            void addListener(sListener listener);
+			
+			//! Removes a listener from the sketcher.
+			/** The function removes a listener from the sketcher. 
+             @param listener The listener to remove.
+			 */
+            void removeListener(sListener listener);
+			
+            //! The paint method that should be override.
+            /** The function shoulds draw some stuff in the doodle.
+             @param doodle A doodle to draw.
+             */
+            virtual void draw(Doodle& doodle) const = 0;
+            
+            //! Retrieve the position of the object.
+            /** The function retrieves the position of the object.
+             @return The position of the object.
+             */
+            inline Point getPosition() const noexcept
+            {
+                return m_position->getValue();
+            }
+            
+            //! Retrieve the size of the object.
+            /** The function retrieves the size of the object.
+             @return The size of the object.
+             */
+            inline Size getSize() const noexcept
+            {
+                return m_size->getValue();
+            }
+            
+            //! Retrieve the bounds of the object.
+            /** The function retrieves the bounds of the object.
+             @return The bounds of the object.
+             */
+            inline Rectangle getBounds() const noexcept
+            {
+                 return Rectangle(m_position->getValue(), m_size->getValue());
+            }
+            
+        protected:
+            
+            //! Send a notification to each listeners that the object needs to be redrawn.
+            /** The function sends a notification to each listeners that the object should be redrawn.
+             */
+            void redraw() noexcept;
+        };
+        
+        //! The sketcher listener...
+        /** The sketcher listener...
+         */
+        class Sketcher::Listener
+        {
+        public:
+            
+            Listener() noexcept
+            {
+                ;
+            }
+            
+            virtual ~Listener()
+            {
+                ;
+            }
+            
+            //! Receives the notification that the sketcher needs to be redrawn.
+            /** This function is called by the sketcher whenever it needs to be redrawn.
+             The listener sublasses must implement this method to draw the sketcher.
+             */
+            virtual void redraw() = 0;
+        };
+        
         // ================================================================================ //
         //                                      DOODLE                                      //
         // ================================================================================ //
@@ -105,7 +232,7 @@ namespace Kiwi
              @param color The color.
              */
             virtual void setColor(Color const& color) = 0;
-			
+            
             //! Set the font.
             /** The sets the font that now will be used by the doodle.
              @param font The font.
@@ -116,16 +243,16 @@ namespace Kiwi
             /** The function fills the entire doodle with the current color.
              */
             virtual void fillAll() = 0;
-			
-			//! Fill the doodle with a color.
-			/** The function fills the entire doodle with a color.
-			 */
-			virtual void fillAll(Color const& color)
-			{
-				setColor(color);
-				fillAll();
-			}
-			
+            
+            //! Fill the doodle with a color.
+            /** The function fills the entire doodle with a color.
+             */
+            virtual void fillAll(Color const& color)
+            {
+                setColor(color);
+                fillAll();
+            }
+            
             //! Draws a line of text within a rectangle.
             /** The function draws a line of text within a rectangle.
              @param text The text.
@@ -146,32 +273,32 @@ namespace Kiwi
              @param truncated If the text should be truncated if it goes out the boundaries.
              */
             virtual void drawText(string const& text, Rectangle const& rect, Font::Justification j, bool wrap = false);
-			
-			//! Tries to draw a text string inside a given rectangle.
-			/** The function tries to draw a text string inside a given space.
-			 If the text is too big, it'll be squashed horizontally or broken over multiple lines
-			 if the maximumLinesToUse value allows this. If the text just won't fit into the space,
-			 it'll cram as much as possible in there, and put some ellipsis at the end to show that
-			 it's been truncated.
-			 A Justification parameter lets you specify how the text is laid out within the rectangle,
-			 both horizontally and vertically.
-			 minimumHorizontalScale parameter specifies how much the text can be squashed horizontally
-			 to try to squeeze it into the space. If you don't want any horizontal scaling to occur, you
-			 can set this value to 1.0f.
-			 @see drawText
-			 */
-			virtual void drawFittedText(string const& text, const double x, const double y, const double w, const double h, Font::Justification j, const long maximumNumberOfLines, const double minimumHorizontalScale) = 0;
-			
-			//! Tries to draw a text string inside a given rectangle.
-			/** The function tries to draw a text string inside a given space.
-			 @see drawFittedText
-			 */
-			virtual void drawFittedText(string const& text, Rectangle const& rect, Font::Justification j, const long maximumNumberOfLines, const double minimumHorizontalScale)
-			{
-				drawFittedText(text, rect.x(), rect.y(), rect.width(), rect.height(), j, maximumNumberOfLines, minimumHorizontalScale);
-			}
-			
-			virtual void drawMultiLineText(wstring const& text, const long startX, const long baselineY, const long maximumLineWidth) const = 0;
+            
+            //! Tries to draw a text string inside a given rectangle.
+            /** The function tries to draw a text string inside a given space.
+             If the text is too big, it'll be squashed horizontally or broken over multiple lines
+             if the maximumLinesToUse value allows this. If the text just won't fit into the space,
+             it'll cram as much as possible in there, and put some ellipsis at the end to show that
+             it's been truncated.
+             A Justification parameter lets you specify how the text is laid out within the rectangle,
+             both horizontally and vertically.
+             minimumHorizontalScale parameter specifies how much the text can be squashed horizontally
+             to try to squeeze it into the space. If you don't want any horizontal scaling to occur, you
+             can set this value to 1.0f.
+             @see drawText
+             */
+            virtual void drawFittedText(string const& text, const double x, const double y, const double w, const double h, Font::Justification j, const long maximumNumberOfLines, const double minimumHorizontalScale) = 0;
+            
+            //! Tries to draw a text string inside a given rectangle.
+            /** The function tries to draw a text string inside a given space.
+             @see drawFittedText
+             */
+            virtual void drawFittedText(string const& text, Rectangle const& rect, Font::Justification j, const long maximumNumberOfLines, const double minimumHorizontalScale)
+            {
+                drawFittedText(text, rect.x(), rect.y(), rect.width(), rect.height(), j, maximumNumberOfLines, minimumHorizontalScale);
+            }
+            
+            virtual void drawMultiLineText(wstring const& text, const long startX, const long baselineY, const long maximumLineWidth) const = 0;
             
             //! Fill a path.
             /** The function fills a path.
@@ -215,7 +342,7 @@ namespace Kiwi
             {
                 fillEllipse(rect.x(), rect.y(), rect.width(), rect.height());
             }
-        };        
+        };
     }
 }
 

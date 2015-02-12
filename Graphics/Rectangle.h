@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_RECTANGLE__
 #define __DEF_KIWI_GUI_RECTANGLE__
 
-#include "Size.h"
+#include "Point.h"
 
 namespace Kiwi
 {

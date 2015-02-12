@@ -21,11 +21,35 @@
  ==============================================================================
  */
 
+#include "Default.h"
 
 namespace Kiwi
 {
-    // ================================================================================ //
-    //                                      SKETCHER                                    //
-    // ================================================================================ //
+    void BoolAttr::setValue(string const& text) noexcept
+    {
+        string::size_type pos;
+        pos = text.find("true");
+        if(pos != string::npos)
+        {
+            m_state = true;
+            return;
+        }
+        pos = text.find("false");
+        if(pos != string::npos)
+        {
+            m_state = false;
+            return;
+        }
+        pos = text.find_first_of("0123456789");
+        if(pos != string::npos)
+        {
+            m_state = (bool)stoi(text.c_str()+pos);
+            return;
+        }
+    }
     
+    void BoolAttr::getValue(string& text) const noexcept
+    {
+        text = toString(m_state);
+    }
 }

@@ -19,30 +19,10 @@
  To release a closed-source product which uses KIWI, contact : guillotpierre6@gmail.com
  
  ==============================================================================
-*/
+ */
 
-#ifndef __DEF_KIWI_GUI_MAJOR__
-#define __DEF_KIWI_GUI_MAJOR__
-
-#include "../Models/Models.h"
+#include "Color.h"
 
 namespace Kiwi
 {
-    namespace Gui
-    {
-        class Chord : virtual public Sketcher, virtual public Mouser
-        {
-        protected:
-        public:
-            Chord() noexcept;
-            virtual ~Chord();
-            bool receive(Mouser::Event const& event) override;
-            void draw(Doodle& doodle) const override;
-            bool notify(sAttr attr) override;
-        };
-    }
 }
-
-#endif
-
-

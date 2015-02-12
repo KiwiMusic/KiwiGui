@@ -24,10 +24,6 @@
 #ifndef __DEF_KIWI_GUI_TEXTLAYOUT__
 #define __DEF_KIWI_GUI_TEXTLAYOUT__
 
-#include "Point.h"
-#include "Rectangle.h"
-#include "Path.h"
-#include "Color.h"
 #include "Font.h"
 
 namespace Kiwi

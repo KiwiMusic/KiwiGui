@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_CLASSIC__
 #define __DEF_KIWI_GUI_CLASSIC__
 
-#include "../Writer.h"
+#include "../Models/Models.h"
 
 namespace Kiwi
 {
