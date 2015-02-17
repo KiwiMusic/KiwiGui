@@ -32,10 +32,10 @@ namespace Kiwi
         // ================================================================================ //
         
         Button::Button() noexcept :
-        m_color_background( Attr::create("bgcolor",     "Background Color", "Color", ColorValue(0.52, 0.52, 0.52, 1.))),
-        m_color_border(     Attr::create("bdcolor",     "Border Color",     "Color", ColorValue(0.52, 0.52, 0.52, 1.))),
-        m_color_circle(     Attr::create("circlecolor", "Circle Color",     "Color", ColorValue(0.52, 0.52, 0.52, 1.))),
-        m_color_led(        Attr::create("ledcolor",    "Led Color",        "Color", ColorValue(0.6, 0.6, 0.6, 1.))),
+        m_color_background( Attr::create("bgcolor",     "Background Color", "Color", ColorValue(1., 1., 1., 1.))),
+        m_color_border(     Attr::create("bdcolor",     "Border Color",     "Color", ColorValue(0.4, 0.4, 0.4, 1.))),
+        m_color_circle(     Attr::create("circlecolor", "Circle Color",     "Color", ColorValue(0.4, 0.4, 0.4, 1.))),
+        m_color_led(        Attr::create("ledcolor",    "Led Color",        "Color", ColorValue(0.4, 0.4, 0.4, 1.))),
         m_led(false)
         {
             m_size->setValue(Size(20., 20., 10., 10., 1.));
@@ -70,14 +70,14 @@ namespace Kiwi
         
         void Button::draw(Gui::Doodle& d) const
         {
-            const double borderSize = 1;
+            const double borderSize = d.getWidth() * 0.1;
             const Rectangle ledRect = d.getBounds().reduced(d.getWidth() * 0.2);
             d.fillAll(m_color_background->getValue());
             
             d.setColor(m_color_border->getValue());
             d.drawRectangle(d.getBounds().reduced(borderSize*0.5), borderSize, 0);
             d.setColor(m_color_circle->getValue());
-            d.drawEllipse(ledRect, d.getWidth() * 0.1);
+            d.drawEllipse(ledRect, borderSize);
             
             if(m_led)
             {

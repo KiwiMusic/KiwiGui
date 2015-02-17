@@ -58,7 +58,12 @@ namespace Kiwi
         
         class Value;
         template <class T,
-        typename = typename enable_if<is_base_of<Value, T>::value>::type>
+        typename = typename enable_if<
+        is_base_of<Value, T>::value &&
+        is_default_constructible<T>::value &&
+        is_copy_constructible<T>::value &&
+        is_copy_assignable<T>::value
+        >::type>
         class Typed;
         
         /** Flags describing the behavior of the attribute.
