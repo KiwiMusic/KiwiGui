@@ -116,10 +116,21 @@ namespace Kiwi
                     Left    = 0xF702,
                     Right   = 0xF703
 #else
+					Space = ' ',
+					Escape  = 0x1b,
+					Return  = 0x0d,
+					Tab     = 9,
+					Delete  = 0xF728,
+					Backspace= 0x7f,
+					Insert  = -1,
+					Up      = 0xF700,
+					Down    = 0xF701,
+					Left    = 0xF702,
+					Right   = 0xF703
 #endif
                 };
             };
-            
+			
         private:
             const int		m_keycode;
             const long      m_modifiers;
@@ -208,7 +219,7 @@ namespace Kiwi
             
             inline bool isSpace() const noexcept
             {
-                return m_character == Key::Space;
+				return m_character == Key::Code::Space;
             }
             
             inline bool isEscape() const noexcept

@@ -152,8 +152,8 @@ namespace Kiwi
         {
             int flags = (m_style & Font::Underlined) ? Underlined : Plain;
             
-            if (isBold())    flags |= bold;
-            if (isItalic())  flags |= italic;
+			if (isBold())    flags |= Bold;
+            if (isItalic())  flags |= Italic;
             
             return flags;
         }
