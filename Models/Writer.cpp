@@ -105,7 +105,26 @@ namespace Kiwi
 		// ================================================================================ //
 		
 		
-		Writer::TextField::TextField()
+		Writer::TextField::TextField() noexcept :
+		m_fontname(Attr::create("fontname", "Font Name", "Font", StringValue("Menelo"))),
+		m_fontsize(Attr::create("fontsize", "Font Size", "Font", DoubleValue(12.))),
+		m_fontface(Attr::create("fonface", "Font Face", "Font", StringValue("Plain"))),
+		m_textjusification(Attr::create("textjustification", "Text Justification", "Font", StringValue("Left"))),
+		m_textcolor(Attr::create("textcolor", "Text Color", "Color", ColorValue(0., 0., 0., 1.))),
+		m_margin_left(Attr::create("margin_left", "Margin Left", "Appearance", LongValue(0))),
+		m_margin_top(Attr::create("margin_top", "Margin Top", "Appearance", LongValue(0))),
+		m_margin_right(Attr::create("margin_right", "Margin Right", "Appearance", LongValue(0))),
+		m_margin_bottom(Attr::create("margin_bottom", "Margin Bottom", "Appearance", LongValue(0))),
+		m_multiline(Attr::create("multiline", "Multiline", "Behavior", BoolValue(false))),
+		m_autofixwidth(Attr::create("autofixwidth", "Auto Fixed Width", "Behavior", BoolValue(true))),
+		m_editonclick(Attr::create("editonclick", "Edit On Click", "Behavior", BoolValue(true))),
+		m_selectallonedit(Attr::create("selectallonedit", "Select All On Edit", "Behavior", BoolValue(true))),
+		m_readonly(Attr::create("readonly", "Read Only", "Behavior", BoolValue(false))),
+		m_wordwrap(Attr::create("wordwrap", "Word Wrap", "Behavior", BoolValue(true))),
+		m_useellipsis(Attr::create("useellipsis", "Use Ellipsis", "Behavior", BoolValue(false))),
+		m_autoscroll(Attr::create("autoscroll", "Auto Scroll", "Behavior", BoolValue(true))),
+		m_wantsreturn(Attr::create("wantsreturn", "Wants Return", "Behavior", BoolValue(false))),
+		m_wantstab(Attr::create("wantstab", "Wants Tab", "Behavior", BoolValue(false)))
 		{
 			;
 		}
@@ -118,6 +137,11 @@ namespace Kiwi
 		void Writer::TextField::setWriter(sWriter writer)
 		{
 			m_writer = writer;
+		}
+		
+		bool Writer::TextField::notify(sAttr attr)
+		{
+			return true;
 		}
 		
 		sWriter Writer::TextField::getWriter()

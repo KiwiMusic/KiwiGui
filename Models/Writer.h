@@ -112,6 +112,12 @@ namespace Kiwi
 				int TODO;
 				return false;
 			};
+	
+			bool receive(Keyboarder::Focus event) override
+			{
+				int TODO;
+				return false;
+			};
 
 			//! Retrieves the textfield.
 			/** This function retrievs the textfield.
@@ -135,7 +141,7 @@ namespace Kiwi
 			/** An implementation of this class should check the input string,
 			 and return an edited version of it that should be used.
 			 @param newtext The new entered text.
-			 @return False if you don't want to pass the key to the textfield, true otherwise.
+			 @return False if you don't want to pass the key to the textfield, otherwise true.
 			 */
 			virtual bool textFilter(wstring& newtext);
 			
@@ -155,10 +161,10 @@ namespace Kiwi
 		//                                     TEXTFIELD                                    //
 		// ================================================================================ //
 		
-		//! The textfield manages a text and a set of textfield views.
-		/** The textfield manages a text and a set of textfield views.
+		//! The textfield manages a text and a set of view for the textfield.
+		/** The textfield manages a text and a set of view for the textfield.
 		 */
-		class Writer::TextField // : public Attr::Manager
+		class Writer::TextField : public Attr::Manager
 		{
 		public:
 			class View;
@@ -179,31 +185,40 @@ namespace Kiwi
 			mutable mutex				m_textviews_mutex;
 			
 			// textfield attributes
-			Font::Justification m_justification;
-			Font	m_font;
-			long	m_margin_left;
-			long	m_margin_top;
-			long	m_margin_right;
-			long	m_margin_bottom;
-			Color	m_textcolor;
-			bool	m_multiline;
-			bool	m_autofixwidth;
-			bool	m_editonclick;
-			bool	m_selectallonedit;
-			bool	m_readonly;
-			bool	m_wordwrap;
-			bool	m_useellipsis;
-			bool	m_autoscroll;
-			bool	m_wantsreturn;
-			bool	m_wantstab;
+			const sAttrString	m_fontname;
+			const sAttrDouble	m_fontsize;
+			const sAttrString	m_fontface;
+			const sAttrString	m_textjusification;
+			const sAttrColor	m_textcolor;
+			const sAttrLong		m_margin_left;
+			const sAttrLong		m_margin_top;
+			const sAttrLong		m_margin_right;
+			const sAttrLong		m_margin_bottom;
+			const sAttrBool		m_multiline;
+			const sAttrBool		m_autofixwidth;
+			const sAttrBool		m_editonclick;
+			const sAttrBool		m_selectallonedit;
+			const sAttrBool		m_readonly;
+			const sAttrBool		m_wordwrap;
+			const sAttrBool		m_useellipsis;
+			const sAttrBool		m_autoscroll;
+			const sAttrBool		m_wantsreturn;
+			const sAttrBool		m_wantstab;
 			
 		public:
 			
 			//! Constructor.
-			TextField();
+			TextField() noexcept;
 			
 			//! Destructor.
 			~TextField();
+			
+			//! Notify the manager that the values of an attribute has changed.
+			/** The function notifies the manager that the values of an attribute has changed.
+			 @param attr An attribute.
+			 @return pass true to notify changes to listeners, false if you don't want them to be notified
+			 */
+			bool notify(sAttr attr) override;
 			
 			//! Sets the writer.
 			void setWriter(sWriter writer);
@@ -278,7 +293,7 @@ namespace Kiwi
 			 */
 			void setFont(Font const& font)
 			{
-				m_font = font;
+				setFontName(font.getName());
 			}
 			
 			//! Retrieves the textfield's font.
@@ -287,14 +302,73 @@ namespace Kiwi
 			 */
 			Font getFont() const noexcept
 			{
-				return m_font;
+				return Font(getFontName(), getFontSize());
+			}
+			
+			//! Set the textfield's font name.
+			/** The function sets the textfield's font name.
+			 @param fontname The new font name to use.
+			 */
+			void setFontName(string const& fontname)
+			{
+				setAttrValue("fontname", StringValue(fontname));
+			}
+			
+			//! Retrieves the textfield's font name.
+			/** The function retrieves the textfield's font name.
+			 @return The textfield's font name.
+			 */
+			string getFontName() const noexcept
+			{
+				StringValue val;
+				if(getAttrValue("fontname", &val))
+				{
+					return val;
+				}
+				return 0;
+			}
+			
+			//! Set the textfield's font size.
+			/** The function sets the textfield's font name.
+			 @param fontname The new font name to use.
+			 */
+			void setFontSize(const double fontsize)
+			{
+				setAttrValue("fontsize", DoubleValue(fontsize));
+			}
+			
+			//! Retrieves the textfield's font size.
+			/** The function retrieves the textfield's font size.
+			 @return The textfield's font size.
+			 */
+			double getFontSize() const noexcept
+			{
+				DoubleValue val;
+				if(getAttrValue("fontsize", &val))
+				{
+					return val;
+				}
+				return 12.;
 			}
 			
 			//! Set the textfield's font justification.
 			/** The function sets the textfield's font justification.
 			 @param justification The new font justification to use.
 			 */
-			void setJustification(Font::Justification justification);
+			void setJustification(const Font::Justification justification)
+			{
+				StringValue val("Left");
+				if (justification == Font::Justification::Centred)
+				{
+					val = "Center";
+				}
+				else if (justification == Font::Justification::Right)
+				{
+					val = "Right";
+				}
+				
+				setAttrValue("textjustification", val);
+			}
 			
 			//! Retrieves the textfield's font justification.
 			/** The function retrieves the textfield's font justification.
@@ -302,11 +376,22 @@ namespace Kiwi
 			 */
 			Font::Justification getJustification() const noexcept
 			{
-				return m_justification;
+				StringValue val;
+				if(getAttrValue("textjustification", &val))
+				{
+					if(val == "Left")
+						return Font::Justification::Left;
+					else if(val == "Center")
+						return Font::Justification::Centred;
+					else if(val == "Right")
+						return Font::Justification::Right;
+				}
+				
+				return Font::Justification::Left;
 			}
 			
 			//! Set the margins.
-			/** The function sets the textfield's font justification.
+			/** The function sets the textfield's margins.
 			 @param left	The left margin.
 			 @param top		The top margin.
 			 @param right	The right margin.
@@ -314,10 +399,10 @@ namespace Kiwi
 			 */
 			void setMargins(const long left, const long top, const long right, const long bottom)
 			{
-				m_margin_left	= max<long>(0, left);
-				m_margin_top	= max<long>(0, top);
-				m_margin_right	= max<long>(0, right);
-				m_margin_bottom	= max<long>(0, bottom);
+				setAttrValue("margin_left", LongValue(max<long>(0, left)));
+				setAttrValue("margin_left", LongValue(max<long>(0, top)));
+				setAttrValue("margin_left", LongValue(max<long>(0, right)));
+				setAttrValue("margin_left", LongValue(max<long>(0, bottom)));
 			}
 			
 			//! Retrieves the left margin.
@@ -326,7 +411,12 @@ namespace Kiwi
 			 */
 			long getMarginLeft() const noexcept
 			{
-				return m_margin_left;
+				LongValue val;
+				if(getAttrValue("margin_left", &val))
+				{
+					return val;
+				}
+				return 0;
 			}
 			
 			//! Retrieves the top margin.
@@ -335,7 +425,12 @@ namespace Kiwi
 			 */
 			long getMarginTop() const noexcept
 			{
-				return m_margin_top;
+				LongValue val;
+				if(getAttrValue("margin_top", &val))
+				{
+					return val;
+				}
+				return 0;
 			}
 			
 			//! Retrieves the right margin.
@@ -344,7 +439,12 @@ namespace Kiwi
 			 */
 			long getMarginRight() const noexcept
 			{
-				return m_margin_right;
+				LongValue val;
+				if(getAttrValue("margin_right", &val))
+				{
+					return val;
+				}
+				return 0;
 			}
 			
 			//! Retrieves the bottom margin.
@@ -353,7 +453,12 @@ namespace Kiwi
 			 */
 			long getMarginBottom() const noexcept
 			{
-				return m_margin_top;
+				LongValue val;
+				if(getAttrValue("margin_bottom", &val))
+				{
+					return val;
+				}
+				return 0;
 			}
 			
 			//! Set the text color.
@@ -362,7 +467,7 @@ namespace Kiwi
 			 */
 			void setTextColor(Color const& textcolor)
 			{
-				m_textcolor = textcolor;
+				setAttrValue("textcolor", ColorValue(textcolor));
 			}
 			
 			//! Retrieves the text color.
@@ -371,7 +476,12 @@ namespace Kiwi
 			 */
 			Color getTextColor() const noexcept
 			{
-				return m_textcolor;
+				ColorValue val;
+				if(getAttrValue("textcolor", &val))
+				{
+					return val;
+				}
+				return val;
 			}
 			
 			//! Puts the textfield into either multi- or single-line mode.
@@ -383,7 +493,7 @@ namespace Kiwi
 			 */
 			void setMultiLine(const bool isMultiline)
 			{
-				m_multiline = isMultiline;
+				setAttrValue("multiline", BoolValue(isMultiline));
 			}
 			
 			//! Retrieves if the textfield is in multi-line mode.
@@ -392,7 +502,12 @@ namespace Kiwi
 			 */
 			bool isMultiLine() const noexcept
 			{
-				return m_multiline;
+				BoolValue val;
+				if(getAttrValue("multiline", &val))
+				{
+					return val;
+				}
+				return false;
 			}
 			
 			//! Set the wantsreturn attribute.
@@ -401,7 +516,7 @@ namespace Kiwi
 			 */
 			void setWantsReturn(const bool wantsReturn)
 			{
-				m_wantsreturn = wantsReturn;
+				setAttrValue("wantsreturn", BoolValue(wantsReturn));
 			}
 			
 			//! Retrieves the wantsreturn attribute.
@@ -410,16 +525,21 @@ namespace Kiwi
 			 */
 			bool getWantsReturn() const noexcept
 			{
-				return m_wantsreturn;
+				BoolValue val;
+				if(getAttrValue("wantsreturn", &val))
+				{
+					return val;
+				}
+				return false;
 			}
 			
 			//! Set the wantstab attribute.
 			/** This function sets the wantstab attribute.
 			 @param wantstab True if you want the tab key be used, otherwise false.
 			 */
-			void setWantsTab(const bool wantstab)
+			void setWantsTab(const bool wantsTab)
 			{
-				m_wantstab = wantstab;
+				setAttrValue("wantstab", BoolValue(wantsTab));
 			}
 			
 			//! Retrieves the wantstab attribute.
@@ -428,7 +548,12 @@ namespace Kiwi
 			 */
 			bool getWantsTab() const noexcept
 			{
-				return m_wantstab;
+				BoolValue val;
+				if(getAttrValue("wantstab", &val))
+				{
+					return val;
+				}
+				return false;
 			}
 			
 			//! Set the readonly attribute.
@@ -437,7 +562,7 @@ namespace Kiwi
 			 */
 			void setReadOnly(const bool readonly)
 			{
-				m_readonly = readonly;
+				setAttrValue("readonly", BoolValue(readonly));
 			}
 			
 			//! Retrieves the readonly attribute.
@@ -446,7 +571,12 @@ namespace Kiwi
 			 */
 			bool getReadOnly() const noexcept
 			{
-				return m_readonly;
+				BoolValue val;
+				if(getAttrValue("readonly", &val))
+				{
+					return val;
+				}
+				return false;
 			}
 			
 			//! Set the editonclick attribute.
@@ -455,7 +585,7 @@ namespace Kiwi
 			 */
 			void setEditOnClick(const bool editonclick)
 			{
-				m_editonclick = editonclick;
+				setAttrValue("editonclick", BoolValue(editonclick));
 			}
 			
 			//! Retrieves the editonclick attribute.
@@ -464,7 +594,12 @@ namespace Kiwi
 			 */
 			bool getEditOnClick() const noexcept
 			{
-				return m_editonclick;
+				BoolValue val;
+				if(getAttrValue("editonclick", &val))
+				{
+					return val;
+				}
+				return false;
 			}
 			
 			//! Set the selectallonedit attribute.
@@ -473,7 +608,7 @@ namespace Kiwi
 			 */
 			void setSelectAllOnEdit(const bool selectallonedit)
 			{
-				m_selectallonedit = selectallonedit;
+				setAttrValue("selectallonedit", BoolValue(selectallonedit));
 			}
 			
 			//! Retrieves the selectallonedit attribute.
@@ -482,7 +617,12 @@ namespace Kiwi
 			 */
 			bool getSelectAllOnEdit() const noexcept
 			{
-				return m_selectallonedit;
+				BoolValue val;
+				if(getAttrValue("selectallonedit", &val))
+				{
+					return val;
+				}
+				return false;
 			}
 			
 			//! Set the wordwrap attribute.
@@ -491,7 +631,7 @@ namespace Kiwi
 			 */
 			void setWordWrap(const bool wordwrap)
 			{
-				m_wordwrap = wordwrap;
+				setAttrValue("wordwrap", BoolValue(wordwrap));
 			}
 			
 			//! Retrieves the wordwrap attribute.
@@ -500,7 +640,12 @@ namespace Kiwi
 			 */
 			bool getWordWrap() const noexcept
 			{
-				return m_wordwrap;
+				BoolValue val;
+				if(getAttrValue("wordwrap", &val))
+				{
+					return val;
+				}
+				return false;
 			}
 			
 			//! Set the useellipsis attribute.
@@ -509,7 +654,7 @@ namespace Kiwi
 			 */
 			void setUseEllipsis(const bool useEllipsis)
 			{
-				m_useellipsis = useEllipsis;
+				setAttrValue("useellipsis", BoolValue(useEllipsis));
 			}
 			
 			//! Retrieves the useellipsis attribute.
@@ -518,7 +663,12 @@ namespace Kiwi
 			 */
 			bool getUseEllipsis() const noexcept
 			{
-				return m_useellipsis;
+				BoolValue val;
+				if(getAttrValue("useellipsis", &val))
+				{
+					return val;
+				}
+				return false;
 			}
 			
 			//! Set the autoscroll attribute.
@@ -527,7 +677,7 @@ namespace Kiwi
 			 */
 			void setAutoScroll(const bool autoscroll)
 			{
-				m_autoscroll = autoscroll;
+				setAttrValue("autoscroll", BoolValue(autoscroll));
 			}
 			
 			//! Retrieves the autoscroll attribute.
@@ -536,7 +686,12 @@ namespace Kiwi
 			 */
 			bool getAutoScroll() const noexcept
 			{
-				return m_autoscroll;
+				BoolValue val;
+				if(getAttrValue("autoscroll", &val))
+				{
+					return val;
+				}
+				return false;
 			}
 			
 			//! Set the autofixwidth attribute.
@@ -545,7 +700,7 @@ namespace Kiwi
 			 */
 			void setAutoFixWidth(const bool autofixwidth)
 			{
-				m_autofixwidth = autofixwidth;
+				setAttrValue("autofixwidth", BoolValue(autofixwidth));
 			}
 			
 			//! Retrieves the autofixwidth attribute.
@@ -554,7 +709,12 @@ namespace Kiwi
 			 */
 			bool getAutoFixWidth() const noexcept
 			{
-				return m_autofixwidth;
+				BoolValue val;
+				if(getAttrValue("autofixwidth", &val))
+				{
+					return val;
+				}
+				return false;
 			}
 			
 			// ================================================================================ //

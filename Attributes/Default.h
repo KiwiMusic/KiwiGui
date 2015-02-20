@@ -157,12 +157,12 @@ namespace Kiwi
          */
         void getValue(string& text) const noexcept override;
         
-        inline bool value() const noexcept
+        inline long value() const noexcept
         {
             return m_value;
         }
         
-        inline void value(const bool value) noexcept
+        inline void value(const long value) noexcept
         {
             m_value = value;
         }
@@ -238,12 +238,12 @@ namespace Kiwi
          */
         void getValue(string& text) const noexcept override;
         
-        inline bool value() const noexcept
+        inline double value() const noexcept
         {
             return m_value;
         }
         
-        inline void value(const bool value) noexcept
+        inline void value(const double value) noexcept
         {
             m_value = value;
         }
@@ -275,6 +275,108 @@ namespace Kiwi
             return m_value == other.m_value;
         }
     };
+	
+	// ================================================================================ //
+	//                                      STRING										//
+	// ================================================================================ //
+	
+	class StringValue : public Attr::Value
+	{
+	private:
+		string m_value;
+	public:
+		
+		StringValue() noexcept
+		{
+			;
+		}
+		
+		StringValue(string const& str) noexcept : m_value(str)
+		{
+			;
+		}
+		
+		StringValue(StringValue const& other) noexcept : m_value(other.m_value)
+		{
+			;
+		}
+		
+		~StringValue() noexcept
+		{
+			;
+		}
+		
+		//! Set the attribute value with a string.
+		/** The function sets the attribute value with a string.
+		 @param text The value in the string format.
+		 */
+		void setValue(string const& text) noexcept override
+		{
+			m_value = text;
+		}
+		
+		//! Retrieve the attribute value as a string.
+		/** The function retrieves the attribute value as a string.
+		 @param text The value in the string format.
+		 */
+		void getValue(string& text) const noexcept override
+		{
+			text = m_value;
+		}
+		
+		inline string value() const noexcept
+		{
+			return m_value;
+		}
+		
+		inline void value(string const& value) noexcept
+		{
+			m_value = value;
+		}
+		
+		inline StringValue& operator=(StringValue const& other) noexcept
+		{
+			m_value = other.m_value;
+			return *this;
+		}
+		
+		inline StringValue& operator=(string const& value) noexcept
+		{
+			m_value = value;
+			return *this;
+		}
+		
+		inline StringValue& operator=(char const& value) noexcept
+		{
+			m_value = value;
+			return *this;
+		}
+		
+		inline operator string() const noexcept
+		{
+			return m_value;
+		}
+		
+		inline bool operator!=(StringValue const& other) const noexcept
+		{
+			return m_value != other.m_value;
+		}
+		
+		inline bool operator!=(string const& other) const noexcept
+		{
+			return m_value != other;
+		}
+		
+		inline bool operator==(StringValue const& other) const noexcept
+		{
+			return m_value == other.m_value;
+		}
+		
+		inline bool operator==(string const& other) const noexcept
+		{
+			return m_value == other;
+		}
+	};
 }
 
 #endif

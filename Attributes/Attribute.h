@@ -530,7 +530,7 @@ namespace Kiwi
         //! Retrieve an attribute.
         /** The function retrieves an attribute.
          @param name the name of the attribute.
-         @return the attributes.
+         @return the attribute.
          */
         template<class T> inline shared_ptr<Typed<T>> getAttrTyped(string const& name) const noexcept
         {
@@ -544,9 +544,64 @@ namespace Kiwi
                 return nullptr;
             }
         }
-        
+		
+		//! Retrieve an attribute value.
+		/** The function retrieves an attribute value.
+		 @param name the name of the attribute.
+		 @param value The attribute value to fill.
+		 @return True if success, false otherwise.
+		 */
+		template<class T> inline bool getAttrValue(string const& name, T* value) const noexcept
+		{
+			sAttr attr = getAttr(name);
+			if(attr)
+			{
+				shared_ptr<Typed<T>> typedAttr = attr->getShared<T>();
+				
+				if(typedAttr && (typedAttr->getTypeIndex() == typeid(T)))
+				{
+					*value = typedAttr->getValue();
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			
+			return false;
+		}
+		
+		//! Set an attribute value.
+		/** The function sets an attribute value.
+		 @param name the name of the attribute.
+		 @param value The new attribute value.
+		 @return True if success, false otherwise.
+		 */
+		template<class T, typename = typename enable_if<is_base_of<Attr::Value, T>::value>::type>
+		inline bool setAttrValue(string const& name, T const& value) const noexcept
+		{
+			sAttr attr = getAttr(name);
+			if(attr)
+			{
+				shared_ptr<Typed<T>> typedAttr = attr->getShared<T>();
+				
+				if(typedAttr && (typedAttr->getTypeIndex() == typeid(T)))
+				{
+					typedAttr->setValue(value);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			
+			return false;
+		}
+		
     protected:
-        
+		
         //! Add an attribute to the manager.
         /** The function adds an attribute to the manager.
          @param attr The attribute to add.

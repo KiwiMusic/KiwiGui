@@ -316,6 +316,28 @@ namespace Kiwi
          */
         void getValue(string& text) const noexcept override;
     };
+	
+	// ================================================================================ //
+	//                                      RECTANGLE                                   //
+	// ================================================================================ //
+	
+	struct FontValue : public Font, public Attr::Value
+	{
+	public:
+		using Font::Font;
+		
+		//! Set the attribute value with a string.
+		/** The function sets the attribute value with a string.
+		 @param text The value in the string format.
+		 */
+		void setValue(string const& text) noexcept override;
+		
+		//! Retrieve the attribute value as a string.
+		/** The function retrieves the attribute value as a string.
+		 @param text The value in the string format.
+		 */
+		void getValue(string& text) const noexcept override;
+	};
 }
 
 #endif

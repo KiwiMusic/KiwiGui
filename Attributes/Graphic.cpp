@@ -134,7 +134,7 @@ namespace Kiwi
     }
     
     // ================================================================================ //
-    //                                      RECTANGLE                                   //
+    //                                    RECTANGLE										//
     // ================================================================================ //
     
     void RectangleValue::setValue(string const& text) noexcept
@@ -160,5 +160,27 @@ namespace Kiwi
     {
         text = "[" + toString(x()) + ", " + toString(y()) + ", " + toString(width()) + ", " + toString(height()) + "]";
     }
+	
+	// ================================================================================ //
+	//                                      FONT										//
+	// ================================================================================ //
+	
+	//! Set the attribute value with a string.
+	/** The function sets the attribute value with a string.
+	 @param text The value in the string format.
+	 */
+	void FontValue::setValue(string const& text) noexcept
+	{
+		;
+	}
+	
+	//! Retrieve the attribute value as a string.
+	/** The function retrieves the attribute value as a string.
+	 @param text The value in the string format.
+	 */
+	void FontValue::getValue(string& text) const noexcept
+	{
+		//text = "[" + "\"" + getName() + "\", " + toString(getSize()) + ", " + toString(width()) + ", " + toString(height()) + "]";
+	}
 }
 

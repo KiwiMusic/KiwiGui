@@ -27,8 +27,79 @@ namespace Kiwi
 {
     namespace Gui
     {
+		// ================================================================================ //
+		//                                     DEFAULT                                      //
+		// ================================================================================ //
+		Default::Default() noexcept :
+		m_color_background( Attr::create("bgcolor",     "Background Color", "Color", ColorValue(1., 1., 1., 1.))),
+		m_color_border(     Attr::create("bdcolor",     "Border Color",     "Color", ColorValue(0.4, 0.4, 0.4, 1.)))
+		{
+			m_size->setValue(Size(80., 20.));
+			addAttr(m_color_background);
+			addAttr(m_color_border);
+		}
+		
+		Default::~Default()
+		{
+			;
+		}
+		
+		void Default::draw(Gui::Doodle& d) const
+		{
+			const double borderSize = 2;
+			d.fillAll(m_color_background->getValue());
+			d.setColor(m_color_border->getValue());
+			d.drawRectangle(d.getBounds().reduced(borderSize*0.5), borderSize);
+		}
+		
+		bool Default::textFilter(wstring& newtext)
+		{
+			string text = string(newtext.begin(), newtext.end());
+			cout << "newbox textenter: " << text << endl;
+			return true;
+		}
+		
+		void Default::textChanged()
+		{
+			;
+		}
+		
+		bool Default::notify(sAttr attr)
+		{
+			if(attr == m_color_background || attr == m_color_border)
+			{
+				redraw();
+			}
+			
+			if (attr->getName() == "size")
+			{
+				cout << "size changed" << endl;
+			}
+			
+			return true;
+		}
+		
+		/*
+		sObject NewBox::create(Initializer const& initiliazer) const
+		{
+			sObject obj = make_shared<NewBox>(initiliazer);
+			
+			Gui::sWriter writer = dynamic_pointer_cast<Gui::Writer>(obj);
+			if(writer)
+			{
+				Gui::Writer::sTextField textfield = writer->getTextField();
+				if(textfield)
+				{
+					textfield->setWriter(writer);
+				}
+			}
+			
+			return obj;
+		}
+		*/
+		
         // ================================================================================ //
-        //                                      BANG                                        //
+        //                                      BUTTON                                      //
         // ================================================================================ //
         
         Button::Button() noexcept :

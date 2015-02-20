@@ -30,20 +30,33 @@ namespace Kiwi
 {
     namespace Gui
     {
-		/*
+		// ================================================================================ //
+		//                                     DEFAULT                                      //
+		// ================================================================================ //
+		
 		class Default : public Gui::Writer
 		{
 		protected:
 			sAttrColor    m_color_background;
 			sAttrColor    m_color_border;
+			
+			virtual void doubleClick() {};
+			
 		public:
 			Default() noexcept;
 			virtual ~Default();
 			
 			bool textFilter(wstring& newtext) override;
 			void textChanged() override;
+			void draw(Doodle& doodle) const override;
+			bool notify(sAttr attr) override;
 		};
-		*/
+		
+		
+		// ================================================================================ //
+		//                                      BUTTON                                      //
+		// ================================================================================ //
+		
 		
         class Button : virtual public Sketcher, virtual public Mouser
         {

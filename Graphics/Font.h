@@ -85,9 +85,9 @@ namespace Kiwi
         }
         
         //! Font constructor.
-        /** Initializes a default Arial font with a \Normal facetype and a font size of 12.
-         */
-        Font(string const& name, double size, ulong face = Plain) noexcept :
+        /** Initializes a font with a name, size and style
+		 */
+        Font(string const& name, double size = 12, ulong face = Plain) noexcept :
         m_name(name), m_style(face)
         {
             setSize(size);
@@ -116,7 +116,16 @@ namespace Kiwi
         {
             return m_name;
         }
-        
+		
+		//! Retrieves the font name.
+		/** The function retrieves the name of the font.
+		 @return The name of the font.
+		 */
+		inline Font withName(const string& name) const noexcept
+		{
+			return Font(name, m_size, m_style);
+		}
+		
         //! Sets the font size.
         /** The function sets the size of the font.
          @param size The size of the font.
