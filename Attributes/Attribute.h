@@ -479,7 +479,7 @@ namespace Kiwi
     /** The attribute manager manages a set of attributes, it allows the setting and the getting of their values and to retrieve them by name or by category.
      @see AttrTyped
      */
-    class Attr::Manager : public enable_shared_from_this<Manager>
+    class Attr::Manager : public inheritable_enable_shared_from_this<Manager>
     {
         friend Attr;
         map<string, sAttr> m_attrs;
