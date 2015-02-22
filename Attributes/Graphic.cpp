@@ -180,7 +180,7 @@ namespace Kiwi
 	 */
 	void FontValue::getValue(string& text) const noexcept
 	{
-		//text = "[" + "\"" + getName() + "\", " + toString(getSize()) + ", " + toString(width()) + ", " + toString(height()) + "]";
+		text = "[\"" + getName() + "\", " + toString(getSize()) + ", \"" + getStyleName(getStyle()) + "\"]";
 	}
 }
 
