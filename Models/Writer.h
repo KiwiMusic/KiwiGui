@@ -28,13 +28,11 @@
 
 namespace Kiwi
 {
-    namespace Gui
-    {
 		// ================================================================================ //
 		//										WRITER										//
 		// ================================================================================ //
 		
-		class Writer : virtual public Gui::Sketcher, public Gui::Keyboarder, protected Gui::Mouser
+		class Writer : virtual public Kiwi::Sketcher, public Kiwi::Keyboarder, protected Kiwi::Mouser
 		{
 			typedef shared_ptr<Writer>			sWriter;
 			typedef weak_ptr<Writer>			wWriter;
@@ -105,19 +103,19 @@ namespace Kiwi
 			{
 				int TODO;
 				return false;
-			};
+			}
 		
 			bool receive(Keyboarder::Event const& event) override
 			{
 				int TODO;
 				return false;
-			};
+			}
 	
 			bool receive(Keyboarder::Focus event) override
 			{
 				int TODO;
 				return false;
-			};
+			}
 
 			//! Retrieves the textfield.
 			/** This function retrievs the textfield.
@@ -757,7 +755,6 @@ namespace Kiwi
 				virtual void textfieldTextEdited() = 0;
 			};
 		};
-    }
 }
 
 #endif

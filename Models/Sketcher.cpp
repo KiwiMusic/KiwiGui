@@ -25,65 +25,62 @@
 
 namespace Kiwi
 {
-    namespace Gui
-    {
-        // ================================================================================ //
-        //                                      SKETCHER                                    //
-        // ================================================================================ //
-        
-        Sketcher::Sketcher() noexcept :
-        m_position(Attr::create("position", "Position", "Appearance", PointValue(0., 0.))),
-        m_size(Attr::create(    "size",     "Size",     "Appearance", SizeValue(10., 10.)))
-        {
-            addAttr(m_position);
-            addAttr(m_size);
-        }
-        
-        Sketcher::~Sketcher()
-        {
-            ;
-        }
-        
-        void Sketcher::addListener(sListener listener)
-        {
-            if(listener)
-            {
-                lock_guard<mutex> guard(m_lists_mutex);
-                m_lists.insert(listener);
-            }
-        }
-
-        void Sketcher::removeListener(sListener listener)
-        {
-            if(listener)
-            {
-                lock_guard<mutex> guard(m_lists_mutex);
-                m_lists.erase(listener);
-            }
-        }
-        
-        void Sketcher::redraw() noexcept
-        {
-            lock_guard<mutex> guard(m_lists_mutex);
-            auto it = m_lists.begin();
-            while(it != m_lists.end())
-            {
-                if((*it).expired())
-                {
-                    it = m_lists.erase(it);
-                }
-                else
-                {
-                    sListener listener = (*it).lock();
-                    listener->redraw();
-                    ++it;
-                }
-            }
-        }
-        
-        void Doodle::drawText(string const& text, Rectangle const& rect, Font::Justification j, bool wrap)
-        {
-            drawText(text, rect.x(), rect.y(), rect.width(), rect.height(), j, wrap);
-        }
-    }
+	// ================================================================================ //
+	//                                      SKETCHER                                    //
+	// ================================================================================ //
+	
+	Sketcher::Sketcher() noexcept :
+	m_position(Attr::create("position", "Position", "Appearance", PointValue(0., 0.))),
+	m_size(Attr::create(    "size",     "Size",     "Appearance", SizeValue(10., 10.)))
+	{
+		addAttr(m_position);
+		addAttr(m_size);
+	}
+	
+	Sketcher::~Sketcher()
+	{
+		;
+	}
+	
+	void Sketcher::addListener(sListener listener)
+	{
+		if(listener)
+		{
+			lock_guard<mutex> guard(m_lists_mutex);
+			m_lists.insert(listener);
+		}
+	}
+	
+	void Sketcher::removeListener(sListener listener)
+	{
+		if(listener)
+		{
+			lock_guard<mutex> guard(m_lists_mutex);
+			m_lists.erase(listener);
+		}
+	}
+	
+	void Sketcher::redraw() noexcept
+	{
+		lock_guard<mutex> guard(m_lists_mutex);
+		auto it = m_lists.begin();
+		while(it != m_lists.end())
+		{
+			if((*it).expired())
+			{
+				it = m_lists.erase(it);
+			}
+			else
+			{
+				sListener listener = (*it).lock();
+				listener->redraw();
+				++it;
+			}
+		}
+	}
+	
+	void Doodle::drawText(string const& text, Rectangle const& rect, Font::Justification j, bool wrap)
+	{
+		drawText(text, rect.x(), rect.y(), rect.width(), rect.height(), j, wrap);
+	}
 }

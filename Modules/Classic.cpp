@@ -25,147 +25,144 @@
 
 namespace Kiwi
 {
-    namespace Gui
-    {
-		// ================================================================================ //
-		//                                     DEFAULT                                      //
-		// ================================================================================ //
-		Default::Default() noexcept :
-		m_color_background( Attr::create("bgcolor",     "Background Color", "Color", ColorValue(1., 1., 1., 1.))),
-		m_color_border(     Attr::create("bdcolor",     "Border Color",     "Color", ColorValue(0.4, 0.4, 0.4, 1.)))
+	// ================================================================================ //
+	//                                     DEFAULT                                      //
+	// ================================================================================ //
+	Default::Default() noexcept :
+	m_color_background( Attr::create("bgcolor",     "Background Color", "Color", ColorValue(1., 1., 1., 1.))),
+	m_color_border(     Attr::create("bdcolor",     "Border Color",     "Color", ColorValue(0.4, 0.4, 0.4, 1.)))
+	{
+		m_size->setValue(Size(80., 20.));
+		addAttr(m_color_background);
+		addAttr(m_color_border);
+	}
+	
+	Default::~Default()
+	{
+		;
+	}
+	
+	void Default::draw(Kiwi::Doodle& d) const
+	{
+		const double borderSize = 2;
+		d.fillAll(m_color_background->getValue());
+		d.setColor(m_color_border->getValue());
+		d.drawRectangle(d.getBounds().reduced(borderSize*0.5), borderSize);
+	}
+	
+	bool Default::textFilter(wstring& newtext)
+	{
+		string text = string(newtext.begin(), newtext.end());
+		cout << "newbox textenter: " << text << endl;
+		return true;
+	}
+	
+	void Default::textChanged()
+	{
+		;
+	}
+	
+	bool Default::notify(sAttr attr)
+	{
+		if(attr == m_color_background || attr == m_color_border)
 		{
-			m_size->setValue(Size(80., 20.));
-			addAttr(m_color_background);
-			addAttr(m_color_border);
+			redraw();
 		}
 		
-		Default::~Default()
+		if (attr->getName() == "size")
 		{
-			;
+			cout << "size changed" << endl;
 		}
 		
-		void Default::draw(Gui::Doodle& d) const
-		{
-			const double borderSize = 2;
-			d.fillAll(m_color_background->getValue());
-			d.setColor(m_color_border->getValue());
-			d.drawRectangle(d.getBounds().reduced(borderSize*0.5), borderSize);
-		}
-		
-		bool Default::textFilter(wstring& newtext)
-		{
-			string text = string(newtext.begin(), newtext.end());
-			cout << "newbox textenter: " << text << endl;
-			return true;
-		}
-		
-		void Default::textChanged()
-		{
-			;
-		}
-		
-		bool Default::notify(sAttr attr)
-		{
-			if(attr == m_color_background || attr == m_color_border)
-			{
-				redraw();
-			}
-			
-			if (attr->getName() == "size")
-			{
-				cout << "size changed" << endl;
-			}
-			
-			return true;
-		}
-		
-		/*
+		return true;
+	}
+	
+	/*
 		sObject NewBox::create(Initializer const& initiliazer) const
 		{
-			sObject obj = make_shared<NewBox>(initiliazer);
-			
-			Gui::sWriter writer = dynamic_pointer_cast<Gui::Writer>(obj);
-			if(writer)
-			{
-				Gui::Writer::sTextField textfield = writer->getTextField();
-				if(textfield)
-				{
-					textfield->setWriter(writer);
-				}
-			}
-			
-			return obj;
+	 sObject obj = make_shared<NewBox>(initiliazer);
+	 
+	 Kiwi::sWriter writer = dynamic_pointer_cast<Kiwi::Writer>(obj);
+	 if(writer)
+	 {
+	 Kiwi::Writer::sTextField textfield = writer->getTextField();
+	 if(textfield)
+	 {
+	 textfield->setWriter(writer);
+	 }
+	 }
+	 
+	 return obj;
 		}
 		*/
+	
+	// ================================================================================ //
+	//                                      BUTTON                                      //
+	// ================================================================================ //
+	
+	Button::Button() noexcept :
+	m_color_background( Attr::create("bgcolor",     "Background Color", "Color", ColorValue(1., 1., 1., 1.))),
+	m_color_border(     Attr::create("bdcolor",     "Border Color",     "Color", ColorValue(0.4, 0.4, 0.4, 1.))),
+	m_color_circle(     Attr::create("circlecolor", "Circle Color",     "Color", ColorValue(0.4, 0.4, 0.4, 1.))),
+	m_color_led(        Attr::create("ledcolor",    "Led Color",        "Color", ColorValue(0.4, 0.4, 0.4, 1.))),
+	m_led(false)
+	{
+		m_size->setValue(Size(20., 20., 10., 10., 1.));
+		addAttr(m_color_background);
+		addAttr(m_color_border);
+		addAttr(m_color_circle);
+		addAttr(m_color_led);
+	}
+	
+	Button::~Button()
+	{
+		;
+	}
+	
+	bool Button::receive(Mouser::Event const& event)
+	{
+		if(event.isDown())
+		{
+			this->bang();
+			m_led = true;
+			redraw();
+			return true;
+		}
+		else if(event.isUp())
+		{
+			m_led = false;
+			redraw();
+			return true;
+		}
+		return false;
+	}
+	
+	void Button::draw(Kiwi::Doodle& d) const
+	{
+		const double borderSize = d.getWidth() * 0.1;
+		const Rectangle ledRect = d.getBounds().reduced(d.getWidth() * 0.2);
+		d.fillAll(m_color_background->getValue());
 		
-        // ================================================================================ //
-        //                                      BUTTON                                      //
-        // ================================================================================ //
-        
-        Button::Button() noexcept :
-        m_color_background( Attr::create("bgcolor",     "Background Color", "Color", ColorValue(1., 1., 1., 1.))),
-        m_color_border(     Attr::create("bdcolor",     "Border Color",     "Color", ColorValue(0.4, 0.4, 0.4, 1.))),
-        m_color_circle(     Attr::create("circlecolor", "Circle Color",     "Color", ColorValue(0.4, 0.4, 0.4, 1.))),
-        m_color_led(        Attr::create("ledcolor",    "Led Color",        "Color", ColorValue(0.4, 0.4, 0.4, 1.))),
-        m_led(false)
-        {
-            m_size->setValue(Size(20., 20., 10., 10., 1.));
-            addAttr(m_color_background);
-            addAttr(m_color_border);
-            addAttr(m_color_circle);
-            addAttr(m_color_led);
-        }
-        
-        Button::~Button()
-        {
-            ;
-        }
-        
-        bool Button::receive(Mouser::Event const& event)
-        {
-            if(event.isDown())
-            {
-                this->bang();
-                m_led = true;
-                redraw();
-                return true;
-            }
-            else if(event.isUp())
-            {
-                m_led = false;
-                redraw();
-                return true;
-            }
-            return false;
-        }
-        
-        void Button::draw(Gui::Doodle& d) const
-        {
-            const double borderSize = d.getWidth() * 0.1;
-            const Rectangle ledRect = d.getBounds().reduced(d.getWidth() * 0.2);
-            d.fillAll(m_color_background->getValue());
-            
-            d.setColor(m_color_border->getValue());
-            d.drawRectangle(d.getBounds().reduced(borderSize*0.5), borderSize, 0);
-            d.setColor(m_color_circle->getValue());
-            d.drawEllipse(ledRect, borderSize);
-            
-            if(m_led)
-            {
-                d.setColor(m_color_led->getValue());
-                d.fillEllipse(ledRect);
-            }
-        }
-        
-        bool Button::notify(sAttr attr)
-        {
-            if(attr == m_color_circle || attr == m_color_background || attr == m_color_border)
-            {
-                cout << "attr changed : "<< attr->getName() << endl;
-                redraw();
-            }
-            return true;
-        }
-    }
+		d.setColor(m_color_border->getValue());
+		d.drawRectangle(d.getBounds().reduced(borderSize*0.5), borderSize, 0);
+		d.setColor(m_color_circle->getValue());
+		d.drawEllipse(ledRect, borderSize);
+		
+		if(m_led)
+		{
+			d.setColor(m_color_led->getValue());
+			d.fillEllipse(ledRect);
+		}
+	}
+	
+	bool Button::notify(sAttr attr)
+	{
+		if(attr == m_color_circle || attr == m_color_background || attr == m_color_border)
+		{
+			cout << "attr changed : "<< attr->getName() << endl;
+			redraw();
+		}
+		return true;
+	}
 }
 

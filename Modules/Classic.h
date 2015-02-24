@@ -28,53 +28,50 @@
 
 namespace Kiwi
 {
-    namespace Gui
-    {
-		// ================================================================================ //
-		//                                     DEFAULT                                      //
-		// ================================================================================ //
+	// ================================================================================ //
+	//                                     DEFAULT                                      //
+	// ================================================================================ //
+	
+	class Default : public Kiwi::Writer
+	{
+	protected:
+		sAttrColor    m_color_background;
+		sAttrColor    m_color_border;
 		
-		class Default : public Gui::Writer
-		{
-		protected:
-			sAttrColor    m_color_background;
-			sAttrColor    m_color_border;
-			
-			virtual void doubleClick() {};
-			
-		public:
-			Default() noexcept;
-			virtual ~Default();
-			
-			bool textFilter(wstring& newtext) override;
-			void textChanged() override;
-			void draw(Doodle& doodle) const override;
-			bool notify(sAttr attr) override;
-		};
+		virtual void doubleClick() {};
 		
+	public:
+		Default() noexcept;
+		virtual ~Default();
 		
-		// ================================================================================ //
-		//                                      BUTTON                                      //
-		// ================================================================================ //
-		
-		
-        class Button : virtual public Sketcher, virtual public Mouser
-        {
-        protected:
-            const sAttrColor    m_color_background;
-            const sAttrColor    m_color_border;
-            const sAttrColor    m_color_circle;
-            const sAttrColor    m_color_led;
-            atomic_bool         m_led;
-        public:
-            Button() noexcept;
-            virtual ~Button();
-            bool receive(Mouser::Event const& event) override;
-            void draw(Doodle& doodle) const override;
-            bool notify(sAttr attr) override;
-            virtual void bang() {};
-        };
-    }
+		bool textFilter(wstring& newtext) override;
+		void textChanged() override;
+		void draw(Doodle& doodle) const override;
+		bool notify(sAttr attr) override;
+	};
+	
+	
+	// ================================================================================ //
+	//                                      BUTTON                                      //
+	// ================================================================================ //
+	
+	
+	class Button : virtual public Sketcher, virtual public Mouser
+	{
+	protected:
+		const sAttrColor    m_color_background;
+		const sAttrColor    m_color_border;
+		const sAttrColor    m_color_circle;
+		const sAttrColor    m_color_led;
+		atomic_bool         m_led;
+	public:
+		Button() noexcept;
+		virtual ~Button();
+		bool receive(Mouser::Event const& event) override;
+		void draw(Doodle& doodle) const override;
+		bool notify(sAttr attr) override;
+		virtual void bang() {};
+	};
 }
 
 #endif

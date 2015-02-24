@@ -25,36 +25,33 @@
 
 namespace Kiwi
 {
-    namespace Gui
-    {
-        // ================================================================================ //
-        //                                      BANG                                        //
-        // ================================================================================ //
-        
-        Chord::Chord() noexcept
-        {
-            ;
-        }
-        
-        Chord::~Chord()
-        {
-            ;
-        }
-        
-        bool Chord::receive(Mouser::Event const& event)
-        {
-            return false;
-        }
-        
-        void Chord::draw(Gui::Doodle& d) const
-        {
-            ;
-        }
-        
-        bool Chord::notify(sAttr attr)
-        {
-            return true;
-        }
-    }
+	// ================================================================================ //
+	//                                      BANG                                        //
+	// ================================================================================ //
+	
+	Chord::Chord() noexcept
+	{
+		;
+	}
+	
+	Chord::~Chord()
+	{
+		;
+	}
+	
+	bool Chord::receive(Mouser::Event const& event)
+	{
+		return false;
+	}
+	
+	void Chord::draw(Kiwi::Doodle& d) const
+	{
+		;
+	}
+	
+	bool Chord::notify(sAttr attr)
+	{
+		return true;
+	}
 }
 

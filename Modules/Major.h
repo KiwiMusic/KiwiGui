@@ -28,19 +28,16 @@
 
 namespace Kiwi
 {
-    namespace Gui
-    {
-        class Chord : virtual public Sketcher, virtual public Mouser
-        {
-        protected:
-        public:
-            Chord() noexcept;
-            virtual ~Chord();
-            bool receive(Mouser::Event const& event) override;
-            void draw(Doodle& doodle) const override;
-            bool notify(sAttr attr) override;
-        };
-    }
+	class Chord : virtual public Sketcher, virtual public Mouser
+	{
+	protected:
+	public:
+		Chord() noexcept;
+		virtual ~Chord();
+		bool receive(Mouser::Event const& event) override;
+		void draw(Doodle& doodle) const override;
+		bool notify(sAttr attr) override;
+	};
 }
 
 #endif

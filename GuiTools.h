@@ -409,29 +409,24 @@ namespace Kiwi
         }
     }
 
-    namespace Gui
-    {
-        class Sketcher;
-        typedef shared_ptr<Sketcher>          sSketcher;
-        typedef weak_ptr<Sketcher>            wSketcher;
-        typedef shared_ptr<const Sketcher>    scSketcher;
-        typedef weak_ptr<const Sketcher>      wcSketcher;
-        
-        class Mouser;
-        typedef shared_ptr<Mouser>          sMouser;
-        typedef weak_ptr<Mouser>            wMouser;
-        typedef shared_ptr<const Mouser>    scMouser;
-        typedef weak_ptr<const Mouser>      wcMouser;
-        
-        class Keyboarder;
-        typedef shared_ptr<Keyboarder>          sKeyboarder;
-        typedef weak_ptr<Keyboarder>            wKeyboarder;
-        typedef shared_ptr<const Keyboarder>    scKeyboarder;
-        typedef weak_ptr<const Keyboarder>      wcKeyboarder;
-        
-        
-    }
-    
+	class Sketcher;
+	typedef shared_ptr<Sketcher>          sSketcher;
+	typedef weak_ptr<Sketcher>            wSketcher;
+	typedef shared_ptr<const Sketcher>    scSketcher;
+	typedef weak_ptr<const Sketcher>      wcSketcher;
+	
+	class Mouser;
+	typedef shared_ptr<Mouser>          sMouser;
+	typedef weak_ptr<Mouser>            wMouser;
+	typedef shared_ptr<const Mouser>    scMouser;
+	typedef weak_ptr<const Mouser>      wcMouser;
+	
+	class Keyboarder;
+	typedef shared_ptr<Keyboarder>          sKeyboarder;
+	typedef weak_ptr<Keyboarder>            wKeyboarder;
+	typedef shared_ptr<const Keyboarder>    scKeyboarder;
+	typedef weak_ptr<const Keyboarder>      wcKeyboarder;
+	
 };
 
 #endif
