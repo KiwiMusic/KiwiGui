@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_RECTANGLE__
 #define __DEF_KIWI_GUI_RECTANGLE__
 
-#include "Point.h"
+#include "KiwiPoint.h"
 
 namespace Kiwi
 {
@@ -59,6 +59,11 @@ namespace Kiwi
          */
         Rectangle(Point const& position, Point const& size) noexcept;
         
+        //! Constructor.
+        /** The function initializes another rectangle.
+         */
+        Rectangle(Rectangle const& rect) noexcept;
+        
         //! Destructor.
         /** The function deletes the rectangle.
          */
@@ -72,12 +77,29 @@ namespace Kiwi
             double w = corner1.x() - corner2.x();
             double h = corner1.y() - corner2.y();
             
-            if (w < 0) w = -w;
-            if (h < 0) h = -h;
+            if (w < 0.) w = -w;
+            if (h < 0.) h = -h;
             
             return Rectangle(x, y, w, h);
         }
         
+        /** Returns a rectangle with a centre position. */
+        inline static Rectangle withCentre(Point const& centre, Point const& size)
+        {
+            return Rectangle(centre, Point()).expanded(size * 0.5);
+        }
+        
+        /** Returns a rectangle whose size is the same as this one, but with a new top-left position */
+        inline Rectangle withPosition(Point const& newpos) const noexcept
+        {
+            return Rectangle(newpos.x(), newpos.y(), m_size.x(), m_size.y());
+        }
+        
+        /** Returns a rectangle whose size is the same as this one, but whose top-left position is (0, 0). */
+        inline Rectangle withZeroOrigin() const noexcept
+        {
+            return Rectangle(0., 0., m_size.x(), m_size.y());
+        }
         //! Retrieve the abscissa.
         /** The function retrieves the abscissa.
          @return The abscissa.
@@ -194,24 +216,6 @@ namespace Kiwi
         inline Point centre() noexcept
         {
             return Point(x() + width() * 0.5, y() + height() * 0.5);
-        }
-        
-        /** Returns a rectangle with a centre position. */
-        inline static Rectangle withCentre(Point const& centre, Point const& size)
-        {
-            return Rectangle(centre, Point()).expanded(size * 0.5);
-        }
-        
-        /** Returns a rectangle whose size is the same as this one, but with a new top-left position */
-        inline Rectangle withPosition(Point const& newpos) const noexcept
-        {
-            return Rectangle(newpos.x(), newpos.y(), m_size.x(), m_size.y());
-        }
-        
-        /** Returns a rectangle whose size is the same as this one, but whose top-left position is (0, 0). */
-        inline Rectangle withZeroOrigin() const noexcept
-        {
-            return Rectangle(0., 0., m_size.x(), m_size.y());
         }
         
         /** Moves the x position, adjusting the width so that the right-hand edge remains in the same place.
@@ -366,74 +370,14 @@ namespace Kiwi
             return *this;
         }
         
-        inline Rectangle operator+(Point const& pt) const noexcept
-        {
-            return Rectangle(*this) += pt;
-        }
-        
-        inline Rectangle operator+(double const value) const noexcept
-        {
-            return Rectangle(*this) += value;
-        }
-        
-        inline Rectangle operator-(Point const& pt) const noexcept
-        {
-            return Rectangle(*this) -= pt;
-        }
-        
-        inline Rectangle operator-(double const value) const noexcept
-        {
-            return Rectangle(*this) -= value;
-        }
-        
-        inline Rectangle operator*(Point const& pt) const noexcept
-        {
-            return Rectangle(*this) *= pt;
-        }
-        
-        inline Rectangle operator*(double const value) const noexcept
-        {
-            return Rectangle(*this) *= value;
-        }
-        
-        inline Rectangle operator/(Point const& pt) const noexcept
-        {
-            return Rectangle(*this) /= pt;
-        }
-        
-        inline Rectangle operator/(double const value) const noexcept
-        {
-            return Rectangle(*this) /= value;
-        }
-        
         inline bool operator==(Rectangle const rect) const noexcept
         {
             return m_position == rect.position() && m_size == rect.size();
         }
         
-        inline bool operator==(Point const& pt) const noexcept
-        {
-            return m_position == pt && m_size == pt;
-        }
-        
-        inline bool operator==(double const value) const noexcept
-        {
-            return m_position == value && m_size == value;
-        }
-        
         inline bool operator!=(Rectangle const rect) const noexcept
         {
             return m_position != rect.position() || m_size != rect.size();
-        }
-        
-        inline bool operator!=(Point const& pt) const noexcept
-        {
-            return m_position != pt || m_size != pt;
-        }
-        
-        inline bool operator!=(double const value) const noexcept
-        {
-            return m_position != value && m_size != value;
         }
         
         inline bool contains(Point const& pt) const noexcept
@@ -453,8 +397,8 @@ namespace Kiwi
         inline void expand(Point const& pt) noexcept
         {
             position(m_position - pt);
-            width(max(0., width() + pt.x() * 2));
-            height(max(0., height() + pt.y() * 2));
+            width(max(0., width() + pt.x() * 2.));
+            height(max(0., height() + pt.y() * 2.));
         }
         
         //! Expands the rectangle by a given amount.
@@ -472,8 +416,8 @@ namespace Kiwi
          */
         Rectangle expanded(Point const& pt) const noexcept
         {
-            const double w = max(0., width() + pt.x() * 2);
-            const double h = max(0., height() + pt.y() * 2);
+            const double w = max(0., width() + pt.x() * 2.);
+            const double h = max(0., height() + pt.y() * 2.);
             return Rectangle(m_position.x() - pt.x(), m_position.y() - pt.y(), w, h);
         }
         
@@ -549,6 +493,87 @@ namespace Kiwi
          */
         bool overlaps(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept;
     };
+    
+    static inline Rectangle operator+(Rectangle const& rect, Point const& pt) noexcept
+    {
+        return Rectangle(rect.x() + pt.x(), rect.y() + pt.y(), rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator+(Point const& pt, Rectangle const& rect) noexcept
+    {
+        return Rectangle(rect.x() + pt.x(), rect.y() + pt.y(), rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator+(Rectangle const& rect, double const value) noexcept
+    {
+        return Rectangle(rect.x() + value, rect.y() + value, rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator+(double const value, Rectangle const& rect) noexcept
+    {
+        return Rectangle(rect.x() + value, rect.y() + value, rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator-(Rectangle const& rect, Point const& pt) noexcept
+    {
+        return Rectangle(rect.x() - pt.x(), rect.y() - pt.y(), rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator-(Point const& pt, Rectangle const& rect) noexcept
+    {
+        return Rectangle(rect.x() - pt.x(), rect.y() - pt.y(), rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator-(Rectangle const& rect, double const value) noexcept
+    {
+        return Rectangle(rect.x() - value, rect.y() - value, rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator-(double const value, Rectangle const& rect) noexcept
+    {
+        return Rectangle(rect.x() - value, rect.y() - value, rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator*(Rectangle const& rect, Point const& pt) noexcept
+    {
+        return Rectangle(rect.x() * pt.x(), rect.y() * pt.y(), rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator*(Point const& pt, Rectangle const& rect) noexcept
+    {
+        return Rectangle(rect.x() * pt.x(), rect.y() * pt.y(), rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator*(Rectangle const& rect, double const value) noexcept
+    {
+        return Rectangle(rect.x() * value, rect.y() * value, rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator*(double const value, Rectangle const& rect) noexcept
+    {
+        return Rectangle(rect.x() * value, rect.y() * value, rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator/(Rectangle const& rect, Point const& pt) noexcept
+    {
+        return Rectangle(rect.x() / pt.x(), rect.y() / pt.y(), rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator/(Point const& pt, Rectangle const& rect) noexcept
+    {
+        return Rectangle(rect.x() / pt.x(), rect.y() / pt.y(), rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator/(Rectangle const& rect, double const value) noexcept
+    {
+        return Rectangle(rect.x() / value, rect.y() / value, rect.width(), rect.height());
+    }
+    
+    static inline Rectangle operator/(double const value, Rectangle const& rect) noexcept
+    {
+        return Rectangle(rect.x() / value, rect.y() / value, rect.width(), rect.height());
+    }
+    
 }
 
 #endif

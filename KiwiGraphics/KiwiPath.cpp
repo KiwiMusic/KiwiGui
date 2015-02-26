@@ -21,7 +21,7 @@
  ==============================================================================
  */
 
-#include "Path.h"
+#include "KiwiPath.h"
 
 namespace Kiwi
 {
@@ -79,33 +79,6 @@ namespace Kiwi
     void Path::clear() noexcept
     {
         m_points.clear();
-    }
-    
-    Point Path::getPosition() const noexcept
-    {
-        Point position(0., 0.);
-        if(!m_points.empty())
-        {
-            position = m_points[0].point;
-            
-            for(vector<Point>::size_type i = 1; i < m_points.size(); i++)
-            {
-                if(m_points[i].point.x() < position.x())
-                {
-                    position.x(m_points[i].point.x());
-                }
-                if(m_points[i].point.y() < position.y())
-                {
-                    position.y(m_points[i].point.y());
-                }
-            }
-        }
-        return position;
-    }
-    
-    Point Path::getSize() const noexcept
-    {
-        return getBounds().size();
     }
     
     Rectangle Path::getBounds() const noexcept

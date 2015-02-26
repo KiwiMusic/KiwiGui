@@ -21,9 +21,8 @@
  ==============================================================================
  */
 
-#ifndef __DEF_KIWI_GUI_GRAPHICS__
-#define __DEF_KIWI_GUI_GRAPHICS__
+#include "KiwiColor.h"
 
-#include "TextLayout.h"
-
-#endif
+namespace Kiwi
+{
+}

@@ -24,7 +24,6 @@
 #ifndef __DEF_KIWI_GUI__
 #define __DEF_KIWI_GUI__
 
-#include "Graphics/Graphics.h"
 #include "Attributes/Attributes.h"
 #include "Models/Models.h"
 #include "Modules/Modules.h"

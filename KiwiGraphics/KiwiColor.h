@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_COLOR__
 #define __DEF_KIWI_GUI_COLOR__
 
-#include "Path.h"
+#include "KiwiPath.h"
 
 namespace Kiwi
 {
@@ -63,6 +63,21 @@ namespace Kiwi
         ~Color() noexcept
         {
             ;
+        }
+        
+        inline Color brighter(const double value) const noexcept
+        {
+            return Color(red() + value, green() + value, blue() + value, alpha());
+        }
+        
+        inline Color darker(const double value) const noexcept
+        {
+            return Color(red() - value, green() - value, blue() - value, alpha());
+        }
+        
+        inline Color withAlpha(const double value) const noexcept
+        {
+            return Color(red(), green(), blue(), clip(value, 0., 1.));
         }
         
         inline double red() const noexcept
@@ -122,21 +137,6 @@ namespace Kiwi
         inline bool operator==(Color const& color) noexcept
         {
             return m_red == color.m_red && m_green == color.m_green && m_blue == color.m_blue && m_alpha == color.m_alpha;
-        }
-        
-        inline Color brighter(const double value) const noexcept
-        {
-            return Color(red() + value, green() + value, blue() + value, alpha());
-        }
-        
-        inline Color darker(const double value) const noexcept
-        {
-            return Color(red() - value, green() - value, blue() - value, alpha());
-        }
-        
-        inline Color withAlpha(const double value) const noexcept
-        {
-            return Color(red(), green(), blue(), clip(value, 0., 1.));
         }
     };
 }

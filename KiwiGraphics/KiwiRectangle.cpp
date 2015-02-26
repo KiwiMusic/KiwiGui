@@ -21,7 +21,7 @@
  ==============================================================================
  */
 
-#include "Rectangle.h"
+#include "KiwiRectangle.h"
 
 namespace Kiwi
 {
@@ -41,6 +41,12 @@ namespace Kiwi
     m_position(position), m_size(max(size.x(), 0.), max(size.y(), 0.))
     {
         ;
+    }
+    
+    Rectangle::Rectangle(Rectangle const& rect) noexcept :
+    m_position(rect.m_position), m_size(rect.m_size)
+    {
+        
     }
     
     Rectangle::~Rectangle()

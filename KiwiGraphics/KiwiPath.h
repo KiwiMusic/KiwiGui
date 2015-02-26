@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_PATH__
 #define __DEF_KIWI_GUI_PATH__
 
-#include "Rectangle.h"
+#include "KiwiRectangle.h"
 
 namespace Kiwi
 {
@@ -184,18 +184,6 @@ namespace Kiwi
          @param The new point.
          */
         void setPoint(ulong index, Point const& pt) noexcept;
-        
-        //! Retrieve the position of the path.
-        /** The function retrieves the position of the path. The position point will be the top left point of the smallest rectangle that contains all the points.
-         @return The position of the path.
-         */
-        Point getPosition() const noexcept;
-        
-        //! Retrieve the size of the path.
-        /** The function retrieves the size of the path. The size point will be the size of the smallest rectangle that contains all the points.
-         @return The size of the path.
-         */
-        Point getSize() const noexcept;
         
         //! Retrieve the bounds of the path.
         /** The function retrieves the bounds of the path. The bounds rectangle is the smallest rectangle that contains all the points.

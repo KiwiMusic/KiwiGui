@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_ATTRIBUTE__
 #define __DEF_KIWI_GUI_ATTRIBUTE__
 
-#include "../Graphics/Graphics.h"
+#include "../KiwiGraphics/KiwiGraphics.h"
 
 namespace Kiwi
 {

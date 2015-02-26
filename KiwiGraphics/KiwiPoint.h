@@ -41,6 +41,8 @@ namespace Kiwi
     private:
         double m_x;
         double m_y;
+        
+        static ulong solve(double a, double b, double c, double const d, double &solution1, double &solution2, double &solution3);
     public:
         
         //! Constructor.
@@ -64,6 +66,36 @@ namespace Kiwi
         /** The function deletes the point.
          */
         ~Point();
+        
+        //! Retrieve the point over a line.
+        /** The function retrieves the point over a line.
+         @param begin The first point of the line.
+         @param end   The end point of the line.
+         @param delta The position of the point over the line (first point is 0 and and end point is 1).
+         @return The point.
+         */
+        static Point fromLine(Point const& begin, Point const& end, const double delta) noexcept;
+        
+        //! Retrieve the point over a quadratic bezier line.
+        /** The function retrieves the point over a quadratic bezier line.
+         @param begin The first point of the line.
+         @param ctrl  The control point of the line.
+         @param end   The end point of the line.
+         @param delta The position of the point over the line (first point is 0 and and end point is 1).
+         @return The point.
+         */
+        static Point fromLine(Point const& begin, Point const& ctrl, Point const& end, const double delta) noexcept;
+        
+        //! Retrieve the point over a cubic bezier line.
+        /** The function retrieves the point over a cubic bezier line.
+         @param begin The first point of the line.
+         @param ctrl1 The first control point of the line.
+         @param ctrl2 The second control point of the line.
+         @param end The end point of the line.
+         @param delta The position of the point over the line (first point is 0 and and end point is 1).
+         @return The point.
+         */
+        static Point fromLine(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end, const double delta) noexcept;
         
         //! Set the abscissa.
         /** The function sets the abscissa.
@@ -221,6 +253,95 @@ namespace Kiwi
             return *this;
         }
         
+        //! Add a value to the point.
+        /** The function adds a value to the point.
+         @param value The value to add.
+         @return The new point.
+         */
+        inline Point operator+(double const value) noexcept
+        {
+            return Point(m_x + value, m_y + value);
+        }
+        
+        //! Add a a point to the point.
+        /** The function adds a value to the point.
+         @param pt The point to add.
+         @return The new point.
+         */
+        inline Point operator+(Point const& pt) noexcept
+        {
+            return Point(m_x + pt.x(), m_y + pt.y());
+        }
+        
+        //! Subtract a a value to the point.
+        /** The function subtracts a value to the point.
+         @param value The value to subtract.
+         @return The new point.
+         */
+        inline Point operator-(double const value) const noexcept
+        {
+            return Point(m_x - value, m_y - value);
+        }
+        
+        //! Subtract a a point to the point.
+        /** The function subtract to the point.
+         @param pt The point to subtract.
+         @return The new point.
+         */
+        inline Point operator-(Point const pt) const noexcept
+        {
+            return Point(m_x - pt.x(), m_y - pt.y());
+        }
+        
+        //! Multiply a value with the point.
+        /** The function multiplies a value with the point.
+         @param value The value to multiply with.
+         @return The new point.
+         */
+        inline Point operator*(const double value) const noexcept
+        {
+            return Point(m_x * value, m_y * value);
+        }
+        
+        //! Multiply a point with the point.
+        /** The function multiplies a point with the point.
+         @param pt The point to multiply with.
+         @return The new point.
+         */
+        inline Point operator*(Point const pt) const noexcept
+        {
+            return Point(m_x * pt.x(), m_y * pt.y());
+        }
+        
+        //! Divide a value with the point.
+        /** The function divides a value with the point.
+         @param value The value to divide with.
+         @return The new point.
+         */
+        inline Point operator/(const double value) const noexcept
+        {
+            return Point(m_x / value, m_y / value);
+        }
+        
+        //! Divide a point with the point.
+        /** The function divides a point with the point.
+         @param pt The point to divide with.
+         @return The new point.
+         */
+        inline Point operator/(Point const pt) const noexcept
+        {
+            return Point(m_x * pt.x(), m_y * pt.y());
+        }
+        
+        //! Returns the inverse of the point.
+        /** The function return the inverse of the point.
+         @return The new point.
+         */
+        inline Point operator-() const noexcept
+        {
+            return Point(-m_x, -m_y);
+        }
+        
         //! Compare the equality of the abscissa and the ordinate with another point.
         /** The function compares the equality of the the abscissa and the ordinate with another point.
          @param value The value.
@@ -229,16 +350,6 @@ namespace Kiwi
         inline bool operator==(Point const& pt) const noexcept
         {
             return m_x == pt.x() && m_y == pt.y();
-        }
-        
-        //! Compare the equality of the abscissa and the ordinate with a value.
-        /** The function compares the equality of the abscissa and the ordinate with a value.
-         @param value A value.
-         @return true if the vector of elements is equal to the point, otherwise false.
-         */
-        inline bool operator==(double const value) const noexcept
-        {
-            return m_x == value && m_y == value;
         }
         
         //! Compare the equality of the abscissa and the ordinate with another point.
@@ -251,68 +362,26 @@ namespace Kiwi
             return m_x != pt.x() || m_y != pt.y();
         }
         
-        //! Compare the equality of the abscissa and the ordinate with a value.
-        /** The function compares the equality of the abscissa and the ordinate with a value.
-         @param value A value.
-         @return true if the vector of elements is not equal to the point, otherwise false.
+        //! Retrieve a copy and apply a rotation from the origin.
+        /** The function retrieves a copy and applies a rotation from the origin.
+         @param The angle
+         @return The copy with the rotation.
          */
-        inline bool operator!=(double const value) const noexcept
+        Point rotate(double const angle) const noexcept
         {
-            return (m_x != value && m_y != value);
+            return Point(m_x * cos(angle) - m_y * sin(angle), m_x * sin(angle) + m_y * cos(angle));
         }
         
-        //! Adds two points together.
-        inline Point operator+(Point const pt) const noexcept
+        //! Retrieve a copy and apply a rotation from another point.
+        /** The function retrieves a copy and applies a rotation from another point.
+         @pram pt The other point.
+         @param The angle
+         @return The copy with the rotation.
+         */
+        inline Point rotate(Point const& pt, double const angle) const noexcept
         {
-            return Point(m_x + pt.x(), m_y + pt.y());
-        }
-        
-        //! Adds a value to a point.
-        inline Point operator+(double const value) const noexcept
-        {
-            return Point(m_x + value, m_y + value);
-        }
-        
-        //! Subtracts one points from another
-        inline Point operator-(Point const pt) const noexcept
-        {
-            return Point(m_x - pt.x(), m_y - pt.y());
-        }
-        
-        //! Subtracts a value to the point
-        inline Point operator-(double const value) const noexcept
-        {
-            return Point(m_x - value, m_y - value);
-        }
-        
-        //! Multiplies two points together.
-        inline Point operator*(Point const pt) const noexcept
-        {
-            return Point(m_x * pt.x(), m_y * pt.y());
-        }
-        
-        //! Multiplies a point by a value.
-        inline Point operator*(double const value) const noexcept
-        {
-            return Point(m_x * value, m_y * value);
-        }
-        
-        //! Divides two points together.
-        inline Point operator/(Point const& pt) const noexcept
-        {
-            return Point(m_x / pt.x(), m_y / pt.y());
-        }
-        
-        //! Divides a point by a value.
-        inline Point operator/(double const value) const noexcept
-        {
-            return Point(m_x / value, m_y / value);
-        }
-        
-        //! Returns the inverse of this point.
-        inline Point operator-() const noexcept
-        {
-            return Point(-m_x, -m_y);
+            const Point newpt = *this - pt;
+            return Point(newpt.x() * cos (angle) - newpt.y() * sin (angle) + pt.x(), newpt.x() * sin (angle) + newpt.y() * cos (angle) + pt.y());
         }
         
         //! Retrieve the distance from the origin.
@@ -333,36 +402,6 @@ namespace Kiwi
         {
             return sqrt((m_x - pt.x()) * (m_x - pt.x()) + (m_y - pt.y()) * (m_y - pt.y()));
         }
-        
-        //! Retrieve the point over a line.
-        /** The function retrieves the point over a line.
-         @param begin The first point of the line.
-         @param end   The end point of the line.
-         @param delta The position of the point over the line (first point is 0 and and end point is 1).
-         @return The point.
-         */
-        static Point fromLine(Point const& begin, Point const& end, const double delta) noexcept;
-        
-        //! Retrieve the point over a quadratic bezier line.
-        /** The function retrieves the point over a quadratic bezier line.
-         @param begin The first point of the line.
-         @param ctrl  The control point of the line.
-         @param end   The end point of the line.
-         @param delta The position of the point over the line (first point is 0 and and end point is 1).
-         @return The point.
-         */
-        static Point fromLine(Point const& begin, Point const& ctrl, Point const& end, const double delta) noexcept;
-        
-        //! Retrieve the point over a cubic bezier line.
-        /** The function retrieves the point over a cubic bezier line.
-         @param begin The first point of the line.
-         @param ctrl1 The first control point of the line.
-         @param ctrl2 The second control point of the line.
-         @param end The end point of the line.
-         @param delta The position of the point over the line (first point is 0 and and end point is 1).
-         @return The point.
-         */
-        static Point fromLine(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end, const double delta) noexcept;
         
         //! Retrieve the distance from a line.
         /** The function retrieves the distance a line.
@@ -408,28 +447,6 @@ namespace Kiwi
         inline double angle(Point const& pt) const noexcept
         {
             return atan2(m_y - pt.y(), m_x - pt.x());
-        }
-        
-        //! Retrieve a copy and apply a rotation from the origin.
-        /** The function retrieves a copy and applies a rotation from the origin.
-         @param The angle
-         @return The copy with the rotation.
-         */
-        Point rotate(double const angle) const noexcept
-        {
-            return Point(m_x * cos(angle) - m_y * sin(angle), m_x * sin(angle) + m_y * cos(angle));
-        }
-        
-        //! Retrieve a copy and apply a rotation from another point.
-        /** The function retrieves a copy and applies a rotation from another point.
-         @pram pt The other point.
-         @param The angle
-         @return The copy with the rotation.
-         */
-        inline Point rotate(Point const& pt, double const angle) const noexcept
-        {
-            Point newpt = Point(*this) - pt;
-            return Point(newpt.x() * cos (angle) - newpt.y() * sin (angle) + pt.x(), newpt.x() * sin (angle) + newpt.y() * cos (angle) + pt.y());
         }
         
         //! Retrieve the dot product with another point.
@@ -480,6 +497,17 @@ namespace Kiwi
          */
         bool near(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end, double const distance) const noexcept;
     };
+    
+    //! Multiply a value with a point.
+    /** The function multiplies a value a the point.
+     @param pt The point to multiply.
+     @param value The value to multiply with.
+     @return The new point.
+     */
+    static inline Point operator*(Point const& pt, double const value) noexcept
+    {
+        return Point(pt.x() * value, pt.y() * value);
+    }
 }
 
 #endif
