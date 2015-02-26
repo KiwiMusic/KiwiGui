@@ -24,7 +24,6 @@
 #ifndef __DEF_KIWI_GUI_SKETCHER__
 #define __DEF_KIWI_GUI_SKETCHER__
 
-#include "../Graphics/Graphics.h"
 #include "../Attributes/Attributes.h"
 
 namespace Kiwi
