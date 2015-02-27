@@ -54,6 +54,29 @@ namespace Kiwi
         ;
     }
     
+    Rectangle Rectangle::withCorners(Point const& corner1, Point const& corner2) noexcept
+    {
+        const double x = min(corner1.x(), corner2.x());
+        const double y = min(corner1.y(), corner2.y());
+        double w = corner1.x() - corner2.x();
+        double h = corner1.y() - corner2.y();
+        
+        if(w < 0.)
+        {
+            w = -w;
+        }
+        if(h < 0.)
+        {
+             h = -h;
+        }
+        return Rectangle(x, y, w, h);
+    }
+    
+    Rectangle Rectangle::withCentre(Point const& centre, Point const& size)
+    {
+        return Rectangle(centre, Point()).expanded(size * 0.5);
+    }
+    
     bool Rectangle::overlaps(Point const& begin, Point const& end) const noexcept
     {
         int zaza;

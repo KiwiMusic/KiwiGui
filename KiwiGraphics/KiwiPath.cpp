@@ -115,22 +115,6 @@ namespace Kiwi
         
     }
     
-    bool Path::contains(Point const& point, double const tolerance) const noexcept
-    {
-        if(m_points.size() == 1)
-        {
-            
-        }
-        else if(m_points.size() > 1)
-        {
-            for(vector<Node>::size_type i = 0; i < m_points.size(); i++)
-            {
-                
-            }
-        }
-        return false;
-    }
-    
     bool Path::near(Point const& pt, double const distance) const noexcept
     {
         if(m_points.size() == 1)

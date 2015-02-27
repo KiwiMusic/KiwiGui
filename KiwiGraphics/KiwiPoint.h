@@ -60,6 +60,7 @@ namespace Kiwi
         
         //! Constructor.
         /** The function initializes another point.
+         @param pt The other point.
          */
         Point(Point const& pt) noexcept;
         
@@ -333,20 +334,20 @@ namespace Kiwi
             return Point(-m_x, -m_y);
         }
         
-        //! Compare the equality of the abscissa and the ordinate with another point.
-        /** The function compares the equality of the the abscissa and the ordinate with another point.
-         @param value The value.
-         @return true if the two poitn are equal, otherwise false.
+        //! Get the equality of the point with another.
+        /** The function retrieves the equality of the point with another.
+         @param pt The other point.
+         @return true if the two points are equal, otherwise false.
          */
         inline bool operator==(Point const& pt) const noexcept
         {
             return m_x == pt.x() && m_y == pt.y();
         }
         
-        //! Compare the equality of the abscissa and the ordinate with another point.
-        /** The function compares the equality of the the abscissa and the ordinate with another point.
-         @param value The value.
-         @return true if the two poitn are not equal, otherwise false.
+        //! Get the equality of the point with another.
+        /** The function retrieves the equality of the point with another.
+         @param pt The other point.
+         @return true if the two points are not equal, otherwise false.
          */
         inline bool operator!=(Point const& pt) const noexcept
         {

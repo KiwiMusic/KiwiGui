@@ -51,16 +51,23 @@ namespace Kiwi
         
         //! Constructor.
         /** The function initializes a rectangle with four double values.
+         @param x The abscissa of the top-left corner.
+         @param y The ordinate of the top-left corner.
+         @param width The width of the rectangle.
+         @param height The height of the rectangle.
          */
         Rectangle(const double x, const double y, const double width, const double height) noexcept;
         
         //! Constructor.
         /** The function initializes a rectangle with two points.
+         @param position The poisition of the top-left corner.
+         @param size The size of the rectangle.
          */
         Rectangle(Point const& position, Point const& size) noexcept;
         
         //! Constructor.
         /** The function initializes another rectangle.
+         @param rect The other rectangle.
          */
         Rectangle(Rectangle const& rect) noexcept;
         
@@ -69,34 +76,37 @@ namespace Kiwi
          */
         ~Rectangle();
         
-        //! Returns a Rectangle from the positions of two opposite corners.
-        inline static Rectangle fromOppositeCorners(Point const& corner1, Point const& corner2) noexcept
-        {
-            const double x = min(corner1.x(), corner2.x());
-            const double y = min(corner1.y(), corner2.y());
-            double w = corner1.x() - corner2.x();
-            double h = corner1.y() - corner2.y();
-            
-            if (w < 0.) w = -w;
-            if (h < 0.) h = -h;
-            
-            return Rectangle(x, y, w, h);
-        }
+        //! Return a rectangle with the positions of two opposite corners.
+        /** The function returns a rectangle with the positions of two opposite corners.
+         @param corner1 The position of the first corner.
+         @param corner1 The position of the second corner.
+         @return The new rectangle.
+         */
+        static Rectangle withCorners(Point const& corner1, Point const& corner2) noexcept;
         
-        /** Returns a rectangle with a centre position. */
-        inline static Rectangle withCentre(Point const& centre, Point const& size)
-        {
-            return Rectangle(centre, Point()).expanded(size * 0.5);
-        }
+        //! Return a rectangle with the center positions and the size.
+        /** The function returns a rectangle with the center positions and the size.
+         @param centre The position of centre.
+         @param size The size.
+         @return The new rectangle.
+         */
+        static Rectangle withCentre(Point const& centre, Point const& size);
         
-        /** Returns a rectangle whose size is the same as this one, but with a new top-left position */
-        inline Rectangle withPosition(Point const& newpos) const noexcept
+        //! Return the same rectangle with a different position.
+        /** The function returns the same rectangle with a different position.
+         @param newpos The new position of the rectangle.
+         @return The new rectangle.
+         */
+        Rectangle withPosition(Point const& newpos) const noexcept
         {
             return Rectangle(newpos.x(), newpos.y(), m_size.x(), m_size.y());
         }
         
-        /** Returns a rectangle whose size is the same as this one, but whose top-left position is (0, 0). */
-        inline Rectangle withZeroOrigin() const noexcept
+        //! Return the same rectangle with a position at zero origin.
+        /** The function returns the same rectangle with a position at zero origin.
+         @return The new rectangle.
+         */
+        Rectangle withZeroOrigin() const noexcept
         {
             return Rectangle(0., 0., m_size.x(), m_size.y());
         }
@@ -154,6 +164,33 @@ namespace Kiwi
             return m_size;
         }
         
+        //! Retrieve the ordinate of the bottom.
+        /** The function retrieves the ordinate of the bottom.
+         @return The ordinate of the bottom.
+         */
+        double bottom() noexcept
+        {
+            return y() + height();
+        }
+        
+        //! Retrieve the abscissa of the right.
+        /** The function retrieves the abscissa of the right.
+         @return The abscissa of the right.
+         */
+        double right() noexcept
+        {
+            return x() + width();
+        }
+        
+        //! Retrieves the centre of the rectangle.
+        /** The function retrieves the centre of the rectangle.
+         @return The centre of the rectangle.
+         */
+        inline Point centre() noexcept
+        {
+            return Point(x() + width() * 0.5, y() + height() * 0.5);
+        }
+        
         //! Set the abscissa.
         /** The function sets the abscissa.
          @param x The abscissa.
@@ -209,65 +246,44 @@ namespace Kiwi
             m_size.y(max(size.y(), 0.));
         }
         
-        //! Retrieves the rectangle centre.
-        /** The function retrieves the rectangle centre.
-         @return The rectangle centre as a point.
+        //! Move the abscissa position of the rectangle.
+        /** The function moves the abscissa position of the rectangle.
+         @param left The abscissa position.
          */
-        inline Point centre() noexcept
+        void left(double const left) noexcept
         {
-            return Point(x() + width() * 0.5, y() + height() * 0.5);
+            width(max(right() - left, 0.));
+            x(left);
         }
         
-        /** Moves the x position, adjusting the width so that the right-hand edge remains in the same place.
-         If the x is moved to be on the right of the current right-hand edge, the width will be set to zero.
+        //! Move the ordinate position of the rectangle.
+        /** The function moves the ordinate position of the rectangle.
+         @param top The ordinate position.
          */
-        void left(double newLeft) noexcept
+        void top(double const top) noexcept
         {
-            width(max(right() - newLeft, 0.));
-            x(newLeft);
+            height(max(bottom() - top, 0.));
+            y(top);
         }
         
-        /** Moves the y position, adjusting the height so that the bottom edge remains in the same place.
-         If the y is moved to be below the current bottom edge, the height will be set to zero.
+        //! Move the right position of the rectangle.
+        /** The function moves the right position of the rectangle and expands or retracts it.
+         @param top The right position.
          */
-        void top(double newTop) noexcept
+        void right(double right) noexcept
         {
-            height(max(bottom() - newTop, 0.));
-            y(newTop);
+            x(min(x(), right));
+            width(right - x());
         }
         
-        /** Adjusts the width so that the right-hand edge of the rectangle has this new value.
-         If the new right is below the current X value, the X will be pushed down to match it.
+        //! Move the bottom position of the rectangle.
+        /** The function moves the bttom position of the rectangle and expands or retracts it.
+         @param bottom The bottom position.
          */
-        void right(double newRight) noexcept
+        void bottom(double bottom) noexcept
         {
-            x(min(x(), newRight));
-            width(newRight - x());
-        }
-        
-        //! Retrieves the right-hand edge position of the rectangle.
-        /** Retrieves the right-hand edge position of the rectangle.
-         */
-        double right() noexcept
-        {
-            return x() + width();
-        }
-        
-        /** Adjusts the height so that the bottom edge of the rectangle has this new value.
-         If the new bottom is lower than the current Y value, the Y will be pushed down to match it.
-         */
-        void bottom(double newBottom) noexcept
-        {
-            y(min(y(), newBottom));
-            height(newBottom - y());
-        }
-        
-        //! Retrieves the bottom edge position of the rectangle.
-        /** Retrieves the bottom edge position of the rectangle.
-         */
-        double bottom() noexcept
-        {
-            return y() + height();
+            y(min(y(), bottom));
+            height(bottom - y());
         }
         
         //! Set the position and the size with another rectangle.
@@ -370,29 +386,49 @@ namespace Kiwi
             return *this;
         }
         
+        //! Get the equality two rectangle.
+        /** The function retrieves the equality two rectangle.
+         @param rect The other rectangle.
+         @return true if the two retrieves are equal, otherwise false.
+         */
         inline bool operator==(Rectangle const rect) const noexcept
         {
             return m_position == rect.position() && m_size == rect.size();
         }
         
+        //! Get the equality two rectangle.
+        /** The function retrieves the equality two rectangle.
+         @param rect The other rectangle.
+         @return true if the two retrieves are not equal, otherwise false.
+         */
         inline bool operator!=(Rectangle const rect) const noexcept
         {
             return m_position != rect.position() || m_size != rect.size();
         }
         
+        //! Get if the rectangle contains a point.
+        /** The function retrieves if the rectangle contains a point.
+         @param pt The point.
+         @return true if the rectangle contains the point, otherwise false.
+         */
         inline bool contains(Point const& pt) const noexcept
         {
             return pt.x() >= m_position.x() && pt.y() >= m_position.y() && pt.x() < m_position.x() + m_size.x() && pt.y() < m_position.y() + m_size.y();
         }
         
+        //! Get if the rectangle overlaps another rectangle.
+        /** The function retrieves if the rectangle overlaps another rectangle.
+         @param other The other rectangle.
+         @return true if the rectangle overlaps the other rectangle, otherwise false.
+         */
         inline bool overlaps(Rectangle const& other) const noexcept
         {
             return x() + width() > other.x() && y() + height() > other.y() && x() < other.x() + other.width() && y() < other.y() + other.height();
         }
         
-        //! Expands the rectangle by a given amount.
-        /** Effectively, its new size is (x - pt.x, y - pt.y, width + pt.x * 2, height + pt.y * 2).
-         @see expanded, reduce, reduced
+        //! Expand the rectangle.
+        /** The function expands the rectangle.
+         @param pt The amount of expansion.
          */
         inline void expand(Point const& pt) noexcept
         {
@@ -401,69 +437,71 @@ namespace Kiwi
             height(max(0., height() + pt.y() * 2.));
         }
         
-        //! Expands the rectangle by a given amount.
-        /** Effectively, its new size is (x - delta, y - delta, width + delta * 2, height + delta * 2).
-         @see expanded, reduce, reduced
+        //! Expand the rectangle.
+        /** The function expands the rectangle.
+         @param value The amount of expansion.
          */
-        inline void expand(double const delta) noexcept
+        inline void expand(double const value) noexcept
         {
-            expand(Point(delta, delta));
+            expand(Point(value, value));
         }
         
-        //! Returns a rectangle that is larger than this one by a given amount.
-        /** Effectively, the rectangle returned is (x - pt.x, y - pt.y, width + pt.x * 2, height + pt.y * 2).
-         @see expand, reduce, reduced
-         */
+        //! Return an the expanded rectangle.
+        /** The function returns an expanded rectangle.
+         @param pt The amount of expansion.
+         @return The new rectangle.
+        */
         Rectangle expanded(Point const& pt) const noexcept
         {
-            const double w = max(0., width() + pt.x() * 2.);
-            const double h = max(0., height() + pt.y() * 2.);
-            return Rectangle(m_position.x() - pt.x(), m_position.y() - pt.y(), w, h);
+            return Rectangle(m_position.x() - pt.x(), m_position.y() - pt.y(), max(0., width() + pt.x() * 2.), max(0., height() + pt.y() * 2.));
         }
         
-        //! Returns a rectangle that is larger than this one by a given amount.
-        /** Effectively, its new size is (x - delta, y - delta, width + delta * 2, height + delta * 2).
-         @see expanded, reduce, reduced
+        //! Return an the expanded rectangle.
+        /** The function returns an expanded rectangle.
+         @param value The amount of expansion.
+         @return The new rectangle.
          */
-        Rectangle expanded(const double delta) const noexcept
+        Rectangle expanded(const double value) const noexcept
         {
-            return expanded(Point(delta, delta));
+            return expanded(Point(value, value));
         }
         
-        //! Shrinks the rectangle by a given amount.
-        /** Effectively, its new size is (x + pt.x, y + pt.y, width - pt.x * 2, height - pt.y * 2).
-         @see reduced, expand, expanded
+        //! Reduce the rectangle.
+        /** The function reduces the rectangle.
+         @param pt The amount of reduction.
          */
         inline void reduce(Point const& pt) noexcept
         {
             expand(-pt);
         }
         
-        //! Shrinks the rectangle by a given amount.
-        /** Effectively, its new size is (x + delta, y + delta, width - delta * 2, height - delta * 2).
-         @see reduced, expand, expanded
+        //! Reduce the rectangle.
+        /** The function reduces the rectangle.
+         @param delta The amount of reduction.
          */
-        inline void reduce(double const delta) noexcept
+        inline void reduce(double const value) noexcept
         {
-            expand(Point(-delta, -delta));
+            expand(Point(-value, -value));
         }
         
-        //! Returns a rectangle that is smaller than this one by a given amount.
-        /** Effectively, the rectangle returned is (x + pt.x, y + pt.y, width - pt.x * 2, height - pt.y * 2).
-         @see reduce, expand, expanded
+        //! Return an the reduced rectangle.
+        /** The function returns an reduced rectangle.
+         @param pt The amount of reduction.
+         @return The new rectangle.
          */
         Rectangle reduced(Point const& pt) const noexcept
         {
             return expanded(-pt);
         }
         
-        //! Returns a rectangle that is smaller than this one by a given amount.
-        /** Effectively, the rectangle returned is (x + delta, y + delta, width - delta * 2, height - delta * 2).
-         @see reduce, expand, expanded
+        //! Return an the reduced rectangle.
+        /** The function returns an reduced rectangle.
+         @param value The amount of reduction.
+         @return The new rectangle.
          */
-        Rectangle reduced(const double delta) const noexcept
+        Rectangle reduced(const double value) const noexcept
         {
-            return reduced(Point(delta, delta));
+            return reduced(Point(value, value));
         }
         
         //! Get if the rectangle overlaps a line.
