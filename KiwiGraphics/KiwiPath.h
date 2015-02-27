@@ -26,6 +26,7 @@
 
 #include "KiwiRectangle.h"
 
+// Have to finish (later)
 namespace Kiwi
 {
     // ================================================================================ //
@@ -57,12 +58,23 @@ namespace Kiwi
             Node(Node const& other) noexcept;
             ~Node() noexcept;
             
+            inline operator Point() const noexcept
+            {
+                return point;
+            }
+            
+            inline operator Mode() const noexcept
+            {
+                return mode;
+            }
+            
         };
         
     private:
         vector<Node> m_points;
         
     public:
+        
         //! Constructor.
         /** The function initialize an empty path.
          */
@@ -79,6 +91,12 @@ namespace Kiwi
          @param pt The first point of the path.
          */
         Path(Point const& pt) noexcept;
+        
+        //! Constructor.
+        /** The function initialize a path with a rectangle.
+         @param rect The rectangle.
+         */
+        Path(Rectangle const& rect) noexcept;
         
         //! Constructor.
         /** The function initialize a path with a line.
@@ -105,7 +123,7 @@ namespace Kiwi
         Path(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end) noexcept;
         
         //! Destructor.
-        /** The function initialize another point.
+        /** The function deletes the path.
          */
         ~Path() noexcept;
         
@@ -127,80 +145,49 @@ namespace Kiwi
             return m_points.empty();
         }
         
-        //! Retrieve the node of the path at a defined index.
-        /** The function retrieves the node of the path at a defined index.
-         @param  index The index of the node.
-         @return The node.
-         */
-        Node getNode(ulong index) const noexcept
-        {
-            if(index < (ulong)m_points.size())
-            {
-                return m_points[(vector<Node>::size_type)index];
-            }
-            else
-            {
-                return {Point(0., 0.), Move};
-            }
-        }
-        
-        //! Retrieve the mode of the path at a defined index.
-        /** The function retrieves the mode of the path at a defined index.
-         @param  index The index of the mode.
-         @return The mode.
-         */
-        Mode getMode(ulong index) const noexcept
-        {
-            if(index < (ulong)m_points.size())
-            {
-                return m_points[(vector<Node>::size_type)index].mode;
-            }
-            else
-            {
-                return Move;
-            }
-        }
-        
-        //! Retrieve a point of the path at a defined index.
-        /** The function retrieves a point of the path at a defined index.
-         @param  index The index of the point.
-         @return The point.
-         */
-        Point getPoint(ulong index) const noexcept
-        {
-            if(index < (ulong)m_points.size())
-            {
-                return m_points[(vector<Node>::size_type)index].point;
-            }
-            else
-            {
-                return Point(0., 0.);
-            }
-        }
-        
         //! Clear the path.
         /** The function clears a point to the path.
          */
         void clear() noexcept;
         
+        //! Retrieve the node at a specific index.
+        /** The function retrieves the node at a specific index.
+         @param index The adress of the node.
+         @return The node.
+         */
+        inline Node& operator[](ulong index)
+        {
+            return m_points[vector<Node>::size_type(index)];
+        }
+        
+        //! Retrieve the node at a specific index.
+        /** The function retrieves the node at a specific index.
+         @param index The adress of the node.
+         @return The node.
+         */
+        inline Node const& operator[](ulong index) const
+        {
+            return m_points[vector<Node>::size_type(index)];
+        }
+        
         //! Add a node to the path that won't be linked to the previous point.
         /** The function adds a node to the path that won't be linked to the previous node.
          @param point The point to add.
          */
-        void moveTo(Point const& point) noexcept;
+        void move(Point const& point) noexcept;
         
         //! Add a node to the path that will be linked to the previous point linearly.
         /** The function adds a node to the path that will be linked to the previous node linearly.
          @param point The point to add.
          */
-        void lineTo(Point const& point) noexcept;
+        void line(Point const& point) noexcept;
         
         //! Add a node to the path that will be linked to the previous node with a quadratic bezier curve.
         /** The function adds a node to the path that will be linked to the previous node with a quadratic bezier curve.
          @param control The control point.
          @param end     The end point.
          */
-        void quadraticTo(Point const& control, Point const& end);
+        void quadratic(Point const& control, Point const& end);
         
         //! Add a node to the path that will be linked to the previous node with a cubic bezier curve.
         /** The function adds a node to the path that will be linked to the previous node with a cubic bezier curve.
@@ -208,14 +195,12 @@ namespace Kiwi
          @param control2 The seconf control point.
          @param end     The end point.
          */
-        void cubicTo(Point const& control1, Point const& control2, Point const& end);
+        void cubic(Point const& control1, Point const& control2, Point const& end);
         
-        //! Sets a point of the path.
-        /** The function sets a point of the path.
-         @param index The index of the point to replace.
-         @param The new point.
+        //! Add a node to close the path.
+        /** The function adds a node to close the path.
          */
-        void setPoint(ulong index, Point const& pt) noexcept;
+        void close() noexcept;
         
         //! Retrieve the bounds of the path.
         /** The function retrieves the bounds of the path. The bounds rectangle is the smallest rectangle that contains all the points.
@@ -239,6 +224,29 @@ namespace Kiwi
         bool near(Point const& pt, double const distance) const noexcept;
         
         bool overlaps(Rectangle const& rect) const noexcept;
+        
+        //! Set the position and the size with another rectangle.
+        /** The function sets the position and the size with another rectangle.
+         @param rect The other rectangle.
+         @return The rectangle.
+         *
+        inline Path& operator=(Rectangle const& rect) noexcept
+        {
+            m_position = rect.position();
+            m_size = rect.size();
+            return *this;
+        }
+        
+        //! Shift the rectangle with a point.
+        /** The function shifts the rectangle with a point.
+         @param pt The point.
+         @return The rectangle.
+         *
+        inline Path& operator+=(Point const& pt) noexcept
+        {
+            m_position += pt;
+            return *this;
+        }*/
     };
 }
 

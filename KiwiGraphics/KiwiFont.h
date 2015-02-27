@@ -182,7 +182,7 @@ namespace Kiwi
             return "Regular";
         }
         
-        //! Retrieves if the font is boldened.
+        //! Retrieve if the font is boldened.
         /** The function retrieves if a font is boldened.
          @return True if boldened, false otherwise.
          */
@@ -191,7 +191,7 @@ namespace Kiwi
             return m_style & Bold;
         }
         
-        //! Retrieves if the font is italicised.
+        //! Retrieve if the font is italicised.
         /** The function retrieves if a font is italicised.
          @return True if italicised, false otherwise.
          */
@@ -200,7 +200,7 @@ namespace Kiwi
             return m_style & Italic;
         }
         
-        //! Retrieves if the font is underlined.
+        //! Retrieve if the font is underlined.
         /** The function retrieves if a font is underlined.
          @return True if underlined, false otherwise.
          */
@@ -210,7 +210,7 @@ namespace Kiwi
         }
         
         //! Make the font bold or non-bold
-        /** The function make the font bold or non-bold
+        /** The function makes the font bold or non-bold
          @param shouldBeBold True if bold, false otherwise.
          */
         void setBold(const bool shouldBeBold)
@@ -220,7 +220,7 @@ namespace Kiwi
         }
         
         //! Make the font italic or non-italic
-        /** The function make the font italic or non-italic
+        /** The function makes the font italic or non-italic
          @param shouldBeItalic True if italic, false otherwise.
          */
         void setItalic(const bool shouldBeItalic)
@@ -230,7 +230,7 @@ namespace Kiwi
         }
         
         //! Make the font undelined or non-undelined
-        /** The function make the font undelined or non-undelined
+        /** The function makes the font undelined or non-undelined
          @param shouldBeUnderlined True if undelined, false otherwise.
          */
         void setUnderline(const bool shouldBeUnderlined)
