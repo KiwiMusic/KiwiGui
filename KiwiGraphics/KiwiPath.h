@@ -51,6 +51,12 @@ namespace Kiwi
         {
             Point point;
             Mode  mode;
+            
+            Node(Point const& pt, Mode const mode) noexcept;
+            Node(Point const& pt) noexcept;
+            Node(Node const& other) noexcept;
+            ~Node() noexcept;
+            
         };
         
     private:
@@ -64,18 +70,44 @@ namespace Kiwi
         
         //! Constructor.
         /** The function initialize a path with another.
+         @param path The other path.
          */
         Path(Path const& path) noexcept;
         
         //! Constructor.
-        /** The function initialize a point.
+        /** The function initialize a path with a point.
+         @param pt The first point of the path.
          */
         Path(Point const& pt) noexcept;
+        
+        //! Constructor.
+        /** The function initialize a path with a line.
+         @param start The starting position of the line.
+         @param end The ending position of the line.
+         */
+        Path(Point const& start, Point const& end) noexcept;
+        
+        //! Constructor.
+        /** The function initialize a path with a quadratic bezier line.
+         @param start The starting position of the line.
+         @param control The control point.
+         @param end     The end point.
+         */
+        Path(Point const& start, Point const& ctrl, Point const& end) noexcept;
+        
+        //! Constructor.
+        /** The function initialize a path with a cubic bezier line.
+         @param start The starting position of the line.
+         @param control1 The first control point.
+         @param control2 The seconf control point.
+         @param end     The end point.
+         */
+        Path(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end) noexcept;
         
         //! Destructor.
         /** The function initialize another point.
          */
-        ~Path();
+        ~Path() noexcept;
         
         //! Retrieve the number of nodes of the path.
         /** The function retrieves the number of nodes of the path.
@@ -189,8 +221,21 @@ namespace Kiwi
         /** The function retrieves the bounds of the path. The bounds rectangle is the smallest rectangle that contains all the points.
          @return The bounds of the path.
          */
-        Rectangle getBounds() const noexcept;
+        Rectangle bounds() const noexcept;
         
+        //! Retrieve the smallest distance point with a point.
+        /** The function retrieves the smallest distance point with a point.
+         @param pt The point to compute.
+         @return The distance with the point.
+         */
+        double distance(Point const& pt) const noexcept;
+        
+        //! Retrieve if a point is near the path.
+        /** The function retrieves if a point is near the path.
+         @param pt The point to compute.
+         @param distance The distance of neighborhood (0 means over the line).
+         @return true if the point is near, otherwise false.
+         */
         bool near(Point const& pt, double const distance) const noexcept;
         
         bool overlaps(Rectangle const& rect) const noexcept;

@@ -47,7 +47,7 @@ namespace Kiwi
         ;
     }
     
-    Point::~Point()
+    Point::~Point() noexcept
     {
         ;
     }

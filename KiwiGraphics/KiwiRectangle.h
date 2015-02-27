@@ -74,7 +74,7 @@ namespace Kiwi
         //! Destructor.
         /** The function deletes the rectangle.
          */
-        ~Rectangle();
+        ~Rectangle() noexcept;
         
         //! Return a rectangle with the positions of two opposite corners.
         /** The function returns a rectangle with the positions of two opposite corners.

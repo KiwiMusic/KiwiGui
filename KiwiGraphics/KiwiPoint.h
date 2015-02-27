@@ -67,7 +67,7 @@ namespace Kiwi
         //! Destructor.
         /** The function deletes the point.
          */
-        ~Point();
+        ~Point() noexcept;
         
         //! Retrieve the point over a line.
         /** The function retrieves the point over a line.

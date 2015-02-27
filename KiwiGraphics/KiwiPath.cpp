@@ -25,6 +25,29 @@
 
 namespace Kiwi
 {
+    Path::Node::Node(Point const& pt, Mode const mode) noexcept :
+    point(pt), mode(mode)
+    {
+        
+    }
+    
+    Path::Node::Node(Point const& pt) noexcept :
+    point(pt), mode(Linear)
+    {
+        
+    }
+    
+    Path::Node::Node(Node const& other) noexcept :
+    point(other.point), mode(other.mode)
+    {
+        
+    }
+    
+    Path::Node::~Node() noexcept
+    {
+        ;
+    }
+    
     Path::Path() noexcept
     {
         ;
@@ -40,7 +63,29 @@ namespace Kiwi
         m_points.push_back({pt, Move});
     }
     
-    Path::~Path()
+    Path::Path(Point const& start, Point const& end) noexcept
+    {
+        m_points.push_back({start, Move});
+        m_points.push_back({end, Linear});
+    }
+    
+    Path::Path(Point const& start, Point const& ctrl, Point const& end) noexcept
+    {
+        m_points.push_back({start, Move});
+        m_points.push_back({ctrl, Quadratic});
+        m_points.push_back({end, Linear});
+    }
+    
+
+    Path::Path(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end) noexcept
+    {
+        m_points.push_back({start, Move});
+        m_points.push_back({ctrl1, Cubic});
+        m_points.push_back({ctrl2, Cubic});
+        m_points.push_back({end, Linear});
+    }
+    
+    Path::~Path() noexcept
     {
         m_points.clear();
     }
@@ -72,7 +117,7 @@ namespace Kiwi
     {
         if(index < m_points.size())
         {
-            m_points[(vector<Node>::size_type)index].point = pt;
+            m_points[(vector<Node>::size_type)index] = {pt, m_points[(vector<Node>::size_type)index].mode};
         }
     }
     
@@ -81,7 +126,7 @@ namespace Kiwi
         m_points.clear();
     }
     
-    Rectangle Path::getBounds() const noexcept
+    Rectangle Path::bounds() const noexcept
     {
         Point position(0., 0.);
         Point size(0., 0.);
@@ -89,7 +134,6 @@ namespace Kiwi
         {
             position = m_points[0].point;
             size = m_points[0].point;
-            
             for(vector<Point>::size_type i = 1; i < m_points.size(); i++)
             {
                 if(m_points[i].point.x() < position.x())
@@ -113,6 +157,80 @@ namespace Kiwi
         }
         return Rectangle(position, size - position);
         
+    }
+    
+    double Path::distance(Point const& pt) const noexcept
+    {
+        if(m_points.size() == 1)
+        {
+            return pt.distance(m_points[0].point);
+        }
+        else if(m_points.size() > 1)
+        {
+            double dist = numeric_limits<double>::max();
+            Point previous;
+            for(vector<Node>::size_type i = 0; i < m_points.size(); i++)
+            {
+                Point current = m_points[i].point;
+                switch(m_points[i].mode)
+                {
+                    case Move:
+                    {
+                        const double newdist = pt.distance(current);
+                        if(newdist < dist)
+                        {
+                            dist = newdist;
+                        }
+                        break;
+                    }
+                    case Linear:
+                    {
+                        const double newdist = pt.distance(previous, current);
+                        if(newdist < dist)
+                        {
+                            dist = newdist;
+                        }
+                        break;
+                    }
+                    case Quadratic:
+                    {
+                        i++;
+                        if(i < m_points.size())
+                        {
+                            const Point ctrl = current;
+                            current = m_points[i].point;
+                            const double newdist = pt.distance(previous, ctrl, current);
+                            if(newdist < dist)
+                            {
+                                dist = newdist;
+                            }
+                        }
+                        break;
+                    }
+                    case Cubic:
+                    {
+                        i += 2;
+                        if(i < m_points.size())
+                        {
+                            const Point ctrl1 = current;
+                            const Point ctrl2 = m_points[i-1].point;
+                            current = m_points[i].point;
+                            const double newdist = pt.distance(previous, ctrl1, ctrl2, current);
+                            if(newdist < dist)
+                            {
+                                dist = newdist;
+                            }
+                        }
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                previous = current;
+            }
+            return dist;
+        }
+        return 0.;
     }
     
     bool Path::near(Point const& pt, double const distance) const noexcept

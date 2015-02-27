@@ -49,7 +49,7 @@ namespace Kiwi
         
     }
     
-    Rectangle::~Rectangle()
+    Rectangle::~Rectangle() noexcept
     {
         ;
     }
