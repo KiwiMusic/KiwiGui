@@ -43,6 +43,7 @@ namespace Kiwi
         double m_y;
         
         static ulong solve(double a, double b, double c, double const d, double &solution1, double &solution2, double &solution3);
+        static ulong solve(array<Point, 6>& W, double *t, const ulong depth);
     public:
         
         //! Constructor.
@@ -293,16 +294,6 @@ namespace Kiwi
             return Point(m_x - pt.x(), m_y - pt.y());
         }
         
-        //! Multiply a value with the point.
-        /** The function multiplies a value with the point.
-         @param value The value to multiply with.
-         @return The new point.
-         */
-        inline Point operator*(const double value) const noexcept
-        {
-            return Point(m_x * value, m_y * value);
-        }
-        
         //! Multiply a point with the point.
         /** The function multiplies a point with the point.
          @param pt The point to multiply with.
@@ -505,6 +496,17 @@ namespace Kiwi
      @return The new point.
      */
     static inline Point operator*(Point const& pt, double const value) noexcept
+    {
+        return Point(pt.x() * value, pt.y() * value);
+    }
+    
+    //! Multiply a value with a point.
+    /** The function multiplies a value a the point.
+     @param pt The point to multiply.
+     @param value The value to multiply with.
+     @return The new point.
+     */
+    static inline Point operator*(const double value, Point const& pt) noexcept
     {
         return Point(pt.x() * value, pt.y() * value);
     }

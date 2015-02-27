@@ -24,6 +24,6 @@
 #ifndef __DEF_KIWI_GUI_GRAPHICS__
 #define __DEF_KIWI_GUI_GRAPHICS__
 
-#include "Font.h"
+#include "KiwiFont.h"
 
 #endif
