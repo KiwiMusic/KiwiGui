@@ -42,6 +42,20 @@ namespace Kiwi
         Point m_position;
         Point m_size;
         
+        enum Positioning
+        {
+            Inside      = 0,
+            Left        = 1,
+            Right       = 2,
+            Bottom      = 4,
+            BottomLeft  = 5,
+            BottomRight = 6,
+            Top         = 8,
+            TopLeft     = 9,
+            TopRight    = 10
+        };
+        
+        Positioning positioning(Point const& pt) const noexcept;
     public:
         
         //! Constructor.
@@ -360,7 +374,7 @@ namespace Kiwi
          */
         inline Rectangle& operator*=(double const value) noexcept
         {
-            m_size      *= value;
+            m_size  *= value;
             return *this;
         }
         
@@ -384,6 +398,86 @@ namespace Kiwi
         {
             m_size /= value;
             return *this;
+        }
+        
+        //! Retrieve the rectangle shifted with a point.
+        /** The function the rectangle shifted with a point.
+         @param pt The point.
+         @return The rectangle.
+         */
+        inline Rectangle operator+(Point const& pt) noexcept
+        {
+            return Rectangle(x() + pt.x(), y() + pt.y(), width(), height());
+        }
+        
+        //! Retrieve the rectangle shifted with a value.
+        /** The function the rectangle shifted with a value.
+         @param value The value.
+         @return The rectangle.
+         */
+        inline Rectangle operator+(double const value) noexcept
+        {
+            return Rectangle(x() + value, y() + value, width(), height());
+        }
+        
+        //! Retrieve the rectangle inverse shifted with a point.
+        /** The function the rectangle inverse shifted with a point.
+         @param pt The point.
+         @return The rectangle.
+         */
+        inline Rectangle operator-(Point const& pt) noexcept
+        {
+            return Rectangle(x() - pt.x(), y() - pt.y(), width(), height());
+        }
+        
+        //! Retrieve the rectangle inverse shifted with a value.
+        /** The function the rectangle inverse shifted with a value.
+         @param value The value.
+         @return The rectangle.
+         */
+        inline Rectangle operator-(double const value) noexcept
+        {
+            return Rectangle(x() - value, y() - value, width(), height());
+        }
+        
+        //! Retrieve the rectangle expanded with a point.
+        /** The function the rectangle expanded with a point.
+         @param pt The point.
+         @return The rectangle.
+         */
+        inline Rectangle operator*(Point const& pt) noexcept
+        {
+            return Rectangle(x() * pt.x(), y() * pt.y(), width(), height());
+        }
+        
+        //! Retrieve the rectangle expanded with a value.
+        /** The function the rectangle expanded with a value.
+         @param value The value.
+         @return The rectangle.
+         */
+        inline Rectangle operator*(double const value) noexcept
+        {
+            return Rectangle(x() * value, y() * value, width(), height());
+        }
+        
+        //! Retrieve the rectangle retracted with a point.
+        /** The function the rectangle retracted with a point.
+         @param pt The point.
+         @return The rectangle.
+         */
+        inline Rectangle operator/(Point const& pt) noexcept
+        {
+            return Rectangle(x() / pt.x(), y() / pt.y(), width(), height());
+        }
+        
+        //! Retrieve the rectangle retracted with a value.
+        /** The function the rectangle retracted with a value.
+         @param value The value.
+         @return The rectangle.
+         */
+        inline Rectangle operator/(double const value) noexcept
+        {
+            return Rectangle(x() / value, y() / value, width(), height());
         }
         
         //! Get the equality two rectangle.
@@ -413,7 +507,7 @@ namespace Kiwi
          */
         inline bool contains(Point const& pt) const noexcept
         {
-            return pt.x() >= m_position.x() && pt.y() >= m_position.y() && pt.x() < m_position.x() + m_size.x() && pt.y() < m_position.y() + m_size.y();
+            return positioning(pt) == Inside;
         }
         
         //! Get if the rectangle overlaps another rectangle.
@@ -451,7 +545,7 @@ namespace Kiwi
          @param pt The amount of expansion.
          @return The new rectangle.
         */
-        Rectangle expanded(Point const& pt) const noexcept
+        inline Rectangle expanded(Point const& pt) const noexcept
         {
             return Rectangle(m_position.x() - pt.x(), m_position.y() - pt.y(), max(0., width() + pt.x() * 2.), max(0., height() + pt.y() * 2.));
         }
@@ -461,7 +555,7 @@ namespace Kiwi
          @param value The amount of expansion.
          @return The new rectangle.
          */
-        Rectangle expanded(const double value) const noexcept
+        inline Rectangle expanded(const double value) const noexcept
         {
             return expanded(Point(value, value));
         }
@@ -489,7 +583,7 @@ namespace Kiwi
          @param pt The amount of reduction.
          @return The new rectangle.
          */
-        Rectangle reduced(Point const& pt) const noexcept
+        inline Rectangle reduced(Point const& pt) const noexcept
         {
             return expanded(-pt);
         }
@@ -499,7 +593,7 @@ namespace Kiwi
          @param value The amount of reduction.
          @return The new rectangle.
          */
-        Rectangle reduced(const double value) const noexcept
+        inline Rectangle reduced(const double value) const noexcept
         {
             return reduced(Point(value, value));
         }
@@ -531,86 +625,6 @@ namespace Kiwi
          */
         bool overlaps(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept;
     };
-    
-    static inline Rectangle operator+(Rectangle const& rect, Point const& pt) noexcept
-    {
-        return Rectangle(rect.x() + pt.x(), rect.y() + pt.y(), rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator+(Point const& pt, Rectangle const& rect) noexcept
-    {
-        return Rectangle(rect.x() + pt.x(), rect.y() + pt.y(), rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator+(Rectangle const& rect, double const value) noexcept
-    {
-        return Rectangle(rect.x() + value, rect.y() + value, rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator+(double const value, Rectangle const& rect) noexcept
-    {
-        return Rectangle(rect.x() + value, rect.y() + value, rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator-(Rectangle const& rect, Point const& pt) noexcept
-    {
-        return Rectangle(rect.x() - pt.x(), rect.y() - pt.y(), rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator-(Point const& pt, Rectangle const& rect) noexcept
-    {
-        return Rectangle(rect.x() - pt.x(), rect.y() - pt.y(), rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator-(Rectangle const& rect, double const value) noexcept
-    {
-        return Rectangle(rect.x() - value, rect.y() - value, rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator-(double const value, Rectangle const& rect) noexcept
-    {
-        return Rectangle(rect.x() - value, rect.y() - value, rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator*(Rectangle const& rect, Point const& pt) noexcept
-    {
-        return Rectangle(rect.x() * pt.x(), rect.y() * pt.y(), rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator*(Point const& pt, Rectangle const& rect) noexcept
-    {
-        return Rectangle(rect.x() * pt.x(), rect.y() * pt.y(), rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator*(Rectangle const& rect, double const value) noexcept
-    {
-        return Rectangle(rect.x() * value, rect.y() * value, rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator*(double const value, Rectangle const& rect) noexcept
-    {
-        return Rectangle(rect.x() * value, rect.y() * value, rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator/(Rectangle const& rect, Point const& pt) noexcept
-    {
-        return Rectangle(rect.x() / pt.x(), rect.y() / pt.y(), rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator/(Point const& pt, Rectangle const& rect) noexcept
-    {
-        return Rectangle(rect.x() / pt.x(), rect.y() / pt.y(), rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator/(Rectangle const& rect, double const value) noexcept
-    {
-        return Rectangle(rect.x() / value, rect.y() / value, rect.width(), rect.height());
-    }
-    
-    static inline Rectangle operator/(double const value, Rectangle const& rect) noexcept
-    {
-        return Rectangle(rect.x() / value, rect.y() / value, rect.width(), rect.height());
-    }
     
 }
 

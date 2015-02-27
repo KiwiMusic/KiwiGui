@@ -56,20 +56,7 @@ namespace Kiwi
     
     Rectangle Rectangle::withCorners(Point const& corner1, Point const& corner2) noexcept
     {
-        const double x = min(corner1.x(), corner2.x());
-        const double y = min(corner1.y(), corner2.y());
-        double w = corner1.x() - corner2.x();
-        double h = corner1.y() - corner2.y();
-        
-        if(w < 0.)
-        {
-            w = -w;
-        }
-        if(h < 0.)
-        {
-             h = -h;
-        }
-        return Rectangle(x, y, w, h);
+        return Rectangle(min(corner1.x(), corner2.x()), min(corner1.y(), corner2.y()), abs(corner1.x() - corner2.x()), abs(corner1.y() - corner2.y()));
     }
     
     Rectangle Rectangle::withCentre(Point const& centre, Point const& size)
@@ -77,12 +64,37 @@ namespace Kiwi
         return Rectangle(centre, Point()).expanded(size * 0.5);
     }
     
+    Rectangle::Positioning Rectangle::positioning(Point const& pt) const noexcept
+    {
+        int code = Inside;
+        if(pt.x() < x())
+        {
+            code |= Left;
+        }
+        else if(pt.x() > x() + width())
+        {
+            code |= Right;
+        }
+        if(pt.y() < y())
+        {
+            code |= Bottom;
+        }
+        else if(pt.y() > y() + height())
+        {
+            code |= Top;
+        }
+        return (Positioning)code;
+    }
+    
     bool Rectangle::overlaps(Point const& begin, Point const& end) const noexcept
     {
-        int zaza;
         if(contains(begin) || contains(end))
         {
             return true;
+        }
+        else
+        {
+            
         }
         return false;
     }
