@@ -334,8 +334,8 @@ namespace Kiwi
             return *this;
         }
         
-        //! Shift inversed the rectangle with a point.
-        /** The function shifts inversed the rectangle with a point.
+        //! Shift the rectangle with a point.
+        /** The function shifts the rectangle with a point.
          @param pt The point.
          @return The rectangle.
          */
@@ -345,8 +345,8 @@ namespace Kiwi
             return *this;
         }
         
-        //! Shift inversed the rectangle with a value.
-        /** The function shifts inversed the rectangle with a value.
+        //! Shift the rectangle with a value.
+        /** The function shifts the rectangle with a value.
          @param value The value.
          @return The rectangle.
          */
@@ -356,47 +356,47 @@ namespace Kiwi
             return *this;
         }
         
-        //! Expand the rectangle with a point.
-        /** The function expands the rectangle with a point.
+        //! Shift the rectangle with a point.
+        /** The function shifts the rectangle with a point.
          @param point The point.
          @return The rectangle.
          */
         inline Rectangle& operator*=(Point const& pt) noexcept
         {
-            m_size *= pt;
+            m_position *= pt;
             return *this;
         }
         
-        //! Expand the rectangle with a value.
-        /** The function expands the rectangle with a value.
+        //! Shift the rectangle with a value.
+        /** The function shifts the rectangle with a value.
          @param value The value.
          @return The rectangle.
          */
         inline Rectangle& operator*=(double const value) noexcept
         {
-            m_size  *= value;
+            m_position  *= value;
             return *this;
         }
         
-        //! Retract the rectangle with a point.
-        /** The function retracts the rectangle with a point.
+        //! Shift the rectangle with a point.
+        /** The function shifts the rectangle with a point.
          @param point The point.
          @return The rectangle.
          */
         inline Rectangle& operator/=(Point const& pt) noexcept
         {
-            m_size /= pt;
+            m_position /= pt;
             return *this;
         }
         
-        //! Retract the rectangle with a value.
-        /** The function retracts the rectangle with a value.
+        //! Shift the rectangle with a value.
+        /** The function shifts the rectangle with a value.
          @param value The value.
          @return The rectangle.
          */
         inline Rectangle& operator/=(double const value) noexcept
         {
-            m_size /= value;
+            m_position /= value;
             return *this;
         }
         
@@ -420,8 +420,8 @@ namespace Kiwi
             return Rectangle(x() + value, y() + value, width(), height());
         }
         
-        //! Retrieve the rectangle inverse shifted with a point.
-        /** The function the rectangle inverse shifted with a point.
+        //! Retrieve the rectangle shifted with a point.
+        /** The function the rectangle shifted with a point.
          @param pt The point.
          @return The rectangle.
          */
@@ -430,8 +430,8 @@ namespace Kiwi
             return Rectangle(x() - pt.x(), y() - pt.y(), width(), height());
         }
         
-        //! Retrieve the rectangle inverse shifted with a value.
-        /** The function the rectangle inverse shifted with a value.
+        //! Retrieve the rectangle shifted with a value.
+        /** The function the rectangle shifted with a value.
          @param value The value.
          @return The rectangle.
          */
@@ -440,8 +440,8 @@ namespace Kiwi
             return Rectangle(x() - value, y() - value, width(), height());
         }
         
-        //! Retrieve the rectangle expanded with a point.
-        /** The function the rectangle expanded with a point.
+        //! Retrieve the rectangle shifted with a point.
+        /** The function the rectangle shifted with a point.
          @param pt The point.
          @return The rectangle.
          */
@@ -450,8 +450,8 @@ namespace Kiwi
             return Rectangle(x() * pt.x(), y() * pt.y(), width(), height());
         }
         
-        //! Retrieve the rectangle expanded with a value.
-        /** The function the rectangle expanded with a value.
+        //! Retrieve the rectangle shifted with a value.
+        /** The function the rectangle shifted with a value.
          @param value The value.
          @return The rectangle.
          */
@@ -460,8 +460,8 @@ namespace Kiwi
             return Rectangle(x() * value, y() * value, width(), height());
         }
         
-        //! Retrieve the rectangle retracted with a point.
-        /** The function the rectangle retracted with a point.
+        //! Retrieve the rectangle shifted with a point.
+        /** The function the rectangle shifted with a point.
          @param pt The point.
          @return The rectangle.
          */
@@ -470,8 +470,8 @@ namespace Kiwi
             return Rectangle(x() / pt.x(), y() / pt.y(), width(), height());
         }
         
-        //! Retrieve the rectangle retracted with a value.
-        /** The function the rectangle retracted with a value.
+        //! Retrieve the rectangle shifted with a value.
+        /** The function the rectangle shifted with a value.
          @param value The value.
          @return The rectangle.
          */
@@ -498,26 +498,6 @@ namespace Kiwi
         inline bool operator!=(Rectangle const rect) const noexcept
         {
             return m_position != rect.position() || m_size != rect.size();
-        }
-        
-        //! Get if the rectangle contains a point.
-        /** The function retrieves if the rectangle contains a point.
-         @param pt The point.
-         @return true if the rectangle contains the point, otherwise false.
-         */
-        inline bool contains(Point const& pt) const noexcept
-        {
-            return positioning(pt) == Inside;
-        }
-        
-        //! Get if the rectangle overlaps another rectangle.
-        /** The function retrieves if the rectangle overlaps another rectangle.
-         @param other The other rectangle.
-         @return true if the rectangle overlaps the other rectangle, otherwise false.
-         */
-        inline bool overlaps(Rectangle const& other) const noexcept
-        {
-            return x() + width() > other.x() && y() + height() > other.y() && x() < other.x() + other.width() && y() < other.y() + other.height();
         }
         
         //! Expand the rectangle.
@@ -596,6 +576,26 @@ namespace Kiwi
         inline Rectangle reduced(const double value) const noexcept
         {
             return reduced(Point(value, value));
+        }
+        
+        //! Get if the rectangle contains a point.
+        /** The function retrieves if the rectangle contains a point.
+         @param pt The point.
+         @return true if the rectangle contains the point, otherwise false.
+         */
+        inline bool contains(Point const& pt) const noexcept
+        {
+            return positioning(pt) == Inside;
+        }
+        
+        //! Get if the rectangle overlaps another rectangle.
+        /** The function retrieves if the rectangle overlaps another rectangle.
+         @param other The other rectangle.
+         @return true if the rectangle overlaps the other rectangle, otherwise false.
+         */
+        inline bool overlaps(Rectangle const& other) const noexcept
+        {
+            return x() + width() > other.x() && y() + height() > other.y() && x() < other.x() + other.width() && y() < other.y() + other.height();
         }
         
         //! Get if the rectangle overlaps a line.

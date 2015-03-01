@@ -92,6 +92,11 @@ namespace Kiwi
         {
             return true;
         }
+        else if(begin.x() < x() && end.x() > x())
+        {
+            
+        }
+        
         else
         {
             
