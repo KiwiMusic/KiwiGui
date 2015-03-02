@@ -21,15 +21,25 @@
  ==============================================================================
  */
 
-#ifndef __DEF_KIWI_GUI__
-#define __DEF_KIWI_GUI__
+#include "KiwiKeyboarder.h"
 
-//#include "KiwiAttributes/KiwiAttributes.h"
-//#include "KiwiGuiEvents/KiwiGuiEvents.h"
-//#include "KiwiGuiModels/KiwiGuiModels.h"
-//#include "KiwiGuiView/KiwiGuiView.h"
-#include "KiwiGuiModules/KiwiGuiModules.h"
-
-#endif
-
-
+namespace Kiwi
+{
+	// ================================================================================ //
+	//                                      KEYBOARDER                                  //
+	// ================================================================================ //
+	
+	Keyboarder::Keyboarder() noexcept
+	{
+		;
+	}
+	
+	Keyboarder::~Keyboarder() noexcept
+	{
+		;
+	}
+	
+	// ================================================================================ //
+	//                                      EVENT                                       //
+	// ================================================================================ //
+}

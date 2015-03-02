@@ -21,15 +21,10 @@
  ==============================================================================
  */
 
-#ifndef __DEF_KIWI_GUI__
-#define __DEF_KIWI_GUI__
+#ifndef __DEF_KIWI_GUI_VIEW__
+#define __DEF_KIWI_GUI_VIEW__
 
-//#include "KiwiAttributes/KiwiAttributes.h"
-//#include "KiwiGuiEvents/KiwiGuiEvents.h"
-//#include "KiwiGuiModels/KiwiGuiModels.h"
-//#include "KiwiGuiView/KiwiGuiView.h"
-#include "KiwiGuiModules/KiwiGuiModules.h"
-
+#include "KiwiObjectView.h"
 #endif
 
 

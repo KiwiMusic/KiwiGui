@@ -21,15 +21,30 @@
  ==============================================================================
  */
 
-#ifndef __DEF_KIWI_GUI__
-#define __DEF_KIWI_GUI__
+#ifndef __DEF_KIWI_GUI_EVENTS__
+#define __DEF_KIWI_GUI_EVENTS__
 
-//#include "KiwiAttributes/KiwiAttributes.h"
-//#include "KiwiGuiEvents/KiwiGuiEvents.h"
-//#include "KiwiGuiModels/KiwiGuiModels.h"
-//#include "KiwiGuiView/KiwiGuiView.h"
-#include "KiwiGuiModules/KiwiGuiModules.h"
+#include "KiwiWriter.h"
+
+namespace Kiwi
+{
+    class Keyboarder;
+    typedef shared_ptr<Keyboarder>          sKeyboarder;
+    typedef weak_ptr<Keyboarder>            wKeyboarder;
+    typedef shared_ptr<const Keyboarder>    scKeyboarder;
+    typedef weak_ptr<const Keyboarder>      wcKeyboarder;
+    
+    class Mouser;
+    typedef shared_ptr<Mouser>              sMouser;
+    typedef weak_ptr<Mouser>				wMouser;
+    typedef shared_ptr<const Mouser>        scMouser;
+    typedef weak_ptr<const Mouser>			wcMouser;
+    
+    class Writer;
+    typedef shared_ptr<Writer>              sWriter;
+    typedef weak_ptr<Writer>				wWriter;
+    typedef shared_ptr<const Writer>        scWriter;
+    typedef weak_ptr<const Writer>			wcWriter;
+}
 
 #endif
-
-

@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_POINT__
 #define __DEF_KIWI_GUI_POINT__
 
-#include "KiwiCore.h"
+#include "../../KiwiCore/KiwiCore.h"
 
 namespace Kiwi
 {
