@@ -22,6 +22,7 @@
  */
 
 #include "KiwiPoint.h"
+#include "KiwiPath.h"
 
 namespace Kiwi
 {
@@ -47,6 +48,19 @@ namespace Kiwi
         ;
     }
     
+    Point::Point(Path const& path, const double position) noexcept :
+    m_x(0.), m_y(0.)
+    {
+        if(path.size() == 1)
+        {
+            *this = (Point)path[0];
+        }
+        else
+        {
+            ;
+        }
+    }
+    
     Point::~Point() noexcept
     {
         ;
@@ -54,36 +68,28 @@ namespace Kiwi
     
     Point Point::fromLine(Point const& begin, Point const& end, double delta) noexcept
     {
-        return Point(begin.x() + (end.x() - begin.x()) * delta, begin.y() + (end.y() - begin.y()) * delta);
+        return (end - begin) * delta + begin;
     }
     
     Point Point::fromLine(Point const& begin, Point const& ctrl, Point const& end, const double delta) noexcept
     {
         const double mdelta = (1. - delta);
-        const double fac1 = mdelta * mdelta;
-        const double fac2 = 2. * delta * mdelta;
-        const double fac3 = delta * delta;
-        return Point(begin.x() * fac1 + ctrl.x() * fac2 + end.x() * fac3, begin.y() * fac1 + ctrl.y() * fac2 + end.y() * fac3);
+        return begin * (mdelta * mdelta) + ctrl * (2. * delta * mdelta) + end * (delta * delta);
     }
     
     Point Point::fromLine(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end, const double delta) noexcept
     {
         const double mdelta = (1. - delta);
-        const double fac1 = mdelta * mdelta * mdelta;
-        const double fac2 = 3. * delta * mdelta * mdelta;
-        const double fac3 = 3. * delta * delta * mdelta;
-        const double fac4 = delta * delta * mdelta;
-        return Point(begin.x() * fac1 + ctrl1.x() * fac2 + ctrl2.x() * fac3 + end.x() * fac4, begin.y() * fac1 + ctrl1.y() * fac2 + ctrl2.y() * fac3 + end.y() * fac4);
+        return begin * (mdelta * mdelta * mdelta) + ctrl1 * (3. * delta * mdelta * mdelta) + ctrl2 * (3. * delta * delta * mdelta) + end * (delta * delta * mdelta);
     }
     
     double Point::distance(Point const& begin, Point const& end) const noexcept
     {
         const Point delta(end - begin);
-        const double length = delta.x() * delta.x() + delta.y() * delta.y();
-        
+        const double length = delta.length();
         if(length > 0.)
         {
-            const double ratio = ((m_x - begin.x()) * delta.x() + (m_x - begin.x()) * delta.x()) / length;
+            const double ratio = (*this - begin).dot(delta) / length;
             if(ratio < 0.)
             {
                 return this->distance(begin);
@@ -99,27 +105,18 @@ namespace Kiwi
         }
         else
         {
-            const double distBegin  = this->distance(begin);
-            const double distEnd    = this->distance(end);
-            if(distBegin < distEnd)
-            {
-                return distBegin;
-            }
-            else
-            {
-                return distEnd;
-            }
+            return min(this->distance(begin), this->distance(end));
         }
     }
     
     double Point::distance(Point const& begin, Point const& ctrl, Point const& end) const noexcept
     {
-        const Point A(ctrl.x() - begin.x(), ctrl.y() - begin.y());
-        const Point B(begin.x() - ctrl.x() * 2. + end.x(), begin.y() - ctrl.y() * 2. + end.y());
-        const Point C(begin.x() - m_x, begin.y() - m_y);
-        
+        const Point A = ctrl - begin;
+        const Point B = begin - ctrl * 2 - end;
+        const Point C = begin - *this;
         double sol1, sol2, sol3;
-        const ulong nresult = solve(B.x() * B.x() + B.y() * B.y(), 3 * (A.x() * B.x() + A.y() * B.y()), 2 * (A.x() * A.x() + A.y() * A.y()) + C.x() * B.x() + C.y() * B.y(), C.x() * A.x() + C.y() * A.y(), sol1, sol2, sol3);
+    
+        const ulong nresult = solve(B.length(), 3 * A.dot(B), 2 * A.length() + C.dot(B), A.dot(C), sol1, sol2, sol3);
         if(nresult)
         {
             double dist = this->distance(fromLine(begin, ctrl, end, sol1));
@@ -209,7 +206,7 @@ namespace Kiwi
         if(abs(a) > 0.)
         {
             double z = a;
-            double a = b / z,  b = c / z; c = d / z;
+            double a = b / z, b = c / z; c = d / z;
             double p = b - a * a / 3.;
             double q = a * (2. * a * a - 9. * b) / 27. + c;
             double p3 = p * p * p;

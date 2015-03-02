@@ -80,7 +80,7 @@ namespace Kiwi
          @param alpha The alpha value.
          @return The color.
          */
-        static Color withHSLA(const double hue, const double saturation, const double lightness, const double alpha = 0.) noexcept;
+        static Color withHSLA(const double hue, const double saturation, const double lightness, const double alpha = 1.) noexcept;
         
         //! Retrieve a color with hexadecimal.
         /** The function retrieves the a color with hexadecimal.
