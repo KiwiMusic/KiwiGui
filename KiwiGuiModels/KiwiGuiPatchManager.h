@@ -32,7 +32,7 @@ namespace Kiwi
     /**
      The gui context
      */
-	class GuiPatcherManager : public inheritable_enable_shared_from_this<GuiPatcherManager>
+	class GuiPatchManager : public inheritable_enable_shared_from_this<GuiPatchManager>
     {
 	private:
 		const wGuiDeviceManager m_device;
@@ -45,12 +45,12 @@ namespace Kiwi
 		/** The function initialize and empty context.
 		 @param device The gui device manager.
 		 */
-		GuiPatcherManager(sGuiDeviceManager device) noexcept;
+		GuiPatchManager(sGuiDeviceManager device) noexcept;
 		
 		//! The destructor.
 		/** Stop the digital signal processing if needed and free the chains.
 		 */
-		virtual ~GuiPatcherManager();
+		virtual ~GuiPatchManager();
 		
 		//! Retrieve the gui device manager of the context.
 		/** This function retrieves the gui device manager.

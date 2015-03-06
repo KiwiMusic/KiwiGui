@@ -30,7 +30,7 @@ namespace Kiwi
     //                                     GUI PATCHER                                  //
     // ================================================================================ //
 	
-	GuiPatcher::GuiPatcher(sGuiPatcherManager manager) noexcept :
+	GuiPatcher::GuiPatcher(sGuiPatchManager manager) noexcept :
     m_manager(manager),
     m_color_unlocked_background(Attr::create("unlocked_bgcolor","Unlocked Background Color", "Appearance", ColorValue(0.88, 0.89, 0.88, 1.))),
     m_color_locked_background(Attr::create("locked_bgcolor", "Locked Background Color", "Appearance", ColorValue(0.88, 0.89, 0.88, 1.))),
@@ -50,7 +50,7 @@ namespace Kiwi
 	
 	sGuiDeviceManager GuiPatcher::getDeviceManager() const noexcept
 	{
-		sGuiPatcherManager instance = getGuiPatcherManager();
+		sGuiPatchManager instance = getGuiPatchManager();
 		if(instance)
 		{
 			return instance->getDeviceManager();

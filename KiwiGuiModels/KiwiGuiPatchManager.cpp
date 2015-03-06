@@ -21,7 +21,7 @@
  ==============================================================================
 */
 
-#include "KiwiGuiPatcherManager.h"
+#include "KiwiGuiPatchManager.h"
 
 namespace Kiwi
 {
@@ -29,18 +29,18 @@ namespace Kiwi
     //                                     GUI INSTANCE                                 //
     // ================================================================================ //
 	
-	GuiPatcherManager::GuiPatcherManager(sGuiDeviceManager device) noexcept :
+	GuiPatchManager::GuiPatchManager(sGuiDeviceManager device) noexcept :
 	m_device(device)
 	{
 		;
 	}
 	
-	GuiPatcherManager::~GuiPatcherManager()
+	GuiPatchManager::~GuiPatchManager()
 	{
 		m_pages.clear();
 	}
 	
-	void GuiPatcherManager::add(sGuiPatcher page)
+	void GuiPatchManager::add(sGuiPatcher page)
 	{
 		if(page)
 		{
@@ -52,7 +52,7 @@ namespace Kiwi
 		}
 	}
 	
-	void GuiPatcherManager::remove(sGuiPatcher page)
+	void GuiPatchManager::remove(sGuiPatcher page)
 	{
 		bool success = false;
 		if(page)

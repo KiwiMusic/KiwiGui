@@ -40,7 +40,7 @@ namespace Kiwi
 		m_managers.clear();
 	}
 	
-	void GuiDeviceManager::add(sGuiPatcherManager manager)
+	void GuiDeviceManager::add(sGuiPatchManager manager)
 	{
 		if(manager)
 		{
@@ -52,7 +52,7 @@ namespace Kiwi
 		}
 	}
 	
-	void GuiDeviceManager::remove(sGuiPatcherManager manager)
+	void GuiDeviceManager::remove(sGuiPatchManager manager)
 	{
 		if(manager)
 		{

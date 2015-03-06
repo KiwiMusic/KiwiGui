@@ -46,11 +46,11 @@ namespace Kiwi
 	typedef shared_ptr<const GuiPatcher>           scGuiPatcher;
 	typedef weak_ptr<const GuiPatcher>				wcGuiPatcher;
 	
-	class GuiPatcherManager;
-	typedef shared_ptr<GuiPatcherManager>          sGuiPatcherManager;
-	typedef weak_ptr<GuiPatcherManager>			wGuiPatcherManager;
-	typedef shared_ptr<const GuiPatcherManager>	scGuiPatcherManager;
-	typedef weak_ptr<const GuiPatcherManager>		wcGuiPatcherManager;
+	class GuiPatchManager;
+	typedef shared_ptr<GuiPatchManager>          sGuiPatchManager;
+	typedef weak_ptr<GuiPatchManager>			wGuiPatchManager;
+	typedef shared_ptr<const GuiPatchManager>	scGuiPatchManager;
+	typedef weak_ptr<const GuiPatchManager>		wcGuiPatchManager;
 	
 	class GuiDeviceManager;
 	typedef shared_ptr<GuiDeviceManager>        sGuiDeviceManager;

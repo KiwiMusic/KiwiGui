@@ -42,7 +42,7 @@ namespace Kiwi
 		typedef weak_ptr<const View>    wcView;
 		
 	private:
-		wGuiPatcherManager  m_manager;
+		wGuiPatchManager  m_manager;
 		vector<sGuiObject>	m_boxes;
 		vector<sGuiLink>    m_links;
 		mutable mutex       m_mutex;
@@ -58,7 +58,7 @@ namespace Kiwi
 		/** The constructor.
 		 @param instance The manager.
 		 */
-		GuiPatcher(sGuiPatcherManager manager) noexcept;
+		GuiPatcher(sGuiPatchManager manager) noexcept;
 		
 		//! The destructor.
 		/** Free memory.
@@ -69,7 +69,7 @@ namespace Kiwi
 		/** This function retrieves the context of the chain.
 		 @return The context of the chain.
 		 */
-		inline sGuiPatcherManager getGuiPatcherManager() const noexcept
+		inline sGuiPatchManager getGuiPatchManager() const noexcept
 		{
 			return m_manager.lock();
 		}
