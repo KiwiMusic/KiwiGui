@@ -37,31 +37,31 @@ namespace Kiwi
 	
 	GuiPatchManager::~GuiPatchManager()
 	{
-		m_pages.clear();
+		m_patchers.clear();
 	}
 	
-	void GuiPatchManager::add(sGuiPatcher page)
+	void GuiPatchManager::add(sGuiPatcher patcher)
 	{
-		if(page)
+		if(patcher)
 		{
 			lock_guard<mutex> guard(m_mutex);
-			if(find(m_pages.begin(), m_pages.end(), page) == m_pages.end())
+			if(find(m_patchers.begin(), m_patchers.end(), patcher) == m_patchers.end())
 			{
-				m_pages.push_back(page);
+				m_patchers.push_back(patcher);
 			}
 		}
 	}
 	
-	void GuiPatchManager::remove(sGuiPatcher page)
+	void GuiPatchManager::remove(sGuiPatcher patcher)
 	{
 		bool success = false;
-		if(page)
+		if(patcher)
 		{
 			lock_guard<mutex> guard(m_mutex);
-			auto it = find(m_pages.begin(), m_pages.end(), page);
-			if(it != m_pages.end())
+			auto it = find(m_patchers.begin(), m_patchers.end(), patcher);
+			if(it != m_patchers.end())
 			{
-				m_pages.erase(it);
+				m_patchers.erase(it);
 				success = true;
 			}
 		}
@@ -71,19 +71,6 @@ namespace Kiwi
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -28,6 +28,8 @@
 
 namespace Kiwi
 {
+    class PatcherView;
+
     //! The gui patcher...
     /**
      The gui patcher
@@ -36,23 +38,36 @@ namespace Kiwi
     {
 	public:
 		class View;
-		typedef shared_ptr<View>        sView;
-		typedef weak_ptr<View>          wView;
-		typedef shared_ptr<const View>  scView;
-		typedef weak_ptr<const View>    wcView;
+        typedef shared_ptr<PatcherView>         sPatcherView;
+        typedef weak_ptr<PatcherView>           wPatcherView;
+        typedef shared_ptr<const PatcherView>   scPatcherView;
+        typedef weak_ptr<const PatcherView>     wcPatcherView;
 		
 	private:
-		wGuiPatchManager  m_manager;
-		vector<sGuiObject>	m_boxes;
+		wGuiPatchManager    m_manager;
+		vector<sGuiObject>  m_objects;
 		vector<sGuiLink>    m_links;
 		mutable mutex       m_mutex;
         
-        const sAttrColor	m_color_unlocked_background;
-        const sAttrColor	m_color_locked_background;
-        const sAttrLong		m_gridsize;
+        set<wPatcherView,
+        owner_less<wPatcherView>>   m_views;
+        mutable mutex               m_views_mutex;
+        
+        const sAttrColor    m_color_unlocked_background;
+        const sAttrColor    m_color_locked_background;
+        const sAttrLong     m_gridsize;
+        
+        //! @internal flags describing the type of the notification
+        enum Notification
+        {
+            Added        = false,
+            Removed      = true
+        };
 		
-		//wPatcherview  (patcher a vector<sPatcherView>)
-		
+        //! @internal Trigger notification to controlers.
+        void send(sGuiObject object, Notification type);
+        void send(sGuiLink link, Notification type);
+        
     public:
 		//! The constructor.
 		/** The constructor.
@@ -79,6 +94,26 @@ namespace Kiwi
 		 @return The device manager of the context.
 		 */
 		sGuiDeviceManager getDeviceManager() const noexcept;
+        
+        //! Create a new view
+        /** The function creates a new patcher.
+         @return The view.
+         */
+        sPatcherView createView();
+        
+        //! Add a view to the patcher.
+        /** The function adds a view to the patcher.
+         @param list  The view to add.
+         */
+        void addView(sPatcherView view);
+        
+        //! Remove a view from the patcher.
+        /** The function removes a view from the patcher.
+         @param view  The view to remove.
+         */
+        void removeView(sPatcherView view);
+        
+        //sView ?? createView() => instance create view
 		
 		//! Retrieve the number of gui objects.
 		/** The function retrieves the number of gui objects.
@@ -87,7 +122,7 @@ namespace Kiwi
 		inline ulong getNumberOfObjects() const noexcept
 		{
 			lock_guard<mutex> guard(m_mutex);
-			return (ulong)m_boxes.size();
+			return (ulong)m_objects.size();
 		}
 		
 		//! Retrieve the number of gui links.
@@ -100,8 +135,8 @@ namespace Kiwi
 			return (ulong)m_links.size();
 		}
 		
-		//! Add a box to the page.
-		/** The function adds a box to the page.
+		//! Add an object to the page.
+		/** The function adds an object to the page.
 		 @param object The object to add.
 		 */
 		void add(sGuiObject box);
@@ -112,8 +147,8 @@ namespace Kiwi
 		 */
 		void add(sGuiLink link);
 		
-		//! Remove a box from the page.
-		/** The function removes a box from the patcher.
+		//! Remove an object from the page.
+		/** The function removes an object from the patcher.
 		 @param object The box to remove.
 		 */
 		void remove(sGuiObject box);
@@ -123,6 +158,18 @@ namespace Kiwi
 		 @param link The link to remove.
 		 */
 		void remove(sGuiLink link);
+        
+        //! Bring a object to the front of the patcher.
+        /** The function brings a object to the front of the patcher. The object will be setted as if it was the last object created and will be the last object of the vector of objects.
+         @param object        The pointer to the object.
+         */
+        void toFront(sGuiObject object);
+        
+        //! Bring a object to the back of the patcher.
+        /** The function brings a object to the back of the patcher. The object will be setted as if it was the first object created and will be the first object of the vector of objects.
+         @param object        The pointer to the object.
+         */
+        void toBack(sGuiObject object);
         
         //! Retrieve the "gridsize" attribute value of the patcher.
         /** The function retrieves the "gridsize" attribute value of the patcher.
@@ -150,31 +197,29 @@ namespace Kiwi
         {
             return m_color_unlocked_background->getValue();
         }
-		
-		//sView ?? createView() => instance create view
     };
 	
 	// ================================================================================ //
 	//									 GUI PAGE VIEW                                  //
 	// ================================================================================ //
 	
-	//! The patcher view listener .
-	/**
-	 The patcher view listener...
-	 */
+    //! The gui patcher view is an abstract class that facilitates the control of a patcher in an application.
+    /** The gui patcher view is an abstract class that facilitates the control of a patcher in an application.
+     @see GuiPatcher, Patcher
+     */
 	class GuiPatcher::View
 	{
 	public:
 		virtual ~View() {}
 		
-		//! Receive the notification that a box has been created.
-		/** The function is called by the page when a box has been created.
+		//! Receive the notification that an object has been created.
+		/** The function is called by the page when an object has been created.
 		 @param object The box.
 		 */
 		virtual void objectCreated(sGuiObject box) = 0;
 		
-		//! Receive the notification that a box has been removed.
-		/** The function is called by the page when a box has been removed.
+		//! Receive the notification that an object has been removed.
+		/** The function is called by the page when an object has been removed.
 		 @param object The box.
 		 */
 		virtual void objectRemoved(sGuiObject box) = 0;

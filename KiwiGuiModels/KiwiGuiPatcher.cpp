@@ -23,6 +23,7 @@
 
 #include "KiwiGuiPatcher.h"
 #include "KiwiGuiDevice.h"
+#include "../KiwiGuiView/KiwiPatcherView.h"
 
 namespace Kiwi
 {
@@ -44,29 +45,60 @@ namespace Kiwi
 	GuiPatcher::~GuiPatcher()
 	{
 		lock_guard<mutex> guard(m_mutex);
-		m_boxes.clear();
+		m_objects.clear();
 		m_links.clear();
+        m_views.clear();
 	}
 	
 	sGuiDeviceManager GuiPatcher::getDeviceManager() const noexcept
 	{
-		sGuiPatchManager instance = getGuiPatchManager();
-		if(instance)
+		sGuiPatchManager manager = getGuiPatchManager();
+		if(manager)
 		{
-			return instance->getDeviceManager();
+			return manager->getDeviceManager();
 		}
 		
 		return nullptr;
 	}
+    
+    GuiPatcher::sPatcherView GuiPatcher::createView()
+    {
+        sGuiPatchManager manager = getGuiPatchManager();
+        if(manager)
+        {
+            //return manager->createView();
+        }
+        
+        return sPatcherView();
+    }
+    
+    void GuiPatcher::addView(sPatcherView view)
+    {
+        if(view)
+        {
+            lock_guard<mutex> guard(m_views_mutex);
+            m_views.insert(view);
+        }
+    }
+    
+    void GuiPatcher::removeView(sPatcherView view)
+    {
+        if(view)
+        {
+            lock_guard<mutex> guard(m_views_mutex);
+            m_views.erase(view);
+        }
+    }
 	
-	void GuiPatcher::add(sGuiObject box)
+	void GuiPatcher::add(sGuiObject object)
 	{
-		if(box)
+		if(object)
 		{
 			lock_guard<mutex> guard(m_mutex);
-			if(find(m_boxes.begin(), m_boxes.end(), box) == m_boxes.end())
+			if(find(m_objects.begin(), m_objects.end(), object) == m_objects.end())
 			{
-				m_boxes.push_back(box);
+				m_objects.push_back(object);
+                send(object, Notification::Added);
 			}
 		}
 	}
@@ -79,19 +111,21 @@ namespace Kiwi
 			if(find(m_links.begin(), m_links.end(), link) == m_links.end())
 			{
 				m_links.push_back(link);
+                send(link, Notification::Added);
 			}
 		}
 	}
 	
-	void GuiPatcher::remove(sGuiObject box)
+	void GuiPatcher::remove(sGuiObject object)
 	{
-		if(box)
+		if(object)
 		{
 			lock_guard<mutex> guard(m_mutex);
-			auto it = find(m_boxes.begin(), m_boxes.end(), box);
-			if(it != m_boxes.end())
+			auto it = find(m_objects.begin(), m_objects.end(), object);
+			if(it != m_objects.end())
 			{
-				m_boxes.erase(it);
+				m_objects.erase(it);
+                send(object, Notification::Removed);
 			}
 		}
 	}
@@ -105,9 +139,96 @@ namespace Kiwi
 			if(it != m_links.end())
 			{
 				m_links.erase(it);
+                send(link, Notification::Removed);
 			}
 		}
 	}
+    
+    void GuiPatcher::toFront(sGuiObject object)
+    {
+        if(object)
+        {
+            lock_guard<mutex> guard(m_mutex);
+            auto it = find(m_objects.begin(), m_objects.end(), object);
+            if(it != m_objects.end())
+            {
+                m_objects.erase(it);
+                m_objects.push_back(object);
+            }
+        }
+    }
+    
+    void GuiPatcher::toBack(sGuiObject object)
+    {
+        if(object)
+        {
+            lock_guard<mutex> guard(m_mutex);
+            auto it = find(m_objects.begin(), m_objects.end(), object);
+            if(it != m_objects.end())
+            {
+                m_objects.erase(it);
+                m_objects.insert(m_objects.begin(), object);
+            }
+        }
+    }
+    
+    void GuiPatcher::send(sGuiObject object, GuiPatcher::Notification type)
+    {
+        if(object)
+        {
+            lock_guard<mutex> guard(m_views_mutex);
+            for(auto it = m_views.begin(); it != m_views.end(); )
+            {
+                sPatcherView view = (*it).lock();
+                if(view)
+                {
+                    if(type == Notification::Added)
+                    {
+                        view->objectCreated(object);
+                    }
+                    else
+                    {
+                        view->objectRemoved(object);
+                    }
+                    
+                    ++it;
+                }
+                else
+                {
+                    it = m_views.erase(it);
+                }
+            }
+        }
+    }
+    
+    void GuiPatcher::send(sGuiLink link, GuiPatcher::Notification type)
+    {
+        if(link)
+        {
+            lock_guard<mutex> guard(m_views_mutex);
+            for(auto it = m_views.begin(); it != m_views.end(); )
+            {
+                sPatcherView view = (*it).lock();
+                if(view)
+                {
+                    if(type == Notification::Added)
+                    {
+                        view->linkCreated(link);
+                    }
+                    else
+                    {
+                        view->linkRemoved(link);
+                    }
+                    
+                    ++it;
+                }
+                else
+                {
+                    it = m_views.erase(it);
+                }
+            }
+        }
+    }
 }
 
 

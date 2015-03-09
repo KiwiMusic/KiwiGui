@@ -36,7 +36,7 @@ namespace Kiwi
     {
 	private:
 		const wGuiDeviceManager m_device;
-		vector<sGuiPatcher>           m_pages;
+		vector<sGuiPatcher>     m_patchers;
 		mutable mutex           m_mutex;
 		
     public:
@@ -68,7 +68,7 @@ namespace Kiwi
 		inline ulong getNumberOfGuiPatcher() const noexcept
 		{
 			lock_guard<mutex> guard(m_mutex);
-			return (ulong)m_pages.size();
+			return (ulong)m_patchers.size();
 		}
 		
 		//! Add a page to the gui context.

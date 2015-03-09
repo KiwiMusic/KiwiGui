@@ -106,7 +106,7 @@ namespace Kiwi
                 sGuiPatcher patcher = patcherview->getPatcher();
                 if(patcher)
                 {
-                    //patcher->addListener(patcherview);
+                    patcher->addView(patcherview);
                     return patcherview;
                 }
             }
