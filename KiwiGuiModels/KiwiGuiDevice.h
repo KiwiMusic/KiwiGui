@@ -68,6 +68,16 @@ namespace Kiwi
         {
             return m_managers;
         }
+        
+        //! Create the view of a patcher depending on the implementation.
+        /** The function retrieves the view of a patcher depending on the implementation.
+         @param patcher The patcher.
+         @return The patcher view.
+         */
+        virtual GuiPatcher::sView createView(sGuiPatcher patcher)
+        {
+            return nullptr;
+        }
     };
 }
 

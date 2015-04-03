@@ -34,14 +34,14 @@ namespace Kiwi
     /**
      The gui patcher
      */
-    class GuiPatcher : virtual public Attr::Manager
+    class GuiPatcher : public Attr::Manager
     {
 	public:
 		class View;
-        typedef shared_ptr<PatcherView>         sPatcherView;
-        typedef weak_ptr<PatcherView>           wPatcherView;
-        typedef shared_ptr<const PatcherView>   scPatcherView;
-        typedef weak_ptr<const PatcherView>     wcPatcherView;
+        typedef shared_ptr<View>         sView;
+        typedef weak_ptr<View>           wView;
+        typedef shared_ptr<const View>   scView;
+        typedef weak_ptr<const View>     wcView;
 		
 	private:
 		wGuiContext         m_manager;
@@ -49,9 +49,9 @@ namespace Kiwi
 		vector<sGuiLink>    m_links;
 		mutable mutex       m_mutex;
         
-        set<wPatcherView,
-        owner_less<wPatcherView>>   m_views;
-        mutable mutex               m_views_mutex;
+        set<wView,
+        owner_less<wView>>  m_views;
+        mutable mutex       m_views_mutex;
         
         const sAttrColor    m_color_unlocked_background;
         const sAttrColor    m_color_locked_background;
@@ -99,7 +99,7 @@ namespace Kiwi
         /** The function creates a new patcher.
          @return The view.
          */
-        sPatcherView createView();
+        sView createView();
 		
 		//! Retrieve the objects of the patcher.
 		/** The function retrieves the objects of the patcher.

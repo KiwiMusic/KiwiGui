@@ -52,24 +52,24 @@ namespace Kiwi
 	
 	sGuiDeviceManager GuiPatcher::getDeviceManager() const noexcept
 	{
-		sGuiContext manager = getContext();
-		if(manager)
+		sGuiContext ctxt = getContext();
+		if(ctxt)
 		{
-			return manager->getDeviceManager();
+			return ctxt->getDeviceManager();
 		}
 		
 		return nullptr;
 	}
     
-    GuiPatcher::sPatcherView GuiPatcher::createView()
+    GuiPatcher::sView GuiPatcher::createView()
     {
-        sGuiContext manager = getContext();
-        if(manager)
+        sGuiDeviceManager device = getDeviceManager();
+        if(device)
         {
-            return nullptr;//manager->createView();
+            return device->createView(static_pointer_cast<GuiPatcher>(Attr::Manager::shared_from_this()));
         }
         
-        return sPatcherView();
+        return nullptr;
     }
 	
 	void GuiPatcher::add(sGuiObject object)
@@ -161,7 +161,7 @@ namespace Kiwi
             lock_guard<mutex> guard(m_views_mutex);
             for(auto it = m_views.begin(); it != m_views.end(); )
             {
-                sPatcherView view = (*it).lock();
+                sView view = (*it).lock();
                 if(view)
                 {
                     if(type == Notification::Added)
@@ -190,7 +190,7 @@ namespace Kiwi
             lock_guard<mutex> guard(m_views_mutex);
             for(auto it = m_views.begin(); it != m_views.end(); )
             {
-                sPatcherView view = (*it).lock();
+                sView view = (*it).lock();
                 if(view)
                 {
                     if(type == Notification::Added)
