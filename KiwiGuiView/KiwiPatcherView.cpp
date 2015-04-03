@@ -42,11 +42,10 @@ namespace Kiwi
         
     }
     
-    PatcherView::~PatcherView()
+    PatcherView::~PatcherView() noexcept
     {
 		m_objects_selected.clear();
 		m_links_selected.clear();
-		
         m_objects.clear();
 		m_links.clear();
     }

@@ -168,7 +168,7 @@ namespace Kiwi
 		//! Constructor.
 		/** The function does nothing.
 		 */
-		Doodle()
+		Doodle() noexcept
 		{
 			;
 		}
@@ -176,7 +176,7 @@ namespace Kiwi
 		//! Destrcutor.
 		/** The function does nothing.
 		 */
-		virtual ~Doodle()
+		virtual ~Doodle() noexcept
 		{
 			;
 		}
@@ -185,43 +185,43 @@ namespace Kiwi
 		/** The function retrieves the abscissa.
 		 @return The abscissa.
 		 */
-		virtual inline double getX() = 0;
+		virtual inline double getX() const noexcept = 0;
 		
 		//! Retrieve the ordinate.
 		/** The function retrieves the ordinate.
 		 @return The ordinate.
 		 */
-		virtual inline double getY() = 0;
+		virtual inline double getY() const noexcept = 0;
 		
 		//! Retrieve the width.
 		/** The function retrieves the width.
 		 @return The width.
 		 */
-		virtual inline double getWidth() = 0;
+		virtual inline double getWidth() const noexcept = 0;
 		
 		//! Retrieve the height.
 		/** The function retrieves the height.
 		 @return The height.
 		 */
-		virtual inline double getHeight() = 0;
+		virtual inline double getHeight() const noexcept = 0;
 		
 		//! Retrieve the position.
 		/** The function retrieves the position.
 		 @return The position.
 		 */
-		virtual inline Point getPosition() = 0;
+		virtual inline Point getPosition() const noexcept = 0;
 		
 		//! Retrieve the size.
 		/** The function retrieves the size.
 		 @return The size.
 		 */
-		virtual inline Point getSize() = 0;
+		virtual inline Point getSize() const noexcept = 0;
 		
 		//! Retrieve the bounds.
 		/** The function retrieves the bounds.
 		 @return The bounds.
 		 */
-		virtual inline Rectangle getBounds() = 0;
+		virtual inline Rectangle getBounds() const noexcept = 0;
 		
 		//! Set the color.
 		/** The function sets the color that now will be used by the doodle.
@@ -309,32 +309,32 @@ namespace Kiwi
 		 */
 		virtual void drawPath(const Path& path, double const thickness) = 0;
 		
-		virtual inline void drawLine(double x1, double y1, double x2, double y2, double thickness) = 0;
+		virtual void drawLine(double x1, double y1, double x2, double y2, double thickness) = 0;
 		
-		virtual inline void drawRectangle(double x, double y, double w, double h, double thickness, double rounded = 0.) = 0;
+		virtual void drawRectangle(double x, double y, double w, double h, double thickness, double rounded = 0.) = 0;
 		
-		virtual inline void drawRectangle(Rectangle const& rect, double thickness, double rounded = 0.)
+		virtual void drawRectangle(Rectangle const& rect, double thickness, double rounded = 0.)
 		{
 			drawRectangle(rect.x(), rect.y(), rect.width(), rect.height(), thickness, rounded);
 		}
 		
-		virtual inline void fillRectangle(double x, double y, double w, double h, double rounded = 0.) = 0;
+		virtual void fillRectangle(double x, double y, double w, double h, double rounded = 0.) = 0;
 		
-		virtual inline void fillRectangle(Rectangle const& rect, double rounded = 0.)
+		virtual void fillRectangle(Rectangle const& rect, double rounded = 0.)
 		{
 			drawRectangle(rect.x(), rect.y(), rect.width(), rect.height(), rounded);
 		}
 		
-		virtual inline void drawEllipse(double x, double y, double width, double height, double thickness = 0.) = 0;
+		virtual void drawEllipse(double x, double y, double width, double height, double thickness = 0.) = 0;
 		
-		virtual inline void drawEllipse(Rectangle const& rect, double thickness = 0.)
+		virtual void drawEllipse(Rectangle const& rect, double thickness = 0.)
 		{
 			drawEllipse(rect.x(), rect.y(), rect.width(), rect.height(), thickness);
 		}
 		
-		virtual inline void fillEllipse(double x, double y, double width, double height) = 0;
+		virtual void fillEllipse(double x, double y, double width, double height) = 0;
 		
-		virtual inline void fillEllipse(Rectangle const& rect)
+		virtual void fillEllipse(Rectangle const& rect)
 		{
 			fillEllipse(rect.x(), rect.y(), rect.width(), rect.height());
 		}

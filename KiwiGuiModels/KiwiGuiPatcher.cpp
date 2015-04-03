@@ -42,7 +42,7 @@ namespace Kiwi
         addAttr(m_gridsize);
     }
 	
-	GuiPatcher::~GuiPatcher()
+	GuiPatcher::~GuiPatcher() noexcept
 	{
 		lock_guard<mutex> guard(m_mutex);
 		m_objects.clear();
@@ -63,13 +63,18 @@ namespace Kiwi
     
     GuiPatcher::sView GuiPatcher::createView()
     {
+        sView view;
         sGuiDeviceManager device = getDeviceManager();
         if(device)
         {
-            return device->createView(static_pointer_cast<GuiPatcher>(Attr::Manager::shared_from_this()));
+            view = device->createView(static_pointer_cast<GuiPatcher>(Attr::Manager::shared_from_this()));
+            if(view)
+            {
+                lock_guard<mutex> guard(m_views_mutex);
+                m_views.insert(view);
+            }
         }
-        
-        return nullptr;
+        return view;
     }
 	
 	void GuiPatcher::add(sGuiObject object)

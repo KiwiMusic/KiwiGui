@@ -78,7 +78,7 @@ namespace Kiwi
 		//! The destructor.
 		/** Free memory.
 		 */
-		virtual ~GuiPatcher();
+		virtual ~GuiPatcher() noexcept;
 		
 		//! Retrieve the context of the chain.
 		/** This function retrieves the context of the chain.
@@ -118,6 +118,16 @@ namespace Kiwi
 		{
 			return m_links;
 		}
+        
+        //! Append a dico.
+        /** The function reads a dico and add the objects and links to the patcher.
+         @param dico The dico.
+         */
+        virtual void add(Dico const& dico)
+        {
+            int tempory;
+            ;
+        }
 		
 		//! Add an object to the page.
 		/** The function adds an object to the page.

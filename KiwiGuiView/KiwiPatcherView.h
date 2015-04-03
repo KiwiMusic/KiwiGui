@@ -113,26 +113,7 @@ namespace Kiwi
         //! The destructor.
         /** The destructor.
          */
-        virtual ~PatcherView();
-        
-        //! The patcher controller maker.
-        /** The function creates a patcher controller with arguments.
-         */
-        template<class PatcherViewClass, class ...Args> static shared_ptr<PatcherViewClass> create(Args&& ...arguments)
-        {
-            shared_ptr<PatcherViewClass> patcherview = make_shared<PatcherViewClass>(forward<Args>(arguments)...);
-            if(patcherview)
-            {
-                sGuiPatcher patcher = patcherview->getPatcher();
-                if(patcher)
-                {
-                    int should_add_the_view_to_the_patcher;
-                    //patcher->addView(patcherview);
-                    return patcherview;
-                }
-            }
-            return nullptr;
-        }
+        virtual ~PatcherView() noexcept;
 		
 		//! Adds a patcher view listener.
 		/** The function adds a patcher view listener
