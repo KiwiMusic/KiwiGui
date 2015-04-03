@@ -24,10 +24,30 @@
 #ifndef __DEF_KIWI_GUI_PAGEVIEW__
 #define __DEF_KIWI_GUI_PAGEVIEW__
 
-#include "KiwiDefsView.h"
+#include "../KiwiGuiModels/KiwiGuiModels.h"
 
 namespace Kiwi
 {
+    struct Knock;
+    
+    class PatcherView;
+    typedef shared_ptr<PatcherView>         sPatcherView;
+    typedef weak_ptr<PatcherView>           wPatcherView;
+    typedef shared_ptr<const PatcherView>   scPatcherView;
+    typedef weak_ptr<const PatcherView>     wcPatcherView;
+    
+    class LinkView;
+    typedef shared_ptr<LinkView>         sLinkView;
+    typedef weak_ptr<LinkView>           wLinkView;
+    typedef shared_ptr<const LinkView>   scLinkView;
+    typedef weak_ptr<const LinkView>     wcLinkView;
+    
+    class ObjectView;
+    typedef shared_ptr<ObjectView>         sObjectView;
+    typedef weak_ptr<ObjectView>           wObjectView;
+    typedef shared_ptr<const ObjectView>   scObjectView;
+    typedef weak_ptr<const ObjectView>     wcObjectView;
+    
     // ================================================================================ //
     //                                  PAGE VIEW                                       //
     // ================================================================================ //
@@ -106,7 +126,8 @@ namespace Kiwi
                 sGuiPatcher patcher = patcherview->getPatcher();
                 if(patcher)
                 {
-                    patcher->addView(patcherview);
+                    int should_add_the_view_to_the_patcher;
+                    //patcher->addView(patcherview);
                     return patcherview;
                 }
             }

@@ -31,7 +31,7 @@ namespace Kiwi
     //                                     GUI PATCHER                                  //
     // ================================================================================ //
 	
-	GuiPatcher::GuiPatcher(sGuiPatchManager manager) noexcept :
+	GuiPatcher::GuiPatcher(sGuiContext manager) noexcept :
     m_manager(manager),
     m_color_unlocked_background(Attr::create("unlocked_bgcolor","Unlocked Background Color", "Appearance", ColorValue(0.88, 0.89, 0.88, 1.))),
     m_color_locked_background(Attr::create("locked_bgcolor", "Locked Background Color", "Appearance", ColorValue(0.88, 0.89, 0.88, 1.))),
@@ -52,7 +52,7 @@ namespace Kiwi
 	
 	sGuiDeviceManager GuiPatcher::getDeviceManager() const noexcept
 	{
-		sGuiPatchManager manager = getGuiPatchManager();
+		sGuiContext manager = getContext();
 		if(manager)
 		{
 			return manager->getDeviceManager();
@@ -63,31 +63,13 @@ namespace Kiwi
     
     GuiPatcher::sPatcherView GuiPatcher::createView()
     {
-        sGuiPatchManager manager = getGuiPatchManager();
+        sGuiContext manager = getContext();
         if(manager)
         {
-            //return manager->createView();
+            return nullptr;//manager->createView();
         }
         
         return sPatcherView();
-    }
-    
-    void GuiPatcher::addView(sPatcherView view)
-    {
-        if(view)
-        {
-            lock_guard<mutex> guard(m_views_mutex);
-            m_views.insert(view);
-        }
-    }
-    
-    void GuiPatcher::removeView(sPatcherView view)
-    {
-        if(view)
-        {
-            lock_guard<mutex> guard(m_views_mutex);
-            m_views.erase(view);
-        }
     }
 	
 	void GuiPatcher::add(sGuiObject object)

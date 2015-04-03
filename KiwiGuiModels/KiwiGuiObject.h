@@ -24,10 +24,40 @@
 #ifndef __DEF_KIWI_GUI_OBJECT__
 #define __DEF_KIWI_GUI_OBJECT__
 
-#include "KiwiGuiLink.h"
+#include "../KiwiGuiEvents/KiwiGuiEvents.h"
 
 namespace Kiwi
 {
+    class GuiLink;
+    typedef shared_ptr<GuiLink>                 sGuiLink;
+    typedef weak_ptr<GuiLink>					wGuiLink;
+    typedef shared_ptr<const GuiLink>           scGuiLink;
+    typedef weak_ptr<const GuiLink>				wcGuiLink;
+    
+    class GuiObject;
+    typedef shared_ptr<GuiObject>               sGuiObject;
+    typedef weak_ptr<GuiObject>                 wGuiObject;
+    typedef shared_ptr<const GuiObject>         scGuiObject;
+    typedef weak_ptr<const GuiObject>           wcGuiObject;
+    
+    class GuiPatcher;
+    typedef shared_ptr<GuiPatcher>				sGuiPatcher;
+    typedef weak_ptr<GuiPatcher>                wGuiPatcher;
+    typedef shared_ptr<const GuiPatcher>        scGuiPatcher;
+    typedef weak_ptr<const GuiPatcher>			wcGuiPatcher;
+    
+    class GuiContext;
+    typedef shared_ptr<GuiContext>              sGuiContext;
+    typedef weak_ptr<GuiContext>                wGuiContext;
+    typedef shared_ptr<const GuiContext>        scGuiContext;
+    typedef weak_ptr<const GuiContext>          wcGuiContext;
+    
+    class GuiDeviceManager;
+    typedef shared_ptr<GuiDeviceManager>        sGuiDeviceManager;
+    typedef weak_ptr<GuiDeviceManager>          wGuiDeviceManager;
+    typedef shared_ptr<const GuiDeviceManager>  scGuiDeviceManager;
+    typedef weak_ptr<const GuiDeviceManager>    wcGuiDeviceManager;
+    
     //! The gui box...
     /**
      The gui box

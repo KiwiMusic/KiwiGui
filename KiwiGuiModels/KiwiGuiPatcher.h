@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_PATCHER__
 #define __DEF_KIWI_GUI_PATCHER__
 
-#include "KiwiGuiObject.h"
+#include "KiwiGuiLink.h"
 
 namespace Kiwi
 {
@@ -44,7 +44,7 @@ namespace Kiwi
         typedef weak_ptr<const PatcherView>     wcPatcherView;
 		
 	private:
-		wGuiPatchManager    m_manager;
+		wGuiContext         m_manager;
 		vector<sGuiObject>  m_objects;
 		vector<sGuiLink>    m_links;
 		mutable mutex       m_mutex;
@@ -73,7 +73,7 @@ namespace Kiwi
 		/** The constructor.
 		 @param instance The manager.
 		 */
-		GuiPatcher(sGuiPatchManager manager) noexcept;
+		GuiPatcher(sGuiContext manager) noexcept;
 		
 		//! The destructor.
 		/** Free memory.
@@ -84,7 +84,7 @@ namespace Kiwi
 		/** This function retrieves the context of the chain.
 		 @return The context of the chain.
 		 */
-		inline sGuiPatchManager getGuiPatchManager() const noexcept
+		inline sGuiContext getContext() const noexcept
 		{
 			return m_manager.lock();
 		}
@@ -100,39 +100,23 @@ namespace Kiwi
          @return The view.
          */
         sPatcherView createView();
-        
-        //! Add a view to the patcher.
-        /** The function adds a view to the patcher.
-         @param list  The view to add.
-         */
-        void addView(sPatcherView view);
-        
-        //! Remove a view from the patcher.
-        /** The function removes a view from the patcher.
-         @param view  The view to remove.
-         */
-        void removeView(sPatcherView view);
-        
-        //sView ?? createView() => instance create view
 		
-		//! Retrieve the number of gui objects.
-		/** The function retrieves the number of gui objects.
-		 @return The number of gui objects.
+		//! Retrieve the objects of the patcher.
+		/** The function retrieves the objects of the patcher.
+		 @return The objects of the patcher.
 		 */
-		inline ulong getNumberOfObjects() const noexcept
+		inline vector<sGuiObject> getObjects() const noexcept
 		{
-			lock_guard<mutex> guard(m_mutex);
-			return (ulong)m_objects.size();
+			return m_objects;
 		}
 		
-		//! Retrieve the number of gui links.
-		/** The function retrieves the number of gui links.
-		 @return The number of gui links.
+		//! Retrieve the links of the patcher.
+		/** The function retrieves the links of the patcher.
+		 @return The links of the patcher.
 		 */
-		inline ulong getNumberOfLinks() const noexcept
+		inline vector<sGuiLink> getLinks() const noexcept
 		{
-			lock_guard<mutex> guard(m_mutex);
-			return (ulong)m_links.size();
+			return m_links;
 		}
 		
 		//! Add an object to the page.

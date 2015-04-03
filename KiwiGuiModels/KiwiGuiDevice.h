@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_DEVICE__
 #define __DEF_KIWI_GUI_DEVICE__
 
-#include "KiwiGuiPatchManager.h"
+#include "KiwiGuiContext.h"
 
 namespace Kiwi
 {
@@ -35,8 +35,8 @@ namespace Kiwi
     class GuiDeviceManager
     {
 	private:
-		vector<sGuiPatchManager>	m_managers;
-		mutable mutex			m_mutex;
+		vector<sGuiContext> m_managers;
+		mutex               m_mutex;
 		
 	public:
 		
@@ -52,23 +52,22 @@ namespace Kiwi
 		/** The function adds a page manager to the device manager.
 		 @param page manager The page manager to add.
 		 */
-		void add(sGuiPatchManager manager);
+		void add(sGuiContext manager);
 		
 		//! Remove a page manager from the device manager.
 		/** The function removes a page manager from the device manager.
 		 @param page manager The page manager to remove.
 		 */
-		void remove(sGuiPatchManager manager);
-		
-		//! Retrieve the number of page managers.
-		/** The function retrieves the number of page managers.
-		 @return The number of page managers.
-		 */
-		inline ulong getNumberOfGuiPatchManager() const noexcept
-		{
-			lock_guard<mutex> guard(m_mutex);
-			return (ulong)m_managers.size();
-		}
+		void remove(sGuiContext manager);
+        
+        //! Retrieve the patcher managers.
+        /** The function retrieves  the patcher managers.
+         @return The patcher managers.
+         */
+        inline vector<sGuiContext> getPatcherManagers() const noexcept
+        {
+            return m_managers;
+        }
     };
 }
 

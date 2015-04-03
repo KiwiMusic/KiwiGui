@@ -32,12 +32,12 @@ namespace Kiwi
     /**
      The gui context
      */
-	class GuiPatchManager : public inheritable_enable_shared_from_this<GuiPatchManager>
+	class GuiContext : public inheritable_enable_shared_from_this<GuiContext>
     {
 	private:
 		const wGuiDeviceManager m_device;
 		vector<sGuiPatcher>     m_patchers;
-		mutable mutex           m_mutex;
+		mutex                   m_mutex;
 		
     public:
 		
@@ -45,12 +45,12 @@ namespace Kiwi
 		/** The function initialize and empty context.
 		 @param device The gui device manager.
 		 */
-		GuiPatchManager(sGuiDeviceManager device) noexcept;
+		GuiContext(sGuiDeviceManager device) noexcept;
 		
 		//! The destructor.
 		/** Stop the digital signal processing if needed and free the chains.
 		 */
-		virtual ~GuiPatchManager();
+		virtual ~GuiContext() noexcept;
 		
 		//! Retrieve the gui device manager of the context.
 		/** This function retrieves the gui device manager.
@@ -61,27 +61,26 @@ namespace Kiwi
 			return m_device.lock();
 		}
 		
-		//! Retrieve the number of page.
-		/** The function retrieves the number of page.
-		 @return The number of page.
+		//! Retrieve the patchers of the context.
+		/** The function retrieves the patchers of the context.
+		 @return The patchers of the context.
 		 */
-		inline ulong getNumberOfGuiPatcher() const noexcept
+		inline vector<sGuiPatcher> getPatchers() const noexcept
 		{
-			lock_guard<mutex> guard(m_mutex);
-			return (ulong)m_patchers.size();
+			return m_patchers;
 		}
 		
-		//! Add a page to the gui context.
-		/** The function adds a page to the gui context.
-		 @param page The page to remove.
+		//! Add a patcher to the gui context.
+		/** The function adds a patcher to the gui context.
+		 @param patcher The patcher to remove.
 		 */
-		void add(sGuiPatcher page);
+		void add(sGuiPatcher patcher);
 		
-		//! Remove a page from the gui context.
-		/** The function removes a page from the gui context.
-		 @param page The page to remove.
+		//! Remove a patcher from the gui context.
+		/** The function removes a patcher from the gui context.
+		 @param patcher The patcher to remove.
 		 */
-		void remove(sGuiPatcher page);
+		void remove(sGuiPatcher patcher);
     };
 }
 

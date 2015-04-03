@@ -21,7 +21,7 @@
  ==============================================================================
 */
 
-#include "KiwiGuiPatchManager.h"
+#include "KiwiGuiContext.h"
 
 namespace Kiwi
 {
@@ -29,18 +29,19 @@ namespace Kiwi
     //                                     GUI INSTANCE                                 //
     // ================================================================================ //
 	
-	GuiPatchManager::GuiPatchManager(sGuiDeviceManager device) noexcept :
+	GuiContext::GuiContext(sGuiDeviceManager device) noexcept :
 	m_device(device)
 	{
 		;
 	}
 	
-	GuiPatchManager::~GuiPatchManager()
+	GuiContext::~GuiContext() noexcept
 	{
+        lock_guard<mutex> guard(m_mutex);
 		m_patchers.clear();
 	}
 	
-	void GuiPatchManager::add(sGuiPatcher patcher)
+	void GuiContext::add(sGuiPatcher patcher)
 	{
 		if(patcher)
 		{
@@ -52,9 +53,8 @@ namespace Kiwi
 		}
 	}
 	
-	void GuiPatchManager::remove(sGuiPatcher patcher)
+	void GuiContext::remove(sGuiPatcher patcher)
 	{
-		bool success = false;
 		if(patcher)
 		{
 			lock_guard<mutex> guard(m_mutex);
@@ -62,12 +62,7 @@ namespace Kiwi
 			if(it != m_patchers.end())
 			{
 				m_patchers.erase(it);
-				success = true;
 			}
-		}
-		if(success)
-		{
-			//remove window ?
 		}
 	}
 }
