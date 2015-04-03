@@ -143,17 +143,17 @@ namespace Kiwi
          */
         virtual type_index getTypeIndex() const noexcept = 0;
         
-        //! Retrieve the attribute value as a string.
-        /** The function retrieves the attribute value as a string.
-         @param text The value in the string format.
+        //! Retrieve the attribute value as a vector of atoms.
+        /** The function retrieves the attribute value as a vector of atoms.
+         @return The vector of atoms.
          */
-        virtual void getValueString(string& value) const noexcept = 0;
+        virtual Vector get() const noexcept = 0;
         
-        //! Set the attribute value with a string.
-        /** The function sets the attribute value with a string.
-         @param text The value in the string format.
+        //! Set the attribute value with a vector of atoms.
+        /** The function sets the attribute value with a vector of atoms.
+         @param vector The vector of atoms.
          */
-        virtual void setValueString(string const& value) = 0;
+        virtual void set(Vector const& vector) = 0;
         
         //! Retrieve if the attribute is from a specific template.
         /** The function retrieves if the attribute is from a specific template.
@@ -319,17 +319,17 @@ namespace Kiwi
             ;
         }
         
-        //! Set the attribute value with a string.
-        /** The function sets the attribute value with a string.
-         @param text The value in the string format.
+        //! Retrieve the attribute value as a vector of atoms.
+        /** The function retrieves the attribute value as a vector of atoms.
+         @return The vector of atoms.
          */
-        virtual void setValue(string const& text) noexcept = 0;
+        virtual Vector get() const noexcept = 0;
         
-        //! Retrieve the attribute value as a string.
-        /** The function retrieves the attribute value as a string.
-         @param text The value in the string format.
+        //! Set the attribute value with a vector of atoms.
+        /** The function sets the attribute value with a vector of atoms.
+         @param vector The vector of atoms.
          */
-        virtual void getValue(string& text) const noexcept = 0;
+        virtual void set(Vector const& vector) = 0;
     };
     
     // ================================================================================ //
@@ -370,38 +370,29 @@ namespace Kiwi
             return typeid(T);
         }
         
-        //! Retrieve the attribute value as a string.
-        /** The function retrieves the attribute value as a string.
-         @return The attribute value as a string.
+        //! Retrieve the attribute value as a vector of atoms.
+        /** The function retrieves the attribute value as a vector of atoms.
+         @return The vector of atoms.
          */
-        inline void getValueString(string& value) const noexcept override
+        Vector get() const noexcept override
         {
-            m_value.getValue(value);
+            return m_value.get();
         }
         
-        //! Set the attribute value as a string.
-        /** The function sets the attribute value as a string.
-         @param value The attribute value as a string.
+        //! Set the attribute value with a vector of atoms.
+        /** The function sets the attribute value with a vector of atoms.
+         @param vector The vector of atoms.
          */
-        inline void setValueString(string const& value) override
+        void set(Vector const& vector) override
         {
-			T val = m_value;
-            val.setValue(value);
+            T val = m_value;
+            val.set(vector);
             setValue(val);
         }
-        
+    
         //! Retrieves the values.
         /** The current values.
-         @param value The value that to set.
-         */
-        inline void getValue(T& value) const
-        {
-            value = m_value;
-        }
-        
-        //! Retrieves the values.
-        /** The current values.
-         @param value The value that to set.
+         @return The current values.
          */
         inline T getValue() const
         {
@@ -410,20 +401,20 @@ namespace Kiwi
         
         //! Retrieves the default value.
         /** Retrieve the default value.
-         @param value The value that to set.
+         @return The the default value.
          */
-        inline void getDefaultValue(T& value) const
+        inline T getDefaultValue() const
         {
-            value = m_default;
+            return m_default;
         }
         
         //! Retrieve the frozen value.
         /** Retrieve the frozen value.
-         @param value The value that to set
+         @return The the frozen value.
          */
-        inline void getFrozenValue(T& value) const
+        inline T getFrozenValue() const
         {
-            value = m_freezed;
+            return m_freezed;
         }
         
         //! Sets the values.
@@ -507,18 +498,12 @@ namespace Kiwi
          */
         virtual bool notify(sAttr attr) = 0;
         
-        //! Retrieve all the attributes.
-        /** The function retrieves the attributes.
-         @param attrs the attributes.
-         */
-        void getAttrs(vector<sAttr>& attrs) const noexcept;
-        
         //! Retrieve a set of attributes.
         /** The function retrieves the attributes.
          @param attrs the attributes.
          @param names the names of the attributes.
          */
-        void getAttrs(vector<sAttr>& attrs, vector<string> const& names) const noexcept;
+        vector<sAttr> getAttrs(vector<string> const& names = {}) const noexcept;
         
         //! Retrieve an attribute.
         /** The function retrieves an attribute.

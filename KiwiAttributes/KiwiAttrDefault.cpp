@@ -25,59 +25,57 @@
 
 namespace Kiwi
 {
-    void BoolValue::setValue(string const& text) noexcept
+    void BoolValue::set(Vector const& vector)
     {
-        string::size_type pos;
-        pos = text.find("true");
-        if(pos != string::npos)
+        if(!vector.empty() && vector[0].isNumber())
         {
-            m_state = true;
-            return;
-        }
-        pos = text.find("false");
-        if(pos != string::npos)
-        {
-            m_state = false;
-            return;
-        }
-        pos = text.find_first_of("0123456789");
-        if(pos != string::npos)
-        {
-            m_state = (bool)stod(text.c_str()+pos);
-            return;
+            m_state = (bool)vector[0];
         }
     }
     
-    void BoolValue::getValue(string& text) const noexcept
+    Vector BoolValue::get() const noexcept
     {
-        text = toString(m_state);
+        return {m_state};
     }
     
-    void LongValue::setValue(string const& text) noexcept
+    void LongValue::set(Vector const& vector)
     {
-        const string::size_type pos = text.find_first_of("-0123456789");
-        if(pos != string::npos)
+        if(!vector.empty() && vector[0].isNumber())
         {
-            m_value = stol(text.c_str()+pos);
+            m_value = (long)vector[0];
         }
     }
     
-    void LongValue::getValue(string& text) const noexcept
+    Vector LongValue::get() const noexcept
     {
-        text = toString(m_value);
+        return {m_value};
     }
     
-    void DoubleValue::setValue(string const& text) noexcept
+    void DoubleValue::set(Vector const& vector)
     {
-        const string::size_type pos = text.find_first_of("-0123456789.");
-        if(pos != string::npos)
+        if(!vector.empty() && vector[0].isNumber())
         {
-            m_value = stod(text.c_str()+pos);
+            m_value = (double)vector[0];
         }
     }
     
-    void DoubleValue::getValue(string& text) const noexcept
+    Vector DoubleValue::get() const noexcept
     {
-        text = toString(m_value);
+        return {m_value};
     }
+    
+    void StringValue::set(Vector const& vector)
+    {
+        if(!vector.empty() && vector[0].isTag())
+        {
+            m_value = sTag(vector[0])->getName();
+        }
+    }
+    
+    Vector StringValue::get() const noexcept
+    {
+        return {m_value};
+    }
+    
+    
 }

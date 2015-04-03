@@ -47,17 +47,17 @@ namespace Kiwi
             ;
         }
         
-        //! Set the attribute value with a string.
-        /** The function sets the attribute value with a string.
-         @param text The value in the string format.
+        //! Retrieve the attribute value as a vector of atoms.
+        /** The function retrieves the attribute value as a vector of atoms.
+         @return The vector of atoms.
          */
-        void setValue(string const& text) noexcept override;
+        Vector get() const noexcept override;
         
-        //! Retrieve the attribute value as a string.
-        /** The function retrieves the attribute value as a string.
-         @param text The value in the string format.
+        //! Set the attribute value with a vector of atoms.
+        /** The function sets the attribute value with a vector of atoms.
+         @param vector The vector of atoms.
          */
-        void getValue(string& text) const noexcept override;
+        void set(Vector const& vector) override;
     };
     
     // ================================================================================ //
@@ -98,17 +98,17 @@ namespace Kiwi
          */
         ~SizeValue();
         
-        //! Set the attribute value with a string.
-        /** The function sets the attribute value with a string.
-         @param text The value in the string format.
+        //! Retrieve the attribute value as a vector of atoms.
+        /** The function retrieves the attribute value as a vector of atoms.
+         @return The vector of atoms.
          */
-        void setValue(string const& text) noexcept override;
+        Vector get() const noexcept override;
         
-        //! Retrieve the attribute value as a string.
-        /** The function retrieves the attribute value as a string.
-         @param text The value in the string format.
+        //! Set the attribute value with a vector of atoms.
+        /** The function sets the attribute value with a vector of atoms.
+         @param vector The vector of atoms.
          */
-        void getValue(string& text) const noexcept override;
+        void set(Vector const& vector) override;
         
         //! Set the width.
         /** The function sets the width.
@@ -272,17 +272,17 @@ namespace Kiwi
             ;
         }
         
-        //! Set the attribute value with a string.
-        /** The function sets the attribute value with a string.
-         @param text The value in the string format.
+        //! Retrieve the attribute value as a vector of atoms.
+        /** The function retrieves the attribute value as a vector of atoms.
+         @return The vector of atoms.
          */
-        void setValue(string const& text) noexcept override;
+        Vector get() const noexcept override;
         
-        //! Retrieve the attribute value as a string.
-        /** The function retrieves the attribute value as a string.
-         @param text The value in the string format.
+        //! Set the attribute value with a vector of atoms.
+        /** The function sets the attribute value with a vector of atoms.
+         @param vector The vector of atoms.
          */
-        void getValue(string& text) const noexcept override;
+        void set(Vector const& vector) override;
     };
     
     // ================================================================================ //
@@ -304,17 +304,17 @@ namespace Kiwi
             ;
         }
         
-        //! Set the attribute value with a string.
-        /** The function sets the attribute value with a string.
-         @param text The value in the string format.
+        //! Retrieve the attribute value as a vector of atoms.
+        /** The function retrieves the attribute value as a vector of atoms.
+         @return The vector of atoms.
          */
-        void setValue(string const& text) noexcept override;
+        Vector get() const noexcept override;
         
-        //! Retrieve the attribute value as a string.
-        /** The function retrieves the attribute value as a string.
-         @param text The value in the string format.
+        //! Set the attribute value with a vector of atoms.
+        /** The function sets the attribute value with a vector of atoms.
+         @param vector The vector of atoms.
          */
-        void getValue(string& text) const noexcept override;
+        void set(Vector const& vector) override;
     };
 	
 	// ================================================================================ //
@@ -326,17 +326,17 @@ namespace Kiwi
 	public:
 		using Font::Font;
 		
-		//! Set the attribute value with a string.
-		/** The function sets the attribute value with a string.
-		 @param text The value in the string format.
-		 */
-		void setValue(string const& text) noexcept override;
-		
-		//! Retrieve the attribute value as a string.
-		/** The function retrieves the attribute value as a string.
-		 @param text The value in the string format.
-		 */
-		void getValue(string& text) const noexcept override;
+        //! Retrieve the attribute value as a vector of atoms.
+        /** The function retrieves the attribute value as a vector of atoms.
+         @return The vector of atoms.
+         */
+        Vector get() const noexcept override;
+        
+        //! Set the attribute value with a vector of atoms.
+        /** The function sets the attribute value with a vector of atoms.
+         @param vector The vector of atoms.
+         */
+        void set(Vector const& vector) override;
 	};
 }
 

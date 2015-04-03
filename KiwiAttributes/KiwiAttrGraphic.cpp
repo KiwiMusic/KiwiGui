@@ -29,24 +29,18 @@ namespace Kiwi
     //                                      POSITION                                    //
     // ================================================================================ //
     
-    void PointValue::setValue(string const& text) noexcept
+    void PointValue::set(Vector const& vector)
     {
-        string::size_type pos = text.find_first_of("-0123456789.");
-        if(pos != string::npos)
+        if(vector.size() > 1 && vector[0].isNumber() && vector[1].isNumber())
         {
-            x(stod(text.c_str()+pos));
-            pos = text.find(' ', pos);
-            pos = text.find_first_of("-0123456789.", pos);
-            if(pos != string::npos)
-            {
-                y(stod(text.c_str()+pos));
-            }
+            x((double)vector[0]);
+            y((double)vector[1]);
         }
     }
     
-    void PointValue::getValue(string& text) const noexcept
+    Vector PointValue::get() const noexcept
     {
-        text = "[" + toString(x()) + ", " + toString(y()) + "]";
+        return {x(), y()};
     }
     
     // ================================================================================ //
@@ -85,102 +79,77 @@ namespace Kiwi
         ;
     }
     
-    void SizeValue::setValue(string const& text) noexcept
+    void SizeValue::set(Vector const& vector)
     {
-        string::size_type pos = text.find_first_of("-0123456789.");
-        if(pos != string::npos)
+        if(vector.size() > 1 && vector[0].isNumber() && vector[1].isNumber())
         {
-            width(stod(text.c_str()+pos));
-            pos = text.find(' ', pos);
-            pos = text.find_first_of("-0123456789.", pos);
-            if(pos != string::npos)
-            {
-                height(stod(text.c_str()+pos));
-            }
+            width((double)vector[0]);
+            height((double)vector[1]);
         }
     }
     
-    void SizeValue::getValue(string& text) const noexcept
+    Vector SizeValue::get() const noexcept
     {
-        text = "[" + toString(width()) + ", " + toString(height()) + "]";
+        return {width(), height()};
     }
     
     // ================================================================================ //
     //                                      COLOR                                       //
     // ================================================================================ //
     
-    void ColorValue::setValue(string const& text) noexcept
+    void ColorValue::set(Vector const& vector)
     {
-        double point[4] = {0., 0., 0., 0.};
-        string::size_type pos;
-        for(ulong i = 0; i < 4; i++)
+        if(vector.size() > 2 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber())
         {
-            pos = text.find_first_of("-0123456789.");
-            if(pos != string::npos)
+            red((double)vector[0]);
+            green((double)vector[1]);
+            blue((double)vector[2]);
+            if(vector.size() > 3 && vector[3].isNumber())
             {
-                point[i] = stod(text.c_str()+pos);
-                pos = text.find(' ', pos);
+                alpha((double)vector[3]);
             }
         }
-        red(point[0]);
-        green(point[1]);
-        blue(point[2]);
-        alpha(point[3]);
     }
     
-    void ColorValue::getValue(string& text) const noexcept
+    Vector ColorValue::get() const noexcept
     {
-        text = "[" + toString(red()) + ", " + toString(green()) + ", " + toString(blue()) + ", " + toString(alpha()) + "]";
+        return {red(), green(), blue(), alpha()};
     }
     
     // ================================================================================ //
     //                                    RECTANGLE										//
     // ================================================================================ //
     
-    void RectangleValue::setValue(string const& text) noexcept
+    void RectangleValue::set(Vector const& vector)
     {
-        double point[4] = {0., 0., 0., 0.};
-        string::size_type pos;
-        for(ulong i = 0; i < 4; i++)
+        if(vector.size() > 3 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber() && vector[3].isNumber())
         {
-            pos = text.find_first_of("-0123456789.");
-            if(pos != string::npos)
-            {
-                point[i] = stod(text.c_str()+pos);
-                pos = text.find(' ', pos);
-            }
+            x((double)vector[0]);
+            y((double)vector[1]);
+            width((double)vector[2]);
+            height((double)vector[3]);
         }
-        x(point[0]);
-        y(point[1]);
-        width(point[2]);
-        height(point[3]);
     }
     
-    void RectangleValue::getValue(string& text) const noexcept
+    Vector RectangleValue::get() const noexcept
     {
-        text = "[" + toString(x()) + ", " + toString(y()) + ", " + toString(width()) + ", " + toString(height()) + "]";
+        return {x(), y(), width(), height()};
     }
 	
 	// ================================================================================ //
 	//                                      FONT										//
 	// ================================================================================ //
 	
-	//! Set the attribute value with a string.
-	/** The function sets the attribute value with a string.
-	 @param text The value in the string format.
-	 */
-	void FontValue::setValue(string const& text) noexcept
+	void FontValue::set(Vector const& vector)
 	{
-		;
+        int todo;
 	}
 	
 	//! Retrieve the attribute value as a string.
-	/** The function retrieves the attribute value as a string.
-	 @param text The value in the string format.
-	 */
-	void FontValue::getValue(string& text) const noexcept
-	{
-		text = "[\"" + getName() + "\", " + toString(getSize()) + ", \"" + getStyleName(getStyle()) + "\"]";
-	}
+    Vector FontValue::get() const noexcept
+    {
+        int todo;
+        return {};
+    }
 }
 

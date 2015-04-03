@@ -76,8 +76,7 @@ namespace Kiwi
                 {
                     object->addListener(objectview);
 					
-					vector<sAttr> attrs;
-					object->getAttrs(attrs, {"position", "presentation_position", "size", "presentation_size", "presentation"});
+					vector<sAttr> attrs = object->getAttrs({"position", "presentation_position", "size", "presentation_size", "presentation"});
 					for (auto attr : attrs)
 					{
 						attr->addListener(objectview);

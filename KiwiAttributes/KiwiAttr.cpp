@@ -165,24 +165,29 @@ namespace Kiwi
         }
     }
     
-    void Attr::Manager::getAttrs(vector<sAttr>& attrs) const noexcept
+    vector<sAttr> Attr::Manager::getAttrs(vector<string> const& names) const noexcept
     {
-        for(auto it = m_attrs.begin(); it != m_attrs.end(); ++it)
+        vector<sAttr> attrs;
+        if(!names.empty())
         {
-            attrs.push_back(it->second);
-        }
-    }
-    
-    void Attr::Manager::getAttrs(vector<sAttr>& attrs, vector<string> const& names) const noexcept
-    {
-        for(vector<string>::size_type i = 0; i < names.size(); i++)
-        {
-            sAttr attr = getAttr(names[i]);
-            if(attr)
+            for(vector<string>::size_type i = 0; i < names.size(); i++)
             {
-                attrs.push_back(attr);
+                sAttr attr = getAttr(names[i]);
+                if(attr)
+                {
+                    attrs.push_back(attr);
+                }
+            }
+            
+        }
+        else
+        {
+            for(auto it = m_attrs.begin(); it != m_attrs.end(); ++it)
+            {
+                attrs.push_back(it->second);
             }
         }
+        return attrs;
     }
     
     sAttr Attr::Manager::getAttr(string const& name) const noexcept
