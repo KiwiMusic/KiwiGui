@@ -34,10 +34,6 @@ namespace Kiwi
      */
     class GuiDeviceManager
     {
-	private:
-		vector<sGuiContext> m_managers;
-		mutex               m_mutex;
-		
 	public:
 		
 		//! The constructor.
@@ -47,37 +43,26 @@ namespace Kiwi
 		
 		//! The destructor.
 		virtual ~GuiDeviceManager() noexcept;
-		
-		//! Add a page manager to the device manager.
-		/** The function adds a page manager to the device manager.
-		 @param page manager The page manager to add.
-		 */
-		void add(sGuiContext manager);
-		
-		//! Remove a page manager from the device manager.
-		/** The function removes a page manager from the device manager.
-		 @param page manager The page manager to remove.
-		 */
-		void remove(sGuiContext manager);
         
-        //! Retrieve the patcher managers.
-        /** The function retrieves  the patcher managers.
-         @return The patcher managers.
+        //! Create a view.
+        /** The function creates a view for a controller.
+         @param ctrl The controller linked with the view.
+         @return The view.
          */
-        inline vector<sGuiContext> getPatcherManagers() const noexcept
+        virtual sGuiView createView(sGuiController ctrl) const noexcept
         {
-            return m_managers;
+            return sGuiView();
         }
         
-        //! Create the view of a patcher depending on the implementation.
-        /** The function retrieves the view of a patcher depending on the implementation.
-         @param patcher The patcher.
-         @return The patcher view.
+        //! Create a window.
+        /** The function creates a window.
+         @return The window.
          */
-        virtual GuiPatcher::sView createView(sGuiPatcher patcher)
+        virtual sGuiWindow createWindow() const noexcept
         {
-            return nullptr;
+            return sGuiWindow();
         }
+        
     };
 }
 

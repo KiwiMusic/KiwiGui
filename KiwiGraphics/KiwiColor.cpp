@@ -190,4 +190,27 @@ namespace Kiwi
             return (v1 + (v2 - v1) * ((2. / 3.) - vH) * 6.);
         return v1;
     }
+    
+    // ================================================================================ //
+    //                                      ATTR                                        //
+    // ================================================================================ //
+    
+    void ColorValue::set(Vector const& vector)
+    {
+        if(vector.size() > 2 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber())
+        {
+            red((double)vector[0]);
+            green((double)vector[1]);
+            blue((double)vector[2]);
+            if(vector.size() > 3 && vector[3].isNumber())
+            {
+                alpha((double)vector[3]);
+            }
+        }
+    }
+    
+    Vector ColorValue::get() const noexcept
+    {
+        return {red(), green(), blue(), alpha()};
+    }
 }

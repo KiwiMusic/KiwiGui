@@ -626,6 +626,37 @@ namespace Kiwi
         bool overlaps(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept;
     };
     
+    // ================================================================================ //
+    //                                      ATTR                                        //
+    // ================================================================================ //
+    
+    class RectangleValue : public Rectangle, public Attr::Value
+    {
+    public:
+        using Rectangle::Rectangle;
+        
+        RectangleValue()
+        {
+            ;
+        }
+        
+        RectangleValue(Rectangle const& rectangle) noexcept : Rectangle(rectangle)
+        {
+            ;
+        }
+        
+        //! Retrieve the attribute value as a vector of atoms.
+        /** The function retrieves the attribute value as a vector of atoms.
+         @return The vector of atoms.
+         */
+        Vector get() const noexcept override;
+        
+        //! Set the attribute value with a vector of atoms.
+        /** The function sets the attribute value with a vector of atoms.
+         @param vector The vector of atoms.
+         */
+        void set(Vector const& vector) override;
+    };
 }
 
 #endif

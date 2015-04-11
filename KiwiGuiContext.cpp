@@ -21,49 +21,42 @@
  ==============================================================================
 */
 
+#include "KiwiGuiContext.h"
 #include "KiwiGuiDevice.h"
 
 namespace Kiwi
 {
     // ================================================================================ //
-    //                                      GUI DEVICE                                  //
+    //                                  GUI CONTEXT                                     //
     // ================================================================================ //
 	
-	GuiDeviceManager::GuiDeviceManager() noexcept
-	{
-		;
-	}
-	
-	GuiDeviceManager::~GuiDeviceManager() noexcept
-	{
-		lock_guard<mutex> guard(m_mutex);
-		m_managers.clear();
-	}
-	
-	void GuiDeviceManager::add(sGuiContext manager)
-	{
-		if(manager)
-		{
-			lock_guard<mutex> guard(m_mutex);
-			if(find(m_managers.begin(), m_managers.end(), manager) == m_managers.end())
-			{
-				m_managers.push_back(manager);
-			}
-		}
-	}
-	
-	void GuiDeviceManager::remove(sGuiContext manager)
-	{
-		if(manager)
-		{
-			lock_guard<mutex> guard(m_mutex);
-			auto it = find(m_managers.begin(), m_managers.end(), manager);
-			if(it != m_managers.end())
-			{
-				m_managers.erase(it);
-			}
-		}
-	}
+    GuiContext::GuiContext(sGuiDeviceManager device) noexcept :
+    m_device(device)
+    {
+        ;
+    }
+    
+    GuiContext::~GuiContext() noexcept
+    {
+        lock_guard<mutex> guard(m_mutex);
+        m_windows.clear();
+    }
+    
+    sGuiWindow GuiContext::createWindow() noexcept
+    {
+        sGuiDeviceManager device = getDeviceManager();
+        if(device)
+        {
+            sGuiWindow window = device->createWindow();
+            if(window)
+            {
+                lock_guard<mutex> guard(m_mutex);
+                m_windows.insert(window);
+            }
+            return window;
+        }
+        return sGuiWindow();
+    }
 }
 
 

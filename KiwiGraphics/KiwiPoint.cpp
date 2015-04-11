@@ -393,4 +393,68 @@ namespace Kiwi
         
         return (left_count+right_count);
     }
+    
+    // ================================================================================ //
+    //                                      ATTR                                        //
+    // ================================================================================ //
+    
+    void PointValue::set(Vector const& vector)
+    {
+        if(vector.size() > 1 && vector[0].isNumber() && vector[1].isNumber())
+        {
+            x((double)vector[0]);
+            y((double)vector[1]);
+        }
+    }
+    
+    Vector PointValue::get() const noexcept
+    {
+        return {x(), y()};
+    }
+    
+    SizeValue::SizeValue() noexcept :
+    m_ratio(0.),
+    m_min(0., 0.),
+    m_point(0., 0.)
+    {
+        ;
+    }
+    
+    SizeValue::SizeValue(const double width, const double height, const double min_width, const double min_height, const double ratio) noexcept :
+    m_ratio(max(ratio, 0.)),
+    m_min(max(min_width, 0.), max(min_height, 0.)),
+    m_point(max(width, m_min.x()), max(height, m_min.y()))
+    {
+        if(m_ratio)
+        {
+            m_point.y(m_point.x() * m_ratio);
+        }
+    }
+    
+    SizeValue::SizeValue(SizeValue const& size) noexcept :
+    m_ratio(size.m_ratio),
+    m_min(size.m_min),
+    m_point(size.m_point)
+    {
+        ;
+    }
+    
+    SizeValue::~SizeValue()
+    {
+        ;
+    }
+    
+    void SizeValue::set(Vector const& vector)
+    {
+        if(vector.size() > 1 && vector[0].isNumber() && vector[1].isNumber())
+        {
+            width((double)vector[0]);
+            height((double)vector[1]);
+        }
+    }
+    
+    Vector SizeValue::get() const noexcept
+    {
+        return {width(), height()};
+    }
 }

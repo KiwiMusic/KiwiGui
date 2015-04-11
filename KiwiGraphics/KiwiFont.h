@@ -239,6 +239,28 @@ namespace Kiwi
             setStyle(shouldBeUnderlined ? (flags | Underlined) : (flags & ~Underlined));
         }
     };
+    
+    // ================================================================================ //
+    //                                      ATTR                                        //
+    // ================================================================================ //
+    
+    class FontValue : public Font, public Attr::Value
+    {
+    public:
+        using Font::Font;
+        
+        //! Retrieve the attribute value as a vector of atoms.
+        /** The function retrieves the attribute value as a vector of atoms.
+         @return The vector of atoms.
+         */
+        Vector get() const noexcept override;
+        
+        //! Set the attribute value with a vector of atoms.
+        /** The function sets the attribute value with a vector of atoms.
+         @param vector The vector of atoms.
+         */
+        void set(Vector const& vector) override;
+    };
 }
 
 #endif

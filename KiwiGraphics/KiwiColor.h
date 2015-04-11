@@ -287,6 +287,40 @@ namespace Kiwi
             return m_red == other.m_red && m_green == other.m_green && m_blue == other.m_blue && m_alpha == other.m_alpha;
         }
     };
+    
+    // ================================================================================ //
+    //                                      ATTR                                        //
+    // ================================================================================ //
+    
+    class ColorValue : public Color, public Attr::Value
+    {
+    public:
+        using Color::Color;
+        
+        ColorValue()
+        {
+            ;
+        }
+        
+        ColorValue(Color const& color) noexcept : Color(color)
+        {
+            ;
+        }
+        
+        //! Retrieve the attribute value as a vector of atoms.
+        /** The function retrieves the attribute value as a vector of atoms.
+         @return The vector of atoms.
+         */
+        Vector get() const noexcept override;
+        
+        //! Set the attribute value with a vector of atoms.
+        /** The function sets the attribute value with a vector of atoms.
+         @param vector The vector of atoms.
+         */
+        void set(Vector const& vector) override;
+    };
+    
+    typedef shared_ptr<Attr::Typed<ColorValue>>  	sAttrColor;
 }
 
 #endif

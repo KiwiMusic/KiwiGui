@@ -24,11 +24,7 @@
 #ifndef __DEF_KIWI_GUI__
 #define __DEF_KIWI_GUI__
 
-//#include "KiwiAttributes/KiwiAttributes.h"
-//#include "KiwiGuiEvents/KiwiGuiEvents.h"
-//#include "KiwiGuiModels/KiwiGuiModels.h"
-//#include "KiwiGuiView/KiwiGuiView.h"
-#include "KiwiGuiModules/KiwiGuiModules.h"
+#include "KiwiGuiDevice.h"
 
 #endif
 
