@@ -109,6 +109,13 @@ namespace Kiwi
             return Color(red() - value, green() - value, blue() - value, alpha());
         }
         
+        //! Retrieve a contrasted color.
+        /** The function retrieves a the contrasted color.
+         @param value The amount of contrast.
+         @return The new color.
+         */
+        Color contrasted(const double value) const noexcept;
+        
         //! Retrieve the same color with a different alpha.
         /** The function retrieves the same color with a different alpha.
          @param alpha The alpha.
@@ -191,6 +198,15 @@ namespace Kiwi
          */
         string hexa() const noexcept;
         
+        //! Retrieve the luminance of the color.
+        /** The function retrieves the luminance value.
+         @return The luminance value.
+         */
+        inline double luminance() const noexcept
+        {
+            return 1. - (0.299 * red() + 0.587 * green() + 0.114 * blue());
+        }
+        
         //! Set the red value.
         /** The function set the red value.
          @param value The red value.
@@ -272,7 +288,7 @@ namespace Kiwi
          @param other The other color.
          @return true is the colors are not equals, otherwise false.
          */
-        inline bool operator!=(Color const& other) noexcept
+        inline bool operator!=(Color const& other) const noexcept
         {
             return m_red != other.m_red || m_green != other.m_green ||  m_blue != other.m_blue ||  m_alpha != other.m_alpha;
         }
@@ -282,7 +298,7 @@ namespace Kiwi
          @param other The other color.
          @return true is the colors are equals, otherwise false.
          */
-        inline bool operator==(Color const& other) noexcept
+        inline bool operator==(Color const& other) const noexcept
         {
             return m_red == other.m_red && m_green == other.m_green && m_blue == other.m_blue && m_alpha == other.m_alpha;
         }
@@ -321,6 +337,22 @@ namespace Kiwi
     };
     
     typedef shared_ptr<Attr::Typed<ColorValue>>  	sAttrColor;
+    
+    // ================================================================================ //
+    //                                      DEFAULTS                                    //
+    // ================================================================================ //
+    
+    class Colors
+    {
+    public:
+        
+        static const Color black;
+        static const Color white;
+        static const Color red;
+        static const Color green;
+        static const Color blue;
+        static const Color yellow;
+    };
 }
 
 #endif

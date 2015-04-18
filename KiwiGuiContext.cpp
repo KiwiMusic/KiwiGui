@@ -42,20 +42,61 @@ namespace Kiwi
         m_windows.clear();
     }
     
-    sGuiWindow GuiContext::createWindow() noexcept
+    sGuiView GuiContext::createView(sGuiController ctrl) const noexcept
     {
         sGuiDeviceManager device = getDeviceManager();
         if(device)
         {
-            sGuiWindow window = device->createWindow();
-            if(window)
-            {
-                lock_guard<mutex> guard(m_mutex);
-                m_windows.insert(window);
-            }
-            return window;
+            return device->createView(ctrl);
         }
-        return sGuiWindow();
+        else
+        {
+            return sGuiView();
+        }
+    }
+    
+    Point GuiContext::getMousePosition() const noexcept
+    {
+        sGuiDeviceManager device = getDeviceManager();
+        if(device)
+        {
+            return device->getMousePosition();
+        }
+        else
+        {
+            return Point();
+        }
+    }
+    
+    Rectangle GuiContext::getScreenBounds(Point const& pt) const noexcept
+    {
+        sGuiDeviceManager device = getDeviceManager();
+        if(device)
+        {
+            return device->getScreenBounds(pt);
+        }
+        else
+        {
+            return Rectangle();
+        }
+    }
+    
+    void GuiContext::addWindow(sGuiView window) noexcept
+    {
+        if(window)
+        {
+            lock_guard<mutex> gard(m_mutex);
+            m_windows.insert(window);
+        }
+    }
+    
+    void GuiContext::removeWindow(sGuiView window) noexcept
+    {
+        if(window)
+        {
+            lock_guard<mutex> gard(m_mutex);
+            m_windows.erase(window);
+        }
     }
 }
 

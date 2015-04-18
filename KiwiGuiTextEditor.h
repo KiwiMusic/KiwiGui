@@ -21,174 +21,18 @@
  ==============================================================================
  */
 
-#ifndef __DEF_KIWI_GUI_SKETCHER__
-#define __DEF_KIWI_GUI_SKETCHER__
+#ifndef __DEF_KIWI_GUI_TEXT_EDITOR__
+#define __DEF_KIWI_GUI_TEXT_EDITOR__
 
-#include "KiwiGuiEvent.h"
+#include "KiwiGuiModel.h"
 
 namespace Kiwi
-{    
-	// ================================================================================ //
-	//                                      SKETCHER                                    //
-	// ================================================================================ //
-	
-	//! The sketcher...
-	/** The sketcher...
-	 */
-	class GuiSketcher : virtual public Attr::Manager
-	{
-	private:
-        const wGuiContext           m_context;
-		set<wGuiView,
-		owner_less<wGuiView>>       m_views;
-		mutex                       m_views_mutex;
-        set<wGuiSketcher,
-        owner_less<wGuiSketcher>>   m_childs;
-        mutex                       m_childs_mutex;
-        
-	public:
-		
-		//! Constructor.
-		/** The function does nothing.
-         @param context The context.
-		 */
-		GuiSketcher(sGuiContext context) noexcept;
-		
-		//! Destructor.
-		/** The function does nothing.
-		 */
-		virtual ~GuiSketcher() noexcept;
-        
-        //! Retrieves the context.
-        /** The function retrieves the context of the sketcher.
-         @return The context.
-         */
-        inline sGuiContext getContext() const noexcept
-        {
-            return m_context.lock();
-        }
-        
-        //! Retrieves the device manager.
-        /** The function retrieves the device manager of the sketcher.
-         @return The device manager.
-         */
-        sGuiDeviceManager getDeviceManager() const noexcept;
-		
-		//! The paint method that should be override.
-		/** The function shoulds draw some stuff in the sketch.
-         @param ctrl    The controller that ask the draw.
-		 @param sketch  A sketch to draw.
-		 */
-		virtual void draw(scGuiController ctrl, Sketch& sketch) const = 0;
-        
-        //! Creates a view.
-        /** The function creates a view depending on the inheritance and the implemetation.
-         @return The view.
-         */
-        sGuiView createView() noexcept;
-        
-        //! Removes a view.
-        /** The function removes a view.
-         @param view The view.
-         */
-        void removeView(sGuiView view) noexcept;
-		
-	protected:
-		
-		//! Send a notification to each listeners that the object needs to be redrawn.
-		/** The function sends a notification to each listeners that the object should be redrawn.
-		 */
-		void redraw() noexcept;
-        
-        //! Adds a child sketcher to the sketcher.
-        /** The function adds a child sketcher that will be displayed inside the sketcher.
-         @param child The child.
-         */
-        void add(sGuiSketcher child) noexcept;
-        
-        //! Remove a child sketcher from the sketcher.
-        /** The function removes a child sketcher and make it invisible.
-         @param child The child.
-         */
-        void remove(sGuiSketcher child) noexcept;
-        
-    private:
-        
-        //! Create the controller.
-        /** The function creates a controller depending on the inheritance.
-         @return The controller.
-         */
-        virtual sGuiController createController() = 0;
-	};
-    
-    // ================================================================================ //
-    //                                      MOUSER                                      //
-    // ================================================================================ //
-    
-    //! The mouser is the virutal class that receive mouse events.
-    /**
-     The mouser is a virtual class with a receive method that should be override to receveie a mouse event.
-     */
-    class GuiMouser
-    {
-    public:
-        //! Constructor.
-        /** The function does nothing.
-         */
-        GuiMouser() noexcept;
-        
-        //! Destructor.
-        /** The function does nothing.
-         */
-        virtual ~GuiMouser() noexcept;
-        
-        //! The receive method that should be override.
-        /** The function shoulds perform some stuff.
-         @param event    A mouser event.
-         @param ctrl     The controller gives the event.
-         @return true if the class has done something with the event otherwise false
-         */
-        virtual bool receive(scGuiController ctrl, MouseEvent const& event) = 0;
-    };
-    
-    // ================================================================================ //
-    //                                     KEYBOARDER                                   //
-    // ================================================================================ //
-    
-    //! The mouser is the virutal class that receive keyboard events.
-    /**
-     The mouser is a virtual class with a receive method that should be override to receveie a keyboard events.
-     */
-    class GuiKeyboarder
-    {
-    public:
-        //! Constructor.
-        /** The function does nothing.
-         */
-        GuiKeyboarder() noexcept;
-        
-        //! Destructor.
-        /** The function does nothing.
-         */
-        virtual ~GuiKeyboarder() noexcept;
-        
-        //! The receive method that should be override.
-        /** The function shoulds perform some stuff.
-         @param event    A keyboard event.
-         @return true if the class has done something with the event otherwise false
-         */
-        virtual bool receive(KeyboardEvent const& event) = 0;
-        
-        //! The receive method that should be override.
-        /** The function shoulds perform some stuff.
-         @param event    A focus event.
-         @return true if the class has done something with the event otherwise false
-         */
-        virtual bool receive(KeyboardFocus const  event)
-        {
-            return false;
-        }
-    };
+{
+    class GuiTextEditor;
+    typedef shared_ptr<GuiTextEditor>            sGuiTextEditor;
+    typedef weak_ptr<GuiTextEditor>              wGuiTextEditor;
+    typedef shared_ptr<const GuiTextEditor>      scGuiTextEditor;
+    typedef weak_ptr<const GuiTextEditor>        wcGuiTextEditor;
     
     // ================================================================================ //
     //                                     TEXT EDITOR                                  //
@@ -200,9 +44,27 @@ namespace Kiwi
      */
     class GuiTextEditor : public GuiSketcher, public GuiMouser, public GuiKeyboarder
     {
+    public:
+        class Listener
+        {
+            virtual ~Listener()  {}
+            
+            virtual void textChanged(sGuiTextEditor editor) {}
+            
+            virtual void returnKeyPressed(sGuiTextEditor editor) {}
+            
+            virtual void escapeKeyPressed(sGuiTextEditor editor) {}
+            
+            virtual void focusLost(sGuiTextEditor editor) {}
+        };
+        
     private:
         Font    m_font;
         string  m_text;
+        bool    m_multi_line;
+        bool    m_wrap_word;
+        bool    m_notify_return;
+        bool    m_notify_tab;
     public:
         //! Constructor.
         /** The function does nothing.
@@ -215,12 +77,44 @@ namespace Kiwi
          */
         virtual ~GuiTextEditor() noexcept;
         
-        //! The paint method that should be override.
+        //! Sets the display mode of the editor.
+        /** The function sets if the text should displayed with multi-lines or single line, if the words should be wrapped.
+         @param shouldBeMultiLine If the text should displayed with multi-lines.
+         @param shouldWordWrap    If the words should be wrapped
+         */
+        void setDisplay(const bool shouldBeMultiLine, const bool shouldWordWrap = true);
+        
+        //! Sets the key notifications of the editor.
+        /** The function sets if the return key or the tab key notify the listeners or if the keys should be consider as new characters.
+         @param returnNotifies  True if the return key should notify the listeners.
+         @param tabNotifies     True if the return tab should notify the listeners.
+         */
+        void setKeyNotification(const bool returnNotifies, const bool tabNotifies) noexcept;
+        
+        //! Retrieves if the return key is used as a character.
+        /** The function retrieves if the return key is used as a character.
+         @return True if the return key is used as a character, otherwise false.
+         */
+        inline bool isReturnKeyUsedAsCharacter() const noexcept
+        {
+            return !m_notify_return;
+        }
+        
+        //! Retrieves if the tab key is used as a character.
+        /** The function retrieves if the tab key is used as a character.
+         @return True if the tab key is used as a character, otherwise false.
+         */
+        inline bool isTabKeyUsedAsCharacter() const noexcept
+        {
+            return !m_notify_tab;
+        }
+
+        //! The draw method that should be override.
         /** The function shoulds draw some stuff in the sketch.
          @param ctrl    The controller that ask the draw.
          @param sketch  A sketch to draw.
          */
-        virtual void draw(scGuiController ctrl, Sketch& sketch) const = 0;
+        virtual void draw(scGuiView view, Sketch& sketch) const = 0;
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
@@ -228,21 +122,21 @@ namespace Kiwi
          @param ctrl     The controller gives the event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(scGuiController ctrl, MouseEvent const& event) = 0;
+        virtual bool receive(scGuiView view, MouseEvent const& event) = 0;
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
          @param event    A keyboard event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(KeyboardEvent const& event) = 0;
+        virtual bool receive(scGuiView view, KeyboardEvent const& event) = 0;
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
          @param event    A focus event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(KeyboardFocus const  event)
+        virtual bool receive(scGuiView view, KeyboardFocus const  event)
         {
             return false;
         }

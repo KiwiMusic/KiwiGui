@@ -42,6 +42,8 @@ namespace Kiwi
 		GuiDeviceManager() noexcept;
 		
 		//! The destructor.
+        /** The function does nothing.
+         */
 		virtual ~GuiDeviceManager() noexcept;
         
         //! Create a view.
@@ -49,19 +51,20 @@ namespace Kiwi
          @param ctrl The controller linked with the view.
          @return The view.
          */
-        virtual sGuiView createView(sGuiController ctrl) const noexcept
-        {
-            return sGuiView();
-        }
+        virtual sGuiView createView(sGuiController ctrl) noexcept = 0;
         
-        //! Create a window.
-        /** The function creates a window.
-         @return The window.
+        //! Retrieves the mouse absolute position.
+        /** The function retrieves the mouse absolute position.
+         @return The mouse absolute position.
          */
-        virtual sGuiWindow createWindow() const noexcept
-        {
-            return sGuiWindow();
-        }
+        virtual Point getMousePosition() const noexcept = 0;
+        
+        //! Retrieves the screen bounds.
+        /** The function retrieves the screen bounds for a point. Since there can be several screens, the point determines wichs screen to select.
+         @param pt The point.
+         @return The screen bounds.
+         */
+        virtual Rectangle getScreenBounds(Point const& pt) const noexcept = 0;
         
     };
 }

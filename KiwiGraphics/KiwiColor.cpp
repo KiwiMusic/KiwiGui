@@ -50,6 +50,19 @@ namespace Kiwi
         ;
     }
     
+    Color Color::contrasted(const double value) const noexcept
+    {
+        if(luminance() < 0.5)
+        {
+            return Color(red() * value, green() * value, blue() * value, alpha());
+        }
+        else
+        {
+            Color white(1., 1., 1., value);
+            return Color(fmod(red() * value + 1., 1.), fmod(green() * value + 1., 1.), fmod(blue() * value + 1., 1.), alpha());
+        }
+    }
+    
     Color Color::withHSLA(const double hue, const double saturation, const double lightness, const double alpha) noexcept
     {
         if(saturation == 0.)
@@ -213,4 +226,16 @@ namespace Kiwi
     {
         return {red(), green(), blue(), alpha()};
     }
+    
+    // ================================================================================ //
+    //                                      DEFAULTS                                    //
+    // ================================================================================ //
+    
+    
+    const Color Colors::black   = Color(0., 0., 0., 1.);
+    const Color Colors::white   = Color(1., 1., 1., 1.);
+    const Color Colors::red     = Color(1., 0., 0., 1.);
+    const Color Colors::green   = Color(0., 1., 0., 1.);
+    const Color Colors::blue    = Color(0., 0., 1., 1.);
+    const Color Colors::yellow  = Color(1., 1., 0., 1.);
 }

@@ -36,7 +36,7 @@ namespace Kiwi
     {
     private:
         const wGuiDeviceManager m_device;
-        set<sGuiWindow>         m_windows;
+        set<sGuiView>           m_windows;
         mutex                   m_mutex;
         
     public:
@@ -60,11 +60,37 @@ namespace Kiwi
             return m_device.lock();
         }
         
-        //! Create a window.
-        /** The function creates a window.
-         @return The window.
+        //! Create a view.
+        /** The function creates a view for a controller.
+         @param ctrl The controller linked with the view.
+         @return The view.
          */
-        sGuiWindow createWindow() noexcept;
+        sGuiView createView(sGuiController ctrl) const noexcept;
+        
+        //! Retrieves the mouse absolute position.
+        /** The function retrieves the mouse absolute position.
+         @return The mouse absolute position.
+         */
+        Point getMousePosition() const noexcept;
+        
+        //! Retrieves the screen bounds.
+        /** The function retrieves the screen bounds for a point. Since there can be several screens, the point determines wichs screen to select.
+         @param pt The point.
+         @return The screen bounds.
+         */
+        Rectangle getScreenBounds(Point const& pt) const noexcept;
+        
+        //! Adds a top level window to the context.
+        /** The function adds a the view of a top level window to the context.
+         @param window The view of the top level window.
+         */
+        void addWindow(sGuiView window) noexcept;
+        
+        //! Removes a top level window from the context.
+        /** The function removes a the view of a top level window from the context.
+         @param window The view of the top level window.
+         */
+        void removeWindow(sGuiView window) noexcept;
     };
 }
 

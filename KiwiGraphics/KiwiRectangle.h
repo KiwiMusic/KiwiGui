@@ -182,7 +182,7 @@ namespace Kiwi
         /** The function retrieves the ordinate of the bottom.
          @return The ordinate of the bottom.
          */
-        double bottom() noexcept
+        double bottom() const noexcept
         {
             return y() + height();
         }
@@ -191,7 +191,7 @@ namespace Kiwi
         /** The function retrieves the abscissa of the right.
          @return The abscissa of the right.
          */
-        double right() noexcept
+        double right() const noexcept
         {
             return x() + width();
         }
@@ -200,7 +200,7 @@ namespace Kiwi
         /** The function retrieves the centre of the rectangle.
          @return The centre of the rectangle.
          */
-        inline Point centre() noexcept
+        inline Point centre() const noexcept
         {
             return Point(x() + width() * 0.5, y() + height() * 0.5);
         }

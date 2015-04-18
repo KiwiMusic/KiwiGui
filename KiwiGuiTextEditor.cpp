@@ -21,186 +21,50 @@
  ==============================================================================
  */
 
-#include "KiwiGuiModel.h"
+#include "KiwiGuiTextEditor.h"
 #include "KiwiGuiDevice.h"
 
 namespace Kiwi
 {
-	// ================================================================================ //
-	//                                      SKETCHER                                    //
-	// ================================================================================ //
-	
-    GuiSketcher::GuiSketcher(sGuiContext context) noexcept :
-    m_context(context)
-	{
-        ;
-	}
-	
-	GuiSketcher::~GuiSketcher() noexcept
-	{
-        {
-            lock_guard<mutex> guard(m_views_mutex);
-            m_views.clear();
-        }
-        {
-            lock_guard<mutex> guard(m_childs_mutex);
-            m_childs.clear();
-        }
-	}
-    
-    sGuiDeviceManager GuiSketcher::getDeviceManager() const noexcept
-    {
-        sGuiContext ctxt = getContext();
-        if(ctxt)
-        {
-            return ctxt->getDeviceManager();
-        }
-        return sGuiDeviceManager();
-    }
-    
-    sGuiView GuiSketcher::createView() noexcept
-    {
-        sGuiDeviceManager device = getDeviceManager();
-        if(device)
-        {
-            sGuiController ctrl = createController();
-            if(ctrl)
-            {
-                sGuiView view;
-                try
-                {
-                    view = device->createView(ctrl);
-                }
-                catch(exception& e)
-                {
-                    return sGuiView();
-                }
-                if(view)
-                {
-                    lock_guard<mutex> guard(m_views_mutex);
-                    m_views.insert(view);
-                }
-                return view;
-            }
-        }
-        return sGuiView();
-    }
-    
-    void GuiSketcher::removeView(sGuiView view) noexcept
-    {
-        if(view)
-        {
-            m_views.erase(view);
-        }
-    }
-    
-    void GuiSketcher::redraw() noexcept
-    {
-        lock_guard<mutex> guard(m_views_mutex);
-        auto it = m_views.begin();
-        while(it != m_views.end())
-        {
-            if((*it).expired())
-            {
-                it = m_views.erase(it);
-            }
-            else
-            {
-                sGuiView view = (*it).lock();
-                view->redraw();
-                ++it;
-            }
-        }
-    }
-    
-    void GuiSketcher::add(sGuiSketcher child) noexcept
-    {
-        if(child)
-        {
-            lock_guard<mutex> guard(m_childs_mutex);
-            if(m_childs.insert(child).second)
-            {
-                lock_guard<mutex> guard_view(m_views_mutex);
-                auto it = m_views.begin();
-                while(it != m_views.end())
-                {
-                    if((*it).expired())
-                    {
-                        it = m_views.erase(it);
-                    }
-                    else
-                    {
-                        sGuiView view = (*it).lock();
-                        sGuiView childview = child->createView();
-                        if(childview)
-                        {
-                            try
-                            {
-                                view->add(childview);
-                            }
-                            catch(exception& e)
-                            {
-                                ;
-                            }
-                        }
-                        ++it;
-                    }
-                }
-            }
-        }
-    }
-    
-    void GuiSketcher::remove(sGuiSketcher child) noexcept
-    {
-        if(child)
-        {
-            lock_guard<mutex> guard(m_childs_mutex);
-            if(m_childs.erase(child))
-            {
-                lock_guard<mutex> guard_view(m_views_mutex);
-                auto it = m_views.begin();
-                while(it != m_views.end())
-                {
-                    if((*it).expired())
-                    {
-                        it = m_views.erase(it);
-                    }
-                    else
-                    {
-                        sGuiView view = (*it).lock();
-                        int todo;
-                        ++it;
-                    }
-                }
-            }
-        }
-    }
-    
     // ================================================================================ //
-    //                                      MOUSER                                      //
+    //                                     TEXT EDITOR                                  //
     // ================================================================================ //
     
-    GuiMouser::GuiMouser() noexcept
+    GuiTextEditor::GuiTextEditor(sGuiContext context) noexcept :
+    GuiSketcher(context)
     {
-        ;
+        m_multi_line = false;
+        m_wrap_word  = false;
+        m_notify_return = true;
+        m_notify_tab    = true;
     }
     
-    GuiMouser::~GuiMouser() noexcept
+    GuiTextEditor::~GuiTextEditor() noexcept
     {
-        ;
+        
     }
     
-    // ================================================================================ //
-    //                                      KEYBOARDER                                  //
-    // ================================================================================ //
-    
-    GuiKeyboarder::GuiKeyboarder() noexcept
+    void GuiTextEditor::setDisplay(const bool shouldBeMultiLine, const bool shouldWordWrap)
     {
-        ;
+        if(m_multi_line != shouldBeMultiLine || m_wrap_word != (shouldWordWrap && shouldBeMultiLine))
+        {
+            m_multi_line   = shouldBeMultiLine;
+            m_wrap_word    = shouldWordWrap && shouldBeMultiLine;
+            /*
+            viewport->setScrollBarsShown(scrollbarVisible && multiline, scrollbarVisible && multiline);
+            viewport->setViewPosition(0, 0);
+            resized();
+            scrollToMakeSureCursorIsVisible();
+             */
+        }
     }
     
-    GuiKeyboarder::~GuiKeyboarder() noexcept
+    void GuiTextEditor::setKeyNotification(const bool returnNotifies, const bool tabNotifies) noexcept
     {
-        ;
+        m_notify_return = returnNotifies;
+        m_notify_tab    = tabNotifies;
     }
 }
+
+
+

@@ -29,6 +29,16 @@ namespace Kiwi
     //                                      SKETCH                                      //
     // ================================================================================ //
     
+    Sketch::Sketch() noexcept
+    {
+        ;
+    }
+    
+    Sketch::~Sketch() noexcept
+    {
+        ;
+    }
+    
     void Sketch::drawText(string const& text, Rectangle const& rect, Font::Justification j, bool wrap)
     {
         drawText(text, rect.x(), rect.y(), rect.width(), rect.height(), j, wrap);
@@ -63,6 +73,33 @@ namespace Kiwi
     }
     
     MouseEvent::~MouseEvent() noexcept
+    {
+        ;
+    }
+    
+    // ================================================================================ //
+    //                                      ACTION                                      //
+    // ================================================================================ //
+    
+    Action::Action(KeyboardEvent const& _event, string const& _name, string const& _description, string const& _category) noexcept :
+    event(_event), name(_name), description(_description), category(_category)
+    {
+        ;
+    }
+    
+    Action::Action(Action const& other) noexcept :
+    event(other.event), name(other.name), description(other.description), category(other.category)
+    {
+        
+    }
+    
+    Action::Action() noexcept :
+    event(KeyboardEvent(' '))
+    {
+        
+    }
+    
+    Action::~Action() noexcept
     {
         ;
     }

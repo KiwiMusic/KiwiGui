@@ -46,6 +46,12 @@ namespace Kiwi
     typedef shared_ptr<const GuiMouser>         scGuiMouser;
     typedef weak_ptr<const GuiMouser>			wcGuiMouser;
     
+    class GuiActionManager;
+    typedef shared_ptr<GuiActionManager>        sGuiActionManager;
+    typedef weak_ptr<GuiActionManager>          wGuiActionManager;
+    typedef shared_ptr<const GuiActionManager>  scGuiActionManager;
+    typedef weak_ptr<const GuiActionManager>	wcGuiActionManager;
+    
     class GuiController;
     typedef shared_ptr<GuiController>           sGuiController;
     typedef weak_ptr<GuiController>             wGuiController;
@@ -57,6 +63,18 @@ namespace Kiwi
     typedef weak_ptr<GuiView>                   wGuiView;
     typedef shared_ptr<const GuiView>           scGuiView;
     typedef weak_ptr<const GuiView>             wcGuiView;
+    
+    class GuiButton;
+    typedef shared_ptr<GuiButton>               sGuiButton;
+    typedef weak_ptr<GuiButton>                 wGuiButton;
+    typedef shared_ptr<const GuiButton>         scGuiButton;
+    typedef weak_ptr<const GuiButton>           wcGuiButton;
+    
+    class GuiContainer;
+    typedef shared_ptr<GuiContainer>            sGuiContainer;
+    typedef weak_ptr<GuiContainer>              wGuiContainer;
+    typedef shared_ptr<const GuiContainer>      scGuiContainer;
+    typedef weak_ptr<const GuiContainer>        wcGuiContainer;
     
     class GuiWindow;
     typedef shared_ptr<GuiWindow>               sGuiWindow;
@@ -91,18 +109,12 @@ namespace Kiwi
         //! Constructor.
         /** The function does nothing.
          */
-        Sketch() noexcept
-        {
-            ;
-        }
+        Sketch() noexcept;
         
         //! Destrcutor.
         /** The function does nothing.
          */
-        virtual ~Sketch() noexcept
-        {
-            ;
-        }
+        virtual ~Sketch() noexcept;
         
         //! Retrieve the abscissa.
         /** The function retrieves the abscissa.
@@ -732,6 +744,12 @@ namespace Kiwi
 		const wchar_t   m_character;
 	public:
 		
+        KeyboardEvent(const long modifiers, const wchar_t character) noexcept
+        : m_keycode(0), m_modifiers(modifiers), m_character(character)
+        {
+            ;
+        }
+        
 		KeyboardEvent(const int keycode, const long modifiers, const wchar_t character) noexcept
 		: m_keycode(keycode), m_modifiers(modifiers), m_character(character)
 		{
@@ -922,6 +940,49 @@ namespace Kiwi
 			return m_modifiers & Popup;
 		}
 	};
+    
+    // ================================================================================ //
+    //                                      ACTION                                      //
+    // ================================================================================ //
+    
+    //! The action class...
+    /**
+     The action...
+     */
+    class Action
+    {
+    public:
+        typedef ulong Code;
+        const KeyboardEvent   event;
+        const string          name;
+        const string          description;
+        const string          category;        
+    public:
+        //! Constructor.
+        /** The function initializes the members values.
+         @param event       The type of action.
+         @param name        The name of the action.
+         @param description The description of the action.
+         @param category    The category of the action.
+         */
+        Action(KeyboardEvent const& event, string const& name, string const& description, string const& category) noexcept;
+        
+        //! Constructor.
+        /** The copy constructor.
+         */
+        Action(Action const& other) noexcept;
+        
+        //! Constructor.
+        /** The default constructor.
+         */
+        Action() noexcept;
+        
+        //! Destructor.
+        /** The function does nothing.
+         */
+        ~Action() noexcept;
+    };
+    
 }
 
 #endif

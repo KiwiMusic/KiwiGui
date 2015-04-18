@@ -21,119 +21,40 @@
  ==============================================================================
 */
 
-#include "KiwiGuiWindow.h"
+#include "KiwiGuiContainer.h"
 #include "KiwiGuiDevice.h"
 
 namespace Kiwi
 {
     // ================================================================================ //
-    //                                  GUI WINDOW                                      //
+    //                                  GUI CONTAINER                                   //
     // ================================================================================ //
 	
-    GuiWindow::GuiWindow(sGuiContext context, string const& name, Color const& color, const ulong buttons, const bool show) noexcept : GuiSketcher(context)
-    {
-        setPosition(Point(0., 0.));
-        setSize(Size(800., 600.));
-        setBackgroundColor(Color(1., 1., 1., 0.));
-    }
-    
-    GuiWindow::~GuiWindow() noexcept
+    GuiContainer::GuiContainer(sGuiContext context) noexcept : GuiSketcher(context)
     {
         ;
     }
     
-    void GuiWindow::setTitle(string const& title) noexcept
-    {
-        
-    }
-    
-    void GuiWindow::setBackgroundColor(Color const& color) noexcept
-    {
-        m_color = color;
-        redraw();
-    }
-    
-    void GuiWindow::setButtons(const ulong buttons) noexcept
-    {
-        
-    }
-    
-
-    void GuiWindow::draw(scGuiController ctrl, Sketch& sketch) const
-    {
-        sketch.setColor(m_color);
-        sketch.fillRectangle(sketch.getBounds(), 4.);
-    }
-    
-    void GuiWindow::display()
-    {
-        sGuiContext ctxt = getContext();
-        if(ctxt)
-        {
-            sGuiView view = createView();
-            if(view)
-            {
-                view->addToDesktop();
-                ctxt->addWindow(view);
-            }
-        }
-    }
-    
-    sGuiController GuiWindow::createController()
-    {
-        return make_shared<GuiWindow::Controller>(shared_from_this());
-    }
-    
-    // ================================================================================ //
-    //                              GUI WINDOW CONTROLLER                               //
-    // ================================================================================ //
-    
-    GuiWindow::Controller::Controller(sGuiWindow window) noexcept :
-    GuiController(window),
-    m_window(window)
+    GuiContainer::~GuiContainer() noexcept
     {
         ;
+    }
+    
+    void GuiContainer:: draw(scGuiView ctrl, Sketch& sketch) const
+    {
+        
     }
 
-    GuiWindow::Controller::~Controller() noexcept
+    void GuiContainer::addContent(sGuiSketcher sketcher) noexcept
     {
-        ;
+        add(sketcher);
     }
     
-    bool GuiWindow::Controller::receive(MouseEvent const& event)
+    void GuiContainer::removeContent(sGuiSketcher sketcher) noexcept
     {
-        if(event.isDown())
-        {
-            m_last_position = getMousePosition();
-        }
-        else if(event.isDrag())
-        {
-            m_window->setPosition(m_window->getPosition() + getMousePosition() - m_last_position);
-            m_last_position = getMousePosition();
-        }
-        return true;
+        remove(sketcher);
     }
-    
-    // ================================================================================ //
-    //                              GUI WINDOW CONTAINER                                //
-    // ================================================================================ //
-    
-    GuiWindow::Container::Container(sGuiWindow window) noexcept :
-    GuiSketcher(window->getContext()),
-    m_window(window)
-    {
-        
-    }
-    
-    GuiWindow::Container::~Container() noexcept
-    {
-        
-    }
-    
-    sGuiController GuiWindow::Container::createController()
-    {
-        return make_shared<GuiController>(shared_from_this());
-    }
+
 }
 
 

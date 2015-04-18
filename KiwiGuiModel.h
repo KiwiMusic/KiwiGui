@@ -35,7 +35,7 @@ namespace Kiwi
 	//! The sketcher...
 	/** The sketcher...
 	 */
-	class GuiSketcher : virtual public Attr::Manager
+    class GuiSketcher : public inheritable_enable_shared_from_this<GuiSketcher>
 	{
 	private:
         const wGuiContext           m_context;
@@ -45,7 +45,8 @@ namespace Kiwi
         set<wGuiSketcher,
         owner_less<wGuiSketcher>>   m_childs;
         mutex                       m_childs_mutex;
-        
+        Point                       m_position;
+        Size                        m_size;
 	public:
 		
 		//! Constructor.
@@ -73,13 +74,46 @@ namespace Kiwi
          @return The device manager.
          */
         sGuiDeviceManager getDeviceManager() const noexcept;
+        
+        //! Retrieves the position of the sketcher.
+        /** The function retrieves the position of the sketcher.
+         @return The position of the sketcher.
+         */
+        inline Point getPosition() const noexcept
+        {
+            return m_position;
+        }
+        
+        //! Retrieves the size of the sketcher.
+        /** The function retrieves the size of the sketcher.
+         @return The size of the sketcher.
+         */
+        inline Size getSize() const noexcept
+        {
+            return m_size;
+        }
+        
+        //! Retrieves the bounds of the sketcher.
+        /** The function retrieves the bounds of the sketcher.
+         @return The bounds of the sketcher.
+         */
+        inline Rectangle getBounds() const noexcept
+        {
+            return Rectangle(m_position.x(), m_position.y(), m_size.width(), m_size.height());
+        }
 		
-		//! The paint method that should be override.
+		//! The draw method that should be override.
 		/** The function shoulds draw some stuff in the sketch.
          @param ctrl    The controller that ask the draw.
 		 @param sketch  A sketch to draw.
 		 */
-		virtual void draw(scGuiController ctrl, Sketch& sketch) const = 0;
+		virtual void draw(scGuiView view, Sketch& sketch) const = 0;
+        
+        //! Retrieves the absolute mouse position.
+        /** The function retrieves the absolute mouse position.
+         @return The position.
+         */
+        Point getMousePosition() const noexcept;
         
         //! Creates a view.
         /** The function creates a view depending on the inheritance and the implemetation.
@@ -92,13 +126,32 @@ namespace Kiwi
          @param view The view.
          */
         void removeView(sGuiView view) noexcept;
+        
+        //! Retrieves the views.
+        /** The function retrieves the views.
+         @return The view.
+         */
+        vector<sGuiView> getViews() noexcept;
 		
-	protected:
-		
-		//! Send a notification to each listeners that the object needs to be redrawn.
-		/** The function sends a notification to each listeners that the object should be redrawn.
-		 */
-		void redraw() noexcept;
+        //! Sets the bounds of the sketcher.
+        /** The function sets the bounds of the sketcher.
+         @param bounds The bounds of the sketcher.
+         */
+        void setBounds(Rectangle const& bounds) noexcept;
+        
+        //! Sets the position of the sketcher.
+        /** The function sets the position of the sketcher.
+         @param position The position of the sketcher.
+         */
+        void setPosition(Point const& position) noexcept;
+        
+        //! Sets the size of the sketcher.
+        /** The function sets the size of the sketcher.
+         @param size The size of the sketcher.
+         */
+        void setSize(Size const& size) noexcept;
+        
+    protected:
         
         //! Adds a child sketcher to the sketcher.
         /** The function adds a child sketcher that will be displayed inside the sketcher.
@@ -111,14 +164,19 @@ namespace Kiwi
          @param child The child.
          */
         void remove(sGuiSketcher child) noexcept;
-        
+    
+		//! Send a notification to each view that the sketcher needs to be redrawn.
+		/** The function sends a notification to each each that the sketcher should be redrawn.
+		 */
+		void redraw() noexcept;
+
     private:
         
         //! Create the controller.
         /** The function creates a controller depending on the inheritance.
          @return The controller.
          */
-        virtual sGuiController createController() = 0;
+        virtual sGuiController createController();
 	};
     
     // ================================================================================ //
@@ -148,7 +206,7 @@ namespace Kiwi
          @param ctrl     The controller gives the event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(scGuiController ctrl, MouseEvent const& event) = 0;
+        virtual bool receive(scGuiView view, MouseEvent const& event) = 0;
     };
     
     // ================================================================================ //
@@ -177,17 +235,60 @@ namespace Kiwi
          @param event    A keyboard event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(KeyboardEvent const& event) = 0;
+        virtual bool receive(scGuiView view, KeyboardEvent const& event) = 0;
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
          @param event    A focus event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(KeyboardFocus const  event)
+        virtual bool receive(scGuiView view, KeyboardFocus const  event)
         {
             return false;
         }
+    };
+    
+    // ================================================================================ //
+    //                                     ACTION MANAGER                               //
+    // ================================================================================ //
+    
+    //! The...
+    /**
+     The...
+     */
+    class GuiActionManager
+    {
+    public:
+        
+        //! Constructor.
+        /** The function does nothing.
+         */
+        GuiActionManager() noexcept;
+        
+        //! Destructor.
+        /** The function does nothing.
+         */
+        virtual ~GuiActionManager() noexcept;
+        
+        //! Retrieves the action codes.
+        /** The function retreives the action codes from the the manager.
+         @return The action codes.
+         */
+        virtual vector<Action::Code> getActionCodes() = 0;
+        
+        //! Retrieves an action from the manager.
+        /** The function retreives an action from the the manager.
+         @param code The code of the action.
+         @return The action.
+         */
+        virtual Action getAction(const ulong code) = 0;
+        
+        //! Performs an action.
+        /** The function performs an action.
+         @param code The code of the action.
+         @return true if the action has been performed, otherwise false.
+         */
+        virtual bool performAction(const ulong code) = 0;
     };
 }
 
