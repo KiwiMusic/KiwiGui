@@ -102,14 +102,14 @@ namespace Kiwi
          */
         virtual bool receive(scGuiView view, MouseEvent const& event) override;
         
-        //! Add an instance listener in the binding list of the attribute.
-        /** The function adds an instance listener in the binding list of the attribute.
+        //! Add an instance listener in the binding list of the button.
+        /** The function adds an instance listener in the binding list of the button.
          @param listener  The listener.
          */
         void addListener(sListener listener);
         
-        //! Remove an instance listener from the binding list of the attribute.
-        /** The function removes an instance listener from the binding list of the attribute.
+        //! Remove an instance listener from the binding list of the button.
+        /** The function removes an instance listener from the binding list of the button.
          @param listener  The listener.
          */
         void removeListener(sListener listener);
