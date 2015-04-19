@@ -221,7 +221,7 @@ namespace Kiwi
         sketch.setColor(m_bd_color);
         sketch.drawRectangle(sketch.getBounds().withZeroOrigin(), 1.);
         sketch.setColor(m_txt_color);
-        sketch.drawText(m_title, 60., 0., sketch.getBounds().width() - 120., sketch.getBounds().height(), Font::Centred);
+        sketch.drawText(m_title, 60., 0., getSize().width() - 120., getSize().height(), Font::Centred);
     }
     
     bool GuiWindow::Header::receive(scGuiView view, MouseEvent const& event)
