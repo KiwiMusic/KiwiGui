@@ -30,12 +30,6 @@ namespace Kiwi
 	//                                      SKETCHER                                    //
 	// ================================================================================ //
 	
-    GuiSketcher::GuiSketcher(sGuiContext context) noexcept :
-    m_context(context)
-	{
-        ;
-	}
-	
 	GuiSketcher::~GuiSketcher() noexcept
 	{
         {

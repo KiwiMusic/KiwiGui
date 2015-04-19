@@ -53,7 +53,10 @@ namespace Kiwi
 		/** The function does nothing.
          @param context The context.
 		 */
-		GuiSketcher(sGuiContext context) noexcept;
+        inline GuiSketcher(sGuiContext context) noexcept : m_context(context)
+        {
+            ;
+        }
 		
 		//! Destructor.
 		/** The function does nothing.
