@@ -238,7 +238,7 @@ namespace Kiwi
         }
         
         //! Shift the rectangle with a point.
-        /** The function shifts the rectangle with a point.
+        ** The function shifts the rectangle with a point.
          @param pt The point.
          @return The rectangle.
          *
