@@ -39,12 +39,18 @@ namespace Kiwi
 		//! The constructor.
 		/** The function does nothing.
 		 */
-		GuiDeviceManager() noexcept;
+		constexpr inline GuiDeviceManager() noexcept
+        {
+            
+        }
 		
 		//! The destructor.
         /** The function does nothing.
          */
-		virtual ~GuiDeviceManager() noexcept;
+		inline virtual ~GuiDeviceManager() noexcept
+        {
+            
+        }
         
         //! Create a view.
         /** The function creates a view for a controller.
@@ -65,6 +71,26 @@ namespace Kiwi
          @return The screen bounds.
          */
         virtual Rectangle getScreenBounds(Point const& pt) const noexcept = 0;
+        
+        //! Retrieves the size of a text.
+        /** The function the size of a text depending on a font.
+         @param font The font.
+         @param text The text.
+         @return The size of the text.
+         */
+        virtual Size getTextSize(Font const& font, string const& text) const noexcept
+        {
+            wstring_convert<codecvt_utf8_utf16<wchar_t>,wchar_t> cv;
+            return getTextSize(font, cv.from_bytes(text));
+        }
+        
+        //! Retrieves the size of a text.
+        /** The function the size of a text depending on a font.
+         @param font The font.
+         @param text The text.
+         @return The size of the text.
+         */
+        virtual Size getTextSize(Font const& font, wstring const& text) const noexcept = 0;
         
     };
 }

@@ -28,16 +28,6 @@ namespace Kiwi
     // ================================================================================ //
     //                                      GUI DEVICE                                  //
     // ================================================================================ //
-	
-	GuiDeviceManager::GuiDeviceManager() noexcept
-	{
-		;
-	}
-	
-	GuiDeviceManager::~GuiDeviceManager() noexcept
-	{
-        ;
-	}
 }
 
 
