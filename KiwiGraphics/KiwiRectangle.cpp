@@ -123,24 +123,4 @@ namespace Kiwi
         }
         return false;
     }
-    
-    // ================================================================================ //
-    //                                      ATTR                                        //
-    // ================================================================================ //
-    
-    void RectangleValue::set(Vector const& vector)
-    {
-        if(vector.size() > 3 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber() && vector[3].isNumber())
-        {
-            x((double)vector[0]);
-            y((double)vector[1]);
-            width((double)vector[2]);
-            height((double)vector[3]);
-        }
-    }
-    
-    Vector RectangleValue::get() const noexcept
-    {
-        return {x(), y(), width(), height()};
-    }
 }

@@ -624,38 +624,30 @@ namespace Kiwi
          @return true if the rectangle overlaps a line, otherwise false.
          */
         bool overlaps(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept;
-    };
-    
-    // ================================================================================ //
-    //                                      ATTR                                        //
-    // ================================================================================ //
-    
-    class RectangleValue : public Rectangle, public Attr::Value
-    {
-    public:
-        using Rectangle::Rectangle;
         
-        RectangleValue()
-        {
-            ;
-        }
-        
-        RectangleValue(Rectangle const& rectangle) noexcept : Rectangle(rectangle)
-        {
-            ;
-        }
-        
-        //! Retrieve the attribute value as a vector of atoms.
+        //! Retrieve the rectangle as a vector of atoms.
         /** The function retrieves the attribute value as a vector of atoms.
          @return The vector of atoms.
          */
-        Vector get() const noexcept override;
+        inline Vector get() const noexcept
+        {
+            return Vector({x(), y(), width(), height()});
+        }
         
-        //! Set the attribute value with a vector of atoms.
-        /** The function sets the attribute value with a vector of atoms.
+        //! Set the rectangle values with a vector of atoms.
+        /** The function sets the rectangle values with a vector of atoms.
          @param vector The vector of atoms.
          */
-        void set(Vector const& vector) override;
+        inline void set(Vector const& vector) noexcept
+        {
+            if(vector.size() > 3 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber() && vector[3].isNumber())
+            {
+                x(double(vector[0]));
+                y(double(vector[1]));
+                width(double(vector[2]));
+                height(double(vector[3]));
+            }
+        }
     };
 }
 

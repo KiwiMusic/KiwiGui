@@ -362,7 +362,7 @@ namespace Kiwi
     //                                      ATTR                                        //
     // ================================================================================ //
     
-    SizeValue::SizeValue() noexcept :
+    Size::Size() noexcept :
     m_ratio(0.),
     m_min(0., 0.),
     m_point(0., 0.)
@@ -370,7 +370,7 @@ namespace Kiwi
         ;
     }
     
-    SizeValue::SizeValue(const double width, const double height, const double min_width, const double min_height, const double ratio) noexcept :
+    Size::Size(const double width, const double height, const double min_width, const double min_height, const double ratio) noexcept :
     m_ratio(max(ratio, 0.)),
     m_min(max(min_width, 0.), max(min_height, 0.)),
     m_point(max(width, m_min.x()), max(height, m_min.y()))
@@ -381,7 +381,7 @@ namespace Kiwi
         }
     }
     
-    SizeValue::SizeValue(SizeValue const& size) noexcept :
+    Size::Size(Size const& size) noexcept :
     m_ratio(size.m_ratio),
     m_min(size.m_min),
     m_point(size.m_point)
@@ -389,12 +389,12 @@ namespace Kiwi
         ;
     }
     
-    SizeValue::~SizeValue()
+    Size::~Size()
     {
         ;
     }
     
-    void SizeValue::set(Vector const& vector)
+    void Size::set(Vector const& vector)
     {
         if(vector.size() > 1 && vector[0].isNumber() && vector[1].isNumber())
         {
@@ -403,7 +403,7 @@ namespace Kiwi
         }
     }
     
-    Vector SizeValue::get() const noexcept
+    Vector Size::get() const noexcept
     {
         return {width(), height()};
     }

@@ -572,7 +572,7 @@ namespace Kiwi
     /**
      The size holds is an unsigned point with a ratio that defines
      */
-    class SizeValue : public Attr::Value
+    class Size
     {
         double m_ratio;
         Point  m_min;
@@ -582,7 +582,7 @@ namespace Kiwi
         //! Constructor.
         /** The function initializes a size null.
          */
-        SizeValue() noexcept;
+        Size() noexcept;
         
         //! Constructor.
         /** The function initializes a point with two double values.
@@ -590,29 +590,29 @@ namespace Kiwi
          @param height The height.
          @param ratio The ratio between the width and the height.
          */
-        SizeValue(const double width, const double height, const double min_width = 0., const double min_height = 0., const double ratio = 0.) noexcept;
+        Size(const double width, const double height, const double min_width = 0., const double min_height = 0., const double ratio = 0.) noexcept;
         
         //! Constructor.
         /** The function initializes another size.
          */
-        SizeValue(SizeValue const& size) noexcept;
+        Size(Size const& size) noexcept;
         
         //! Destructor.
         /** The function deletes the point.
          */
-        ~SizeValue();
+        ~Size();
         
         //! Retrieve the attribute value as a vector of atoms.
         /** The function retrieves the attribute value as a vector of atoms.
          @return The vector of atoms.
          */
-        Vector get() const noexcept override;
+        Vector get() const noexcept;
         
         //! Set the attribute value with a vector of atoms.
         /** The function sets the attribute value with a vector of atoms.
          @param vector The vector of atoms.
          */
-        void set(Vector const& vector) override;
+        void set(Vector const& vector);
         
         //! Set the width.
         /** The function sets the width.
@@ -710,7 +710,7 @@ namespace Kiwi
         /** ...
          @return ...
          */
-        inline SizeValue& operator=(SizeValue const& size) noexcept
+        inline Size& operator=(Size const& size) noexcept
         {
             m_ratio = size.ratio();
             m_min = size.m_min;
@@ -722,7 +722,7 @@ namespace Kiwi
         /** ...
          @return ...
          */
-        inline SizeValue& operator=(Point const& pt) noexcept
+        inline Size& operator=(Point const& pt) noexcept
         {
             width(pt.x());
             height(pt.y());
@@ -733,7 +733,7 @@ namespace Kiwi
         /** ...
          @return ...
          */
-        inline bool operator!=(SizeValue const& size) noexcept
+        inline bool operator!=(Size const& size) noexcept
         {
             return width() != size.width() || height() != size.height();
         }
@@ -757,9 +757,8 @@ namespace Kiwi
         }
     };
     
-    typedef shared_ptr<Attr::Typed<Point>>          sAttrPoint;
-    typedef shared_ptr<Attr::Typed<SizeValue>>		sAttrSize;
-    typedef SizeValue Size;
+    typedef shared_ptr<Attr::Typed<Point>>  sAttrPoint;
+    typedef shared_ptr<Attr::Typed<Size>>   sAttrSize;
 }
 
 #endif
