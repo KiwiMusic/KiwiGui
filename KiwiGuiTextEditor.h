@@ -28,43 +28,52 @@
 
 namespace Kiwi
 {
-    class GuiTextEditor;
-    typedef shared_ptr<GuiTextEditor>            sGuiTextEditor;
-    typedef weak_ptr<GuiTextEditor>              wGuiTextEditor;
-    typedef shared_ptr<const GuiTextEditor>      scGuiTextEditor;
-    typedef weak_ptr<const GuiTextEditor>        wcGuiTextEditor;
-    
     // ================================================================================ //
     //                                     TEXT EDITOR                                  //
     // ================================================================================ //
     
     //! The text editor...
     /**
-     The mtext editor...
+     The text editor...
      */
     class GuiTextEditor : public GuiSketcher, public GuiMouser, public GuiKeyboarder
     {
     public:
         class Listener
         {
-            virtual ~Listener()  {}
+        public:
+            inline virtual ~Listener()  {}
             
             virtual void textChanged(sGuiTextEditor editor) {}
             
             virtual void returnKeyPressed(sGuiTextEditor editor) {}
+            
+            virtual void tabKeyPressed(sGuiTextEditor editor) {}
             
             virtual void escapeKeyPressed(sGuiTextEditor editor) {}
             
             virtual void focusLost(sGuiTextEditor editor) {}
         };
         
+        typedef shared_ptr<Listener>    sListener;
+        typedef weak_ptr<Listener>      wListener;
+        
     private:
-        Font    m_font;
-        string  m_text;
-        bool    m_multi_line;
-        bool    m_wrap_word;
-        bool    m_notify_return;
-        bool    m_notify_tab;
+        Font                    m_font;
+        Font::Justification     m_justification;
+        wstring                 m_text;
+        bool                    m_multi_line;
+        bool                    m_wrap_word;
+        bool                    m_notify_return;
+        bool                    m_notify_tab;
+        
+        set<wListener,
+        owner_less<wListener>> m_lists;
+        mutex                  m_lists_mutex;
+        
+        //@internal
+        void addCharacter(wchar_t character) noexcept;
+        
     public:
         //! Constructor.
         /** The function does nothing.
@@ -114,7 +123,7 @@ namespace Kiwi
          @param ctrl    The controller that ask the draw.
          @param sketch  A sketch to draw.
          */
-        virtual void draw(scGuiView view, Sketch& sketch) const = 0;
+        void draw(scGuiView view, Sketch& sketch) const override;
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
@@ -122,36 +131,30 @@ namespace Kiwi
          @param ctrl     The controller gives the event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(scGuiView view, MouseEvent const& event) = 0;
+        bool receive(scGuiView view, MouseEvent const& event) override;
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
          @param event    A keyboard event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(scGuiView view, KeyboardEvent const& event) = 0;
+        bool receive(scGuiView view, KeyboardEvent const& event) override;
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
          @param event    A focus event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(scGuiView view, KeyboardFocus const  event)
+        virtual bool receive(scGuiView view, KeyboardFocus const event)
         {
             return false;
         }
-        
-        //! Create the controller.
-        /** The function creates a controller depending on the inheritance.
-         @return The controller.
-         */
-        virtual sGuiController createController() = 0;
         
         //! Retrieves the text of the editor.
         /** The function retrieves the text of the editor.
          @return The text.
          */
-        inline string getText() const noexcept
+        inline wstring getText() const noexcept
         {
             return m_text;
         }
@@ -160,7 +163,7 @@ namespace Kiwi
         /** The function sets the text of the editor.
          @param text The text.
          */
-        void setText(string const& text) noexcept;
+        void setText(wstring const& text) noexcept;
         
         //! Clears the text of the editor.
         /** The function clears the text of the editor.
@@ -178,6 +181,18 @@ namespace Kiwi
          @param pos The position of the caret.
          */
         void setCaretPosition(ulong pos) noexcept;
+        
+        //! Add an instance listener in the binding list of the text editor.
+        /** The function adds an instance listener in the binding list of the text editor.
+         @param listener  The listener.
+         */
+        void addListener(sListener listener);
+        
+        //! Remove an instance listener from the binding list of the text editor.
+        /** The function removes an instance listener from the binding list of the text editor.
+         @param listener  The listener.
+         */
+        void removeListener(sListener listener);
     };
 }
 
