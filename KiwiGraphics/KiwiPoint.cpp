@@ -30,42 +30,6 @@ namespace Kiwi
     //                                      POINT                                       //
     // ================================================================================ //
     
-    Point::Point() noexcept :
-    m_x(0.), m_y(0.)
-    {
-        ;
-    }
-    
-    Point::Point(const double x, const double y) noexcept :
-    m_x(x), m_y(y)
-    {
-        ;
-    }
-    
-    Point::Point(Point const& pt) noexcept :
-    m_x(pt.m_x), m_y(pt.m_y)
-    {
-        ;
-    }
-    
-    Point::Point(Path const& path, const double position) noexcept :
-    m_x(0.), m_y(0.)
-    {
-        if(path.size() == 1)
-        {
-            *this = (Point)path[0];
-        }
-        else
-        {
-            ;
-        }
-    }
-    
-    Point::~Point() noexcept
-    {
-        ;
-    }
-    
     Point Point::fromLine(Point const& begin, Point const& end, double delta) noexcept
     {
         return (end - begin) * delta + begin;
@@ -397,20 +361,6 @@ namespace Kiwi
     // ================================================================================ //
     //                                      ATTR                                        //
     // ================================================================================ //
-    
-    void PointValue::set(Vector const& vector)
-    {
-        if(vector.size() > 1 && vector[0].isNumber() && vector[1].isNumber())
-        {
-            x((double)vector[0]);
-            y((double)vector[1]);
-        }
-    }
-    
-    Vector PointValue::get() const noexcept
-    {
-        return {x(), y()};
-    }
     
     SizeValue::SizeValue() noexcept :
     m_ratio(0.),
