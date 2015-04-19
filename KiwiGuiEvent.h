@@ -94,6 +94,12 @@ namespace Kiwi
     typedef shared_ptr<const GuiDeviceManager>  scGuiDeviceManager;
     typedef weak_ptr<const GuiDeviceManager>    wcGuiDeviceManager;
     
+    class GuiTextEditor;
+    typedef shared_ptr<GuiTextEditor>            sGuiTextEditor;
+    typedef weak_ptr<GuiTextEditor>              wGuiTextEditor;
+    typedef shared_ptr<const GuiTextEditor>      scGuiTextEditor;
+    typedef weak_ptr<const GuiTextEditor>        wcGuiTextEditor;
+    
     // ================================================================================ //
     //                                      SKETCH                                      //
     // ================================================================================ //
@@ -105,40 +111,21 @@ namespace Kiwi
     class Sketch
     {
     public:
-        
         //! Constructor.
         /** The function does nothing.
          */
-        Sketch() noexcept;
+        constexpr inline Sketch() noexcept
+        {
+            ;
+        }
         
         //! Destrcutor.
         /** The function does nothing.
          */
-        virtual ~Sketch() noexcept;
-        
-        //! Retrieve the abscissa.
-        /** The function retrieves the abscissa.
-         @return The abscissa.
-         */
-        virtual inline double getX() const noexcept = 0;
-        
-        //! Retrieve the ordinate.
-        /** The function retrieves the ordinate.
-         @return The ordinate.
-         */
-        virtual inline double getY() const noexcept = 0;
-        
-        //! Retrieve the width.
-        /** The function retrieves the width.
-         @return The width.
-         */
-        virtual inline double getWidth() const noexcept = 0;
-        
-        //! Retrieve the height.
-        /** The function retrieves the height.
-         @return The height.
-         */
-        virtual inline double getHeight() const noexcept = 0;
+        inline virtual ~Sketch() noexcept
+        {
+            ;
+        }
         
         //! Retrieve the position.
         /** The function retrieves the position.
@@ -173,15 +160,28 @@ namespace Kiwi
         //! Fill the sketch with the current color.
         /** The function fills the entire sketch with the current color.
          */
-        virtual void fillAll() = 0;
+        virtual void fillAll() const = 0;
         
         //! Fill the sketch with a color.
         /** The function fills the entire sketch with a color.
          */
-        virtual void fillAll(Color const& color)
+        inline virtual void fillAll(Color const& color)
         {
             setColor(color);
             fillAll();
+        }
+        
+        //! Draw a line of text within a rectangle.
+        /** The function draws a line of text within a rectangle.
+         @param text The text.
+         @param rect The rectangle.
+         @param j The justification.
+         @param truncated If the text should be truncated if it goes out the boundaries.
+         */
+        inline virtual void drawText(wstring const& text, Rectangle const& rect, Font::Justification j, bool truncated = false) const
+        {
+            wstring_convert<codecvt_utf8<wchar_t>> cv;
+            drawText(string(cv.to_bytes(text)), rect.x(), rect.y(), rect.width(), rect.height(), j, truncated);
         }
         
         //! Draws a line of text within a rectangle.
@@ -194,7 +194,11 @@ namespace Kiwi
          @param j The justification.
          @param truncated If the text should be truncated if it goes out the boundaries.
          */
-        virtual void drawText(string const& text, double x, double y, double w, double h, Font::Justification j, bool truncated = false) = 0;
+        inline virtual void drawText(wstring const& text, double x, double y, double w, double h, Font::Justification j, bool truncated = false) const
+        {
+            wstring_convert<codecvt_utf8<wchar_t>> cv;
+            drawText(cv.to_bytes(text), x, y, w, h, j, truncated);
+        }
         
         //! Draw a line of text within a rectangle.
         /** The function draws a line of text within a rectangle.
@@ -203,73 +207,62 @@ namespace Kiwi
          @param j The justification.
          @param truncated If the text should be truncated if it goes out the boundaries.
          */
-        virtual void drawText(string const& text, Rectangle const& rect, Font::Justification j, bool wrap = false);
-        
-        //! Tries to draw a text string inside a given rectangle.
-        /** The function tries to draw a text string inside a given space.
-         If the text is too big, it'll be squashed horizontally or broken over multiple lines
-         if the maximumLinesToUse value allows this. If the text just won't fit into the space,
-         it'll cram as much as possible in there, and put some ellipsis at the end to show that
-         it's been truncated.
-         A Justification parameter lets you specify how the text is laid out within the rectangle,
-         both horizontally and vertically.
-         minimumHorizontalScale parameter specifies how much the text can be squashed horizontally
-         to try to squeeze it into the space. If you don't want any horizontal scaling to occur, you
-         can set this value to 1.0f.
-         @see drawText
-         */
-        virtual void drawFittedText(string const& text, const double x, const double y, const double w, const double h, Font::Justification j, const long maximumNumberOfLines, const double minimumHorizontalScale) = 0;
-        
-        //! Tries to draw a text string inside a given rectangle.
-        /** The function tries to draw a text string inside a given space.
-         @see drawFittedText
-         */
-        virtual void drawFittedText(string const& text, Rectangle const& rect, Font::Justification j, const long maximumNumberOfLines, const double minimumHorizontalScale)
+        inline virtual void drawText(string const& text, Rectangle const& rect, Font::Justification j, bool truncated = false) const
         {
-            drawFittedText(text, rect.x(), rect.y(), rect.width(), rect.height(), j, maximumNumberOfLines, minimumHorizontalScale);
+            drawText(text, rect.x(), rect.y(), rect.width(), rect.height(), j, truncated);
         }
         
-        virtual void drawMultiLineText(wstring const& text, const long startX, const long baselineY, const long maximumLineWidth) const = 0;
+        //! Draws a line of text within a rectangle.
+        /** The function draws a line of text within a rectangle.
+         @param text The text.
+         @param x The abscissa of the rectangle.
+         @param y The ordinate of the rectangle.
+         @param w The width of the rectangle.
+         @param h The height of the rectangle.
+         @param j The justification.
+         @param truncated If the text should be truncated if it goes out the boundaries.
+         */
+        virtual void drawText(string const& text, double x, double y, double w, double h, Font::Justification j, bool truncated = false) const = 0;
         
         //! Fill a path.
         /** The function fills a path.
          @param path The path.
          */
-        virtual void fillPath(Path const& path) = 0;
+        virtual void fillPath(Path const& path) const = 0;
         
         //! Draw a path.
         /** The function draws a patcher.
          @param path The path.
          @param thickness The thickness of the parth.
          */
-        virtual void drawPath(const Path& path, double const thickness) = 0;
+        virtual void drawPath(const Path& path, double const thickness) const = 0;
         
-        virtual void drawLine(double x1, double y1, double x2, double y2, double thickness) = 0;
+        virtual void drawLine(double x1, double y1, double x2, double y2, double thickness) const = 0;
         
-        virtual void drawRectangle(double x, double y, double w, double h, double thickness, double rounded = 0.) = 0;
+        virtual void drawRectangle(double x, double y, double w, double h, double thickness, double rounded = 0.) const = 0;
         
         virtual void drawRectangle(Rectangle const& rect, double thickness, double rounded = 0.)
         {
             drawRectangle(rect.x(), rect.y(), rect.width(), rect.height(), thickness, rounded);
         }
         
-        virtual void fillRectangle(double x, double y, double w, double h, double rounded = 0.) = 0;
+        virtual void fillRectangle(double x, double y, double w, double h, double rounded = 0.) const = 0;
         
         virtual void fillRectangle(Rectangle const& rect, double rounded = 0.)
         {
             drawRectangle(rect.x(), rect.y(), rect.width(), rect.height(), rounded);
         }
         
-        virtual void drawEllipse(double x, double y, double width, double height, double thickness = 0.) = 0;
+        virtual void drawEllipse(double x, double y, double width, double height, double thickness = 0.) const = 0;
         
-        virtual void drawEllipse(Rectangle const& rect, double thickness = 0.)
+        virtual void drawEllipse(Rectangle const& rect, double thickness = 0.) const
         {
             drawEllipse(rect.x(), rect.y(), rect.width(), rect.height(), thickness);
         }
         
-        virtual void fillEllipse(double x, double y, double width, double height) = 0;
+        virtual void fillEllipse(double x, double y, double width, double height) const = 0;
         
-        virtual void fillEllipse(Rectangle const& rect)
+        virtual void fillEllipse(Rectangle const& rect) const
         {
             fillEllipse(rect.x(), rect.y(), rect.width(), rect.height());
         }
@@ -744,25 +737,25 @@ namespace Kiwi
 		const wchar_t   m_character;
 	public:
 		
-        KeyboardEvent(const long modifiers, const wchar_t character) noexcept
+        inline explicit KeyboardEvent(const long modifiers, const wchar_t character) noexcept
         : m_keycode(0), m_modifiers(modifiers), m_character(character)
         {
             ;
         }
         
-		KeyboardEvent(const int keycode, const long modifiers, const wchar_t character) noexcept
+		inline explicit KeyboardEvent(const int keycode, const long modifiers, const wchar_t character) noexcept
 		: m_keycode(keycode), m_modifiers(modifiers), m_character(character)
 		{
 			;
 		}
 		
-		KeyboardEvent(const int keycode) noexcept
+		inline explicit KeyboardEvent(const int keycode) noexcept
 		: m_keycode(keycode), m_modifiers(Nothing), m_character(0)
 		{
 			;
 		}
 		
-		KeyboardEvent(const int keycode, const long modifiers) noexcept
+		inline explicit KeyboardEvent(const int keycode, const long modifiers) noexcept
 		: m_keycode(keycode), m_modifiers(modifiers), m_character(0)
 		{
 			;
@@ -932,7 +925,7 @@ namespace Kiwi
 		
 		inline bool hasCmd() const noexcept
 		{
-			return m_modifiers & Cmd;
+            return m_modifiers & Cmd;
 		}
 		
 		inline bool hasPopup() const noexcept
