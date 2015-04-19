@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_RECTANGLE__
 #define __DEF_KIWI_GUI_RECTANGLE__
 
-#include "KiwiPoint.h"
+#include "KiwiSize.h"
 
 namespace Kiwi
 {
@@ -40,8 +40,9 @@ namespace Kiwi
     {
     private:
         Point m_position;
-        Point m_size;
+        Size  m_size;
         
+        //@internal
         enum Positioning
         {
             Inside      = 0,
@@ -55,40 +56,45 @@ namespace Kiwi
             TopRight    = 10
         };
         
+        //@internal
         Positioning positioning(Point const& pt) const noexcept;
     public:
         
         //! Constructor.
         /** The function initializes a rectangle.
          */
-        Rectangle() noexcept;
+        inline Rectangle() noexcept {}
         
         //! Constructor.
         /** The function initializes a rectangle with four double values.
-         @param x The abscissa of the top-left corner.
-         @param y The ordinate of the top-left corner.
-         @param width The width of the rectangle.
-         @param height The height of the rectangle.
+         @param x       The abscissa of the top-left corner.
+         @param y       The ordinate of the top-left corner.
+         @param w       The width of the rectangle.
+         @param h       The height of the rectangle.
+         @param ratio   If the ratio width over height should be respect.
          */
-        Rectangle(const double x, const double y, const double width, const double height) noexcept;
+        inline Rectangle(const double x, const double y, const double w, const double h, const bool ratio = false) noexcept :
+        m_position(x, y), m_size(w, h, ratio) {}
         
         //! Constructor.
         /** The function initializes a rectangle with two points.
          @param position The poisition of the top-left corner.
-         @param size The size of the rectangle.
+         @param size     The size of the rectangle.
          */
-        Rectangle(Point const& position, Point const& size) noexcept;
+        inline Rectangle(Point const& position, Size const& size) noexcept :
+        m_position(position), m_size(size) {}
         
         //! Constructor.
         /** The function initializes another rectangle.
          @param rect The other rectangle.
          */
-        Rectangle(Rectangle const& rect) noexcept;
+        inline Rectangle(Rectangle const& rect) noexcept :
+        m_position(rect.m_position), m_size(rect.m_size) {}
         
         //! Destructor.
         /** The function deletes the rectangle.
          */
-        ~Rectangle() noexcept;
+        inline ~Rectangle() noexcept {}
         
         //! Return a rectangle with the positions of two opposite corners.
         /** The function returns a rectangle with the positions of two opposite corners.
@@ -111,18 +117,18 @@ namespace Kiwi
          @param newpos The new position of the rectangle.
          @return The new rectangle.
          */
-        Rectangle withPosition(Point const& newpos) const noexcept
+        inline Rectangle withPosition(Point const& newpos) const noexcept
         {
-            return Rectangle(newpos.x(), newpos.y(), m_size.x(), m_size.y());
+            return Rectangle(newpos, m_size);
         }
         
         //! Return the same rectangle with a position at zero origin.
         /** The function returns the same rectangle with a position at zero origin.
          @return The new rectangle.
          */
-        Rectangle withZeroOrigin() const noexcept
+        inline Rectangle withZeroOrigin() const noexcept
         {
-            return Rectangle(0., 0., m_size.x(), m_size.y());
+            return Rectangle(Point(0., 0.), m_size);
         }
         //! Retrieve the abscissa.
         /** The function retrieves the abscissa.
@@ -148,7 +154,7 @@ namespace Kiwi
          */
         inline double width() const noexcept
         {
-            return m_size.x();
+            return m_size.width();
         }
         
         //! Retrieve the height.
@@ -157,7 +163,7 @@ namespace Kiwi
          */
         inline double height() const noexcept
         {
-            return m_size.y();
+            return m_size.height();
         }
         
         //! Retrieve the position.
@@ -173,7 +179,7 @@ namespace Kiwi
         /** The function retrieves the size.
          @return The size.
          */
-        inline Point size() const noexcept
+        inline Size size() const noexcept
         {
             return m_size;
         }
@@ -205,11 +211,20 @@ namespace Kiwi
             return Point(x() + width() * 0.5, y() + height() * 0.5);
         }
         
+        //! Retrieve the ratio.
+        /** The function retrieves the ratio. If zero, the ratio width over height isn't respected.
+         @return The ratio.
+         */
+        inline double ratio() const noexcept
+        {
+            return m_size.ratio();
+        }
+        
         //! Set the abscissa.
         /** The function sets the abscissa.
          @param x The abscissa.
          */
-        inline void x(double x) noexcept
+        inline void x(const double x) noexcept
         {
             m_position.x(x);
         }
@@ -218,7 +233,7 @@ namespace Kiwi
         /** The function sets the ordinate.
          @param y The ordinate.
          */
-        inline void y(double y) noexcept
+        inline void y(const double y) noexcept
         {
             m_position.y(y);
         }
@@ -227,18 +242,18 @@ namespace Kiwi
         /** The function sets the width.
          @param width The width.
          */
-        inline void width(double width) noexcept
+        inline void width(const double width) noexcept
         {
-            m_size.x(max(width, 0.));
+            m_size.width(width);
         }
         
         //! Set the height.
         /** The function sets the height.
          @param height The height.
          */
-        inline void height(double height) noexcept
+        inline void height(const double height) noexcept
         {
-            m_size.y(max(height, 0.));
+            m_size.height(height);
         }
         
         //! Set the position.
@@ -250,33 +265,50 @@ namespace Kiwi
             m_position = position;
         }
         
+        //! Set the position.
+        /** The function sets the position.
+         @param position The position.
+         */
+        inline void position(Point&& position) noexcept
+        {
+            m_position = position;
+        }
+        
         //! Set the size.
         /** The function sets the size.
          @param size The size.
          */
-        inline void size(Point const& size) noexcept
+        inline void size(Size const& size) noexcept
         {
-            m_size.x(max(size.x(), 0.));
-            m_size.y(max(size.y(), 0.));
+            m_size = size;
+        }
+        
+        //! Set the size.
+        /** The function sets the size.
+         @param size The size.
+         */
+        inline void size(Size&& size) noexcept
+        {
+            m_size = size;
         }
         
         //! Move the abscissa position of the rectangle.
-        /** The function moves the abscissa position of the rectangle.
+        /** The function moves the abscissa position of the rectangle  and expands or retracts it.
          @param left The abscissa position.
          */
-        void left(double const left) noexcept
+        void left(const double left) noexcept
         {
-            width(max(right() - left, 0.));
+            width(right() - left);
             x(left);
         }
         
         //! Move the ordinate position of the rectangle.
-        /** The function moves the ordinate position of the rectangle.
+        /** The function moves the ordinate position of the rectangle  and expands or retracts it.
          @param top The ordinate position.
          */
         void top(double const top) noexcept
         {
-            height(max(bottom() - top, 0.));
+            height(bottom() - top);
             y(top);
         }
         
@@ -284,7 +316,7 @@ namespace Kiwi
         /** The function moves the right position of the rectangle and expands or retracts it.
          @param top The right position.
          */
-        void right(double right) noexcept
+        void right(const double right) noexcept
         {
             x(min(x(), right));
             width(right - x());
@@ -309,6 +341,18 @@ namespace Kiwi
         {
             m_position = rect.position();
             m_size = rect.size();
+            return *this;
+        }
+        
+        //! Set the position and the size with another rectangle.
+        /** The function sets the position and the size with another rectangle.
+         @param rect The other rectangle.
+         @return The rectangle.
+         */
+        inline Rectangle& operator=(Rectangle&& rect) noexcept
+        {
+            swap(m_position, rect.m_position);
+            swap(m_size, rect.m_size);
             return *this;
         }
         
@@ -407,7 +451,7 @@ namespace Kiwi
          */
         inline Rectangle operator+(Point const& pt) noexcept
         {
-            return Rectangle(x() + pt.x(), y() + pt.y(), width(), height());
+            return Rectangle(m_position + pt, m_size);
         }
         
         //! Retrieve the rectangle shifted with a value.
@@ -417,7 +461,7 @@ namespace Kiwi
          */
         inline Rectangle operator+(double const value) noexcept
         {
-            return Rectangle(x() + value, y() + value, width(), height());
+            return Rectangle(m_position + value, m_size);
         }
         
         //! Retrieve the rectangle shifted with a point.
@@ -427,7 +471,7 @@ namespace Kiwi
          */
         inline Rectangle operator-(Point const& pt) noexcept
         {
-            return Rectangle(x() - pt.x(), y() - pt.y(), width(), height());
+            return Rectangle(m_position - pt, m_size);
         }
         
         //! Retrieve the rectangle shifted with a value.
@@ -437,7 +481,7 @@ namespace Kiwi
          */
         inline Rectangle operator-(double const value) noexcept
         {
-            return Rectangle(x() - value, y() - value, width(), height());
+            return Rectangle(m_position - value, m_size);
         }
         
         //! Retrieve the rectangle shifted with a point.
@@ -447,7 +491,7 @@ namespace Kiwi
          */
         inline Rectangle operator*(Point const& pt) noexcept
         {
-            return Rectangle(x() * pt.x(), y() * pt.y(), width(), height());
+            return Rectangle(m_position * pt, m_size);
         }
         
         //! Retrieve the rectangle shifted with a value.
@@ -457,7 +501,7 @@ namespace Kiwi
          */
         inline Rectangle operator*(double const value) noexcept
         {
-            return Rectangle(x() * value, y() * value, width(), height());
+            return Rectangle(m_position * value, m_size);
         }
         
         //! Retrieve the rectangle shifted with a point.
@@ -467,7 +511,7 @@ namespace Kiwi
          */
         inline Rectangle operator/(Point const& pt) noexcept
         {
-            return Rectangle(x() / pt.x(), y() / pt.y(), width(), height());
+            return Rectangle(m_position / pt, m_size);
         }
         
         //! Retrieve the rectangle shifted with a value.
@@ -477,7 +521,7 @@ namespace Kiwi
          */
         inline Rectangle operator/(double const value) noexcept
         {
-            return Rectangle(x() / value, y() / value, width(), height());
+            return Rectangle(m_position / value, m_size);
         }
         
         //! Get the equality two rectangle.
@@ -485,7 +529,7 @@ namespace Kiwi
          @param rect The other rectangle.
          @return true if the two retrieves are equal, otherwise false.
          */
-        inline bool operator==(Rectangle const rect) const noexcept
+        inline bool operator==(Rectangle const& rect) const noexcept
         {
             return m_position == rect.position() && m_size == rect.size();
         }
@@ -495,7 +539,7 @@ namespace Kiwi
          @param rect The other rectangle.
          @return true if the two retrieves are not equal, otherwise false.
          */
-        inline bool operator!=(Rectangle const rect) const noexcept
+        inline bool operator!=(Rectangle const& rect) const noexcept
         {
             return m_position != rect.position() || m_size != rect.size();
         }

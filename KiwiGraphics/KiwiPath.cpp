@@ -164,7 +164,7 @@ namespace Kiwi
                 }
             }
         }
-        return Rectangle(position, size - position);
+        return Rectangle(position, Size(size.x() - position.x(), size.y() - position.y()));
         
     }
     

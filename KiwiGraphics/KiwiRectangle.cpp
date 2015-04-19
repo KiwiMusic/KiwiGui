@@ -24,36 +24,7 @@
 #include "KiwiRectangle.h"
 
 namespace Kiwi
-{
-    Rectangle::Rectangle() noexcept :
-    m_position(0., 0.), m_size(0., 0.)
-    {
-        ;
-    }
-    
-    Rectangle::Rectangle(const double x, const double y, const double width, const double height) noexcept :
-    m_position(x, y), m_size(max(width, 0.), max(height, 0.))
-    {
-        ;
-    }
-    
-    Rectangle::Rectangle(Point const& position, Point const& size) noexcept :
-    m_position(position), m_size(max(size.x(), 0.), max(size.y(), 0.))
-    {
-        ;
-    }
-    
-    Rectangle::Rectangle(Rectangle const& rect) noexcept :
-    m_position(rect.m_position), m_size(rect.m_size)
-    {
-        
-    }
-    
-    Rectangle::~Rectangle() noexcept
-    {
-        ;
-    }
-    
+{        
     Rectangle Rectangle::withCorners(Point const& corner1, Point const& corner2) noexcept
     {
         return Rectangle(min(corner1.x(), corner2.x()), min(corner1.y(), corner2.y()), abs(corner1.x() - corner2.x()), abs(corner1.y() - corner2.y()));
@@ -61,7 +32,7 @@ namespace Kiwi
     
     Rectangle Rectangle::withCentre(Point const& centre, Point const& size)
     {
-        return Rectangle(centre, Point()).expanded(size * 0.5);
+        return Rectangle(centre, Size(0., 0.)).expanded(size * 0.5);
     }
     
     Rectangle::Positioning Rectangle::positioning(Point const& pt) const noexcept
