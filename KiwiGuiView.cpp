@@ -84,8 +84,7 @@ namespace Kiwi
             sGuiContext ctxt = getContext();
             if(ctxt)
             {
-                Point pt = ctxt->getScreenBounds(getBounds().centre()).size();
-                return Size(pt.x(), pt.y());
+                return ctxt->getScreenBounds(getBounds().centre()).size();
             }
         }
         return Size();

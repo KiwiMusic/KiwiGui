@@ -53,7 +53,7 @@ namespace Kiwi
     
     void GuiButton::draw(scGuiView view, Sketch& sketch) const
     {
-        const Rectangle bounds = sketch.getBounds().withZeroOrigin();
+        const Rectangle bounds = getBounds().withZeroOrigin();
         sketch.setColor(getColor().darker(0.1));
         sketch.fillEllipse(bounds);
         sketch.setColor(getColor());

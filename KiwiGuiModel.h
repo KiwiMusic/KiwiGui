@@ -102,7 +102,7 @@ namespace Kiwi
          */
         inline Rectangle getBounds() const noexcept
         {
-            return Rectangle(m_position.x(), m_position.y(), m_size.width(), m_size.height());
+            return Rectangle(m_position, m_size);
         }
 		
 		//! The draw method that should be override.

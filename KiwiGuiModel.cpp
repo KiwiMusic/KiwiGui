@@ -150,7 +150,7 @@ namespace Kiwi
     void GuiSketcher::setBounds(Rectangle const& bounds) noexcept
     {
         setPosition(bounds.position());
-        setSize(Size(bounds.width(), bounds.height()));
+        setSize(bounds.size());
     }
     
     void GuiSketcher::setPosition(Point const& position) noexcept

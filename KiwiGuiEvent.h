@@ -137,7 +137,7 @@ namespace Kiwi
         /** The function retrieves the size.
          @return The size.
          */
-        virtual inline Point getSize() const noexcept = 0;
+        virtual inline Size getSize() const noexcept = 0;
         
         //! Retrieve the bounds.
         /** The function retrieves the bounds.
