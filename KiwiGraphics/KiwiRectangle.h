@@ -91,6 +91,27 @@ namespace Kiwi
         inline Rectangle(Rectangle const& rect) noexcept :
         m_position(rect.m_position), m_size(rect.m_size) {}
         
+        //! Constructor.
+        /** The function initializes a rectangle with two points.
+         @param position The poisition of the top-left corner.
+         @param size     The size of the rectangle.
+         */
+        inline Rectangle(Point&& position, Size&& size) noexcept
+        {
+            swap(m_position, position);
+            swap(m_size, size);
+        }
+        
+        //! Constructor.
+        /** The function initializes another rectangle.
+         @param rect The other rectangle.
+         */
+        inline Rectangle(Rectangle&& rect) noexcept
+        {
+            swap(m_position, rect.m_position);
+            swap(m_size, rect.m_size);
+        }
+        
         //! Destructor.
         /** The function deletes the rectangle.
          */
@@ -102,7 +123,10 @@ namespace Kiwi
          @param corner1 The position of the second corner.
          @return The new rectangle.
          */
-        static Rectangle withCorners(Point const& corner1, Point const& corner2) noexcept;
+        static inline Rectangle withCorners(Point const& corner1, Point const& corner2) noexcept
+        {
+            return Rectangle(min(corner1.x(), corner2.x()), min(corner1.y(), corner2.y()), abs(corner1.x() - corner2.x()), abs(corner1.y() - corner2.y()));
+        }
         
         //! Return a rectangle with the center positions and the size.
         /** The function returns a rectangle with the center positions and the size.
@@ -110,7 +134,10 @@ namespace Kiwi
          @param size The size.
          @return The new rectangle.
          */
-        static Rectangle withCentre(Point const& centre, Point const& size);
+        static inline  Rectangle withCentre(Point const& centre, Size const& size) noexcept
+        {
+            return Rectangle(centre - Point(size) * 0.5, size);
+        }
         
         //! Return the same rectangle with a different position.
         /** The function returns the same rectangle with a different position.
@@ -122,13 +149,23 @@ namespace Kiwi
             return Rectangle(newpos, m_size);
         }
         
+        //! Return the same rectangle with a different position.
+        /** The function returns the same rectangle with a different position.
+         @param newpos The new position of the rectangle.
+         @return The new rectangle.
+         */
+        inline Rectangle withPosition(Point&& newpos) const noexcept
+        {
+            return Rectangle(newpos, size());
+        }
+        
         //! Return the same rectangle with a position at zero origin.
         /** The function returns the same rectangle with a position at zero origin.
          @return The new rectangle.
          */
         inline Rectangle withZeroOrigin() const noexcept
         {
-            return Rectangle(Point(0., 0.), m_size);
+            return Rectangle(Point(0., 0.), size());
         }
         //! Retrieve the abscissa.
         /** The function retrieves the abscissa.
@@ -550,9 +587,19 @@ namespace Kiwi
          */
         inline void expand(Point const& pt) noexcept
         {
-            position(m_position - pt);
-            width(max(0., width() + pt.x() * 2.));
-            height(max(0., height() + pt.y() * 2.));
+            m_position = m_position - pt;
+            width(width() + pt.x() * 2.);
+            height(height() + pt.y() * 2.);
+        }
+        
+        //! Expand the rectangle.
+        /** The function expands the rectangle.
+         @param size The amount of expansion.
+         */
+        inline void expand(Size const& size) noexcept
+        {
+            position(m_position - Point(size));
+            m_size += size * 2.;
         }
         
         //! Expand the rectangle.

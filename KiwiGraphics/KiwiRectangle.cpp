@@ -25,15 +25,6 @@
 
 namespace Kiwi
 {        
-    Rectangle Rectangle::withCorners(Point const& corner1, Point const& corner2) noexcept
-    {
-        return Rectangle(min(corner1.x(), corner2.x()), min(corner1.y(), corner2.y()), abs(corner1.x() - corner2.x()), abs(corner1.y() - corner2.y()));
-    }
-    
-    Rectangle Rectangle::withCentre(Point const& centre, Point const& size)
-    {
-        return Rectangle(centre, Size(0., 0.)).expanded(size * 0.5);
-    }
     
     Rectangle::Positioning Rectangle::positioning(Point const& pt) const noexcept
     {
