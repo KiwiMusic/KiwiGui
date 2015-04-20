@@ -78,11 +78,11 @@ namespace Kiwi
         
         //! Constructor.
         /** The function initializes a point with another point.
-         @param pt The other point.
+         @param size The other point.
          */
-        inline Size(Size&& pt) noexcept
+        inline Size(Size&& size) noexcept
         {
-            swap(m_data, pt.m_data);
+            swap(m_data, size.m_data);
         }
         
         //! Destructor.
@@ -203,25 +203,182 @@ namespace Kiwi
             swap(m_data, size.m_data);
             return *this;
         }
-            
-        //! Get the equality of the size with another.
-        /** The function retrieves the equality of the size with another.
-         @param size The other size.
-         @return true if the two sizes are equal, otherwise false.
+        
+        //! Increments the abscissa and the ordinate with another size.
+        /** The function increments the abscissa and the ordinate with another size.
+         @param size Another size.
+         @return The size.
          */
-        inline bool operator==(Size const& size) const noexcept
+        inline Size& operator+=(Size const& size) noexcept
         {
-            return width() == size.width() && height() == size.height();
+            width(m_data[0] + size.width());
+            height(m_data[1] + size.height());
+            return *this;
         }
         
-        //! Get the equality of the size with another.
-        /** The function retrieves the equality of the size with another.
-         @param size The other size.
-         @return true if the two sizes are not equal, otherwise false.
+        //! Increments the abscissa and the ordinate with a value.
+        /** The function increments the abscissa and the ordinate with a value.
+         @param value The value.
+         @return The size.
          */
-        inline bool operator!=(Size const& size) const noexcept
+        inline Size& operator+=(double const value) noexcept
         {
-            return width() != size.width() || height() != size.height();
+            width(m_data[0] + value);
+            height(m_data[1] + value);
+            return *this;
+        }
+        
+        //! Decrements the abscissa and the ordinate with another size.
+        /** The function decrements the abscissa and the ordinate with another size.
+         @param value The value.
+         @return The size.
+         */
+        inline Size& operator-=(Size const& size) noexcept
+        {
+            width(m_data[0] - size.width());
+            height(m_data[1] - size.height());
+            return *this;
+        }
+        
+        //! Decrements the abscissa and the ordinate with a value.
+        /** The function decrements the abscissa and the ordinate with a value.
+         @param size Another size.
+         @return The size.
+         */
+        inline Size& operator-=(double const value) noexcept
+        {
+            width(m_data[0] - value);
+            height(m_data[1] - value);
+            return *this;
+        }
+        
+        //! Multiplies the abscissa and the ordinate with another size.
+        /** The function multiplies the abscissa and the ordinate with another size.
+         @param value The value.
+         @return The size.
+         */
+        inline Size& operator*=(Size const& size) noexcept
+        {
+            width(m_data[0] * size.width());
+            height(m_data[1] * size.height());
+            return *this;
+        }
+        
+        //! Multiplies the abscissa and the ordinate with a value.
+        /** The function multiplies the abscissa and the ordinate with a value.
+         @param size Another size.
+         @return The size.
+         */
+        inline Size& operator*=(double const value) noexcept
+        {
+            width(m_data[0] * value);
+            height(m_data[1] * value);
+            return *this;
+        }
+        
+        //! Divides the abscissa and the ordinate with another size.
+        /** The function divides the abscissa and the ordinate with another size.
+         @param size Another size.
+         @return The size.
+         */
+        inline Size& operator/=(Size const& size) noexcept
+        {
+            width(m_data[0] / size.width());
+            height(m_data[1] / size.height());
+            return *this;
+        }
+        
+        //! Divides the abscissa and the ordinate with a value.
+        /** The function divides the abscissa and the ordinate with a value.
+         @param value The value.
+         @return The size.
+         */
+        inline Size& operator/=(double const value) noexcept
+        {
+            width(m_data[0] / value);
+            height(m_data[1] / value);
+            return *this;
+        }
+        
+        //! Retrives a new size from the addition of two sizes.
+        /** The function adds a value to the size.
+         @param size The size to add.
+         @return The new size.
+         */
+        inline Size operator+(Size const& size) noexcept
+        {
+            return Size(m_data[0] + size.width(), m_data[1] + size.height());
+        }
+        
+        //! Add a value to the size.
+        /** The function adds a value to the size.
+         @param value The value to add.
+         @return The new size.
+         */
+        inline Size operator+(double const value) noexcept
+        {
+            return Size(m_data[0] + value, m_data[1] + value);
+        }
+        
+        //! Subtract a a size to the size.
+        /** The function subtract to the size.
+         @param size The size to subtract.
+         @return The new size.
+         */
+        inline Size operator-(Size const size) const noexcept
+        {
+            return Size(m_data[0] - size.width(), m_data[1] - size.height());
+        }
+        
+        //! Subtract a a value to the size.
+        /** The function subtracts a value to the size.
+         @param value The value to subtract.
+         @return The new size.
+         */
+        inline Size operator-(double const value) const noexcept
+        {
+            return Size(m_data[0] - value, m_data[1] - value);
+        }
+        
+        
+        //! Multiply a size with the size.
+        /** The function multiplies a size with the size.
+         @param size The size to multiply with.
+         @return The new size.
+         */
+        inline Size operator*(Size const size) const noexcept
+        {
+            return Size(m_data[0] * size.width(), m_data[1] * size.height());
+        }
+        
+        //! Divide a value with the size.
+        /** The function divides a value with the size.
+         @param value The value to divide with.
+         @return The new size.
+         */
+        inline Size operator*(const double value) const noexcept
+        {
+            return Size(width() * value, height() * value);
+        }
+        
+        //! Divide a size with the size.
+        /** The function divides a size with the size.
+         @param size The size to divide with.
+         @return The new size.
+         */
+        inline Size operator/(Size const size) const noexcept
+        {
+            return Size(width() / size.width(), height() / size.height());
+        }
+        
+        //! Divide a value with the size.
+        /** The function divides a value with the size.
+         @param value The value to divide with.
+         @return The new size.
+         */
+        inline Size operator/(const double value) const noexcept
+        {
+            return Size(width() / value, height() / value);
         }
         
         //! Retieves a point with the size.
@@ -253,6 +410,26 @@ namespace Kiwi
                 width(double(vector[0]));
                 height(double(vector[1]));
             }
+        }
+        
+        //! Get the equality of the size with another.
+        /** The function retrieves the equality of the size with another.
+         @param size The other size.
+         @return true if the two sizes are equal, otherwise false.
+         */
+        inline bool operator==(Size const& size) const noexcept
+        {
+            return width() == size.width() && height() == size.height();
+        }
+        
+        //! Get the equality of the size with another.
+        /** The function retrieves the equality of the size with another.
+         @param size The other size.
+         @return true if the two sizes are not equal, otherwise false.
+         */
+        inline bool operator!=(Size const& size) const noexcept
+        {
+            return width() != size.width() || height() != size.height();
         }
     };
             
