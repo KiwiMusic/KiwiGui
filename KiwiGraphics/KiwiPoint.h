@@ -364,7 +364,7 @@ namespace Kiwi
          */
         inline Point operator/(Point const pt) const noexcept
         {
-            return Point(m_data[0] * pt.x(), m_data[1] * pt.y());
+            return Point(m_data[0] / pt.x(), m_data[1] / pt.y());
         }
         
         //! Returns the inverse of the point.
