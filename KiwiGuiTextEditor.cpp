@@ -37,6 +37,7 @@ namespace Kiwi
         m_wrap_word  = false;
         m_notify_return = true;
         m_notify_tab    = true;
+        m_formated      = false;
     }
     
     GuiTextEditor::~GuiTextEditor() noexcept
@@ -66,11 +67,13 @@ namespace Kiwi
         if(!m_multi_line)
         {
             sketch.setColor(Colors::black);
+            sketch.setFont(m_font);
             sketch.drawText(m_text, 0., 0., size.width(), size.height(), Font::CentredLeft);
         }
         else
         {
             sketch.setColor(Colors::black);
+            sketch.setFont(m_font);
             sketch.drawText(m_text, 0., 0., size.width(), size.height(), Font::CentredLeft);
         }        
     }
@@ -179,7 +182,20 @@ namespace Kiwi
     
     void GuiTextEditor::setText(wstring const& text) noexcept
     {
-        
+        m_text = text;
+    }
+    
+    Size GuiTextEditor::getTextSize() const noexcept
+    {
+        sGuiContext ctxt = getContext();
+        if(ctxt)
+        {
+            return ctxt->getTextSize(m_font, m_text);
+        }
+        else
+        {
+            return Size();
+        }
     }
     
     void GuiTextEditor::clearText() noexcept
@@ -199,6 +215,7 @@ namespace Kiwi
     
     void GuiTextEditor::addCharacter(wchar_t character) noexcept
     {
+        m_formated = false;
         m_text += character;
         lock_guard<mutex> guard(m_lists_mutex);
         auto it = m_lists.begin();

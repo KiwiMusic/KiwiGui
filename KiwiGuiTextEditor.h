@@ -66,6 +66,7 @@ namespace Kiwi
         bool                    m_wrap_word;
         bool                    m_notify_return;
         bool                    m_notify_tab;
+        bool                    m_formated;
         
         set<wListener,
         owner_less<wListener>> m_lists;
@@ -73,6 +74,7 @@ namespace Kiwi
         
         //@internal
         void addCharacter(wchar_t character) noexcept;
+        void format() noexcept;
         
     public:
         //! Constructor.
@@ -158,6 +160,11 @@ namespace Kiwi
         {
             return m_text;
         }
+        
+        //! Retrieves the size of the text.
+        /** The function retrieves the size of the text.
+         */
+        Size getTextSize() const noexcept;
         
         //! Sets the text of the editor.
         /** The function sets the text of the editor.
