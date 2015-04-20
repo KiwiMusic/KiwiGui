@@ -98,6 +98,32 @@ namespace Kiwi
             m_windows.erase(window);
         }
     }
+    
+    Size GuiContext::getTextSize(Font const& font, string const& text) const noexcept
+    {
+        sGuiDeviceManager device = getDeviceManager();
+        if(device)
+        {
+            return device->getTextSize(font, text);
+        }
+        else
+        {
+            return Size();
+        }
+    }
+    
+    Size GuiContext::getTextSize(Font const& font, wstring const& text) const noexcept
+    {
+        sGuiDeviceManager device = getDeviceManager();
+        if(device)
+        {
+            return device->getTextSize(font, text);
+        }
+        else
+        {
+            return Size();
+        }
+    }
 }
 
 

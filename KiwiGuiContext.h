@@ -91,6 +91,22 @@ namespace Kiwi
          @param window The view of the top level window.
          */
         void removeWindow(sGuiView window) noexcept;
+        
+        //! Retrieves the size of a text.
+        /** The function the size of a text depending on a font.
+         @param font The font.
+         @param text The text.
+         @return The size of the text.
+         */
+        Size getTextSize(Font const& font, string const& text) const noexcept;
+        
+        //! Retrieves the size of a text.
+        /** The function the size of a text depending on a font.
+         @param font The font.
+         @param text The text.
+         @return The size of the text.
+         */
+        Size getTextSize(Font const& font, wstring const& text) const noexcept;
     };
 }
 
