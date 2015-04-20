@@ -25,17 +25,6 @@
 
 namespace Kiwi
 {
-    
-    void FontValue::set(Vector const& vector)
-    {
-        int todo;
-    }
-    
-    //! Retrieve the attribute value as a string.
-    Vector FontValue::get() const noexcept
-    {
-        int todo;
-        return {};
-    }    
+    vector<Font> Font::m_fonts;
 }
 

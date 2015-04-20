@@ -39,17 +39,16 @@ namespace Kiwi
 		//! The constructor.
 		/** The function does nothing.
 		 */
-		constexpr inline GuiDeviceManager() noexcept
-        {
-            
-        }
+        constexpr inline GuiDeviceManager() noexcept {}
 		
 		//! The destructor.
         /** The function does nothing.
          */
-		inline virtual ~GuiDeviceManager() noexcept
+        inline virtual ~GuiDeviceManager() noexcept {}
+        
+        void initialize() const noexcept
         {
-            
+            Font::setAvailableFonts(getSystemFonts());
         }
         
         //! Create a view.
@@ -91,6 +90,14 @@ namespace Kiwi
          @return The size of the text.
          */
         virtual Size getTextSize(Font const& font, wstring const& text) const noexcept = 0;
+        
+    private:
+        
+        //! Retrieves all the fonts from the system.
+        /** The function retrieves all the fonts from the system.
+         @return A vector of fonts.
+         */
+        virtual vector<Font> getSystemFonts() const noexcept = 0;
         
     };
 }

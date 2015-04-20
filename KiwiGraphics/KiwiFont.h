@@ -28,6 +28,8 @@
 
 namespace Kiwi
 {
+    class GuiDeviceManager;
+    
     // ================================================================================ //
     //                                      FONT                                        //
     // ================================================================================ //
@@ -70,33 +72,88 @@ namespace Kiwi
         };
         
     private:
+        friend class GuiDeviceManager;
+        static vector<Font> m_fonts;
+        
         string          m_name;
         double			m_size;
         ulong           m_style;
         
-    public:
-        //! Font constructor.
-        /** Initializes a default Arial font with a \Normal facetype and a font size of 12.
-         */
-        Font() noexcept :
-        m_name("Arial"), m_size(12.), m_style(Plain)
+        inline static void setAvailableFonts(vector<Font> const& fonts) noexcept
         {
-            ;
+             m_fonts = fonts;
         }
         
-        //! Font constructor.
-        /** Initializes a font with a name, size and style
-		 */
-        Font(string const& name, double size = 12, ulong face = Plain) noexcept :
-        m_name(name), m_style(face)
+        inline static void setAvailableFonts(vector<Font>&& fonts) noexcept
         {
-            setSize(size);
+            m_fonts.swap(fonts);
+        }
+        
+    public:
+        //! Font constructor.
+        /** Initializes a default Arial font with a normal plain style and a font size of 12.
+         */
+        inline Font() noexcept : m_name("Helvetica"), m_size(12.), m_style(Plain) {}
+        
+        //! Font constructor.
+        /** Initializes a font with a name, size and style.
+         @param name The name of the font.
+         @param size The size of the font.
+         @param face The face of the font.
+		 */
+        inline Font(string const& name, double size = 12, ulong face = Plain) noexcept : m_name(name), m_size(clip(size, 0.1, 10000.)), m_style(face) {}
+        
+        //! Font constructor.
+        /** Initializes a with another font.
+         @param font The other font.
+         */
+        inline Font(Font const& font) : m_name(font.m_name), m_size(font.m_size), m_style(font.m_style) {}
+        
+        //! Font constructor.
+        /** Initializes a with another font.
+         @param font The other font.
+         */
+        inline Font(Font&& font) : m_name(), m_size(font.m_size), m_style(font.m_style)
+        {
+            swap(m_name, font.m_name);
+        }
+        
+        //! Font equal oeprator.
+        /** Initializes the font with another font.
+         @param font The other font.
+         */
+        inline Font& operator=(Font const& font) noexcept
+        {
+            m_name  = font.m_name;
+            m_size  = font.m_size;
+            m_style = font.m_style;
+            return *this;
+        }
+        
+        //! Font equal oeprator.
+        /** Initializes the font with another font.
+         @param font The other font.
+         */
+        inline Font& operator=(Font&& font) noexcept
+        {
+            swap(m_name, font.m_name);
+            m_size  = font.m_size;
+            m_style = font.m_style;
+            return *this;
         }
         
         //! Destructor.
-        ~Font()
+        /** The function does nothing.
+         */
+        inline ~Font() {}
+        
+        //! Retrieves the font name.
+        /** The function retrieves the name of the font.
+         @return The name of the font.
+         */
+        inline Font withName(const string& name) const noexcept
         {
-            ;
+            return Font(name, m_size, m_style);
         }
         
         //! Sets the font name.
@@ -116,15 +173,6 @@ namespace Kiwi
         {
             return m_name;
         }
-		
-		//! Retrieves the font name.
-		/** The function retrieves the name of the font.
-		 @return The name of the font.
-		 */
-		inline Font withName(const string& name) const noexcept
-		{
-			return Font(name, m_size, m_style);
-		}
 		
         //! Sets the font size.
         /** The function sets the size of the font.
@@ -159,11 +207,15 @@ namespace Kiwi
          */
         inline ulong getStyle() const noexcept
         {
-            int flags = (m_style & Font::Underlined) ? Underlined : Plain;
-            
-			if (isBold())    flags |= Bold;
-            if (isItalic())  flags |= Italic;
-            
+            ulong flags = (m_style & Font::Underlined) ? Underlined : Plain;
+			if(isBold())
+            {
+                flags |= Bold;
+            }
+            if(isItalic())
+            {
+                flags |= Italic;
+            }
             return flags;
         }
         
@@ -171,7 +223,16 @@ namespace Kiwi
         /** The function retrieves a font name as a string.
          @return A font name as a string.
          */
-        static string getStyleName(ulong styleFlags) noexcept
+        inline string getStyleName() const noexcept
+        {
+            return getStyleName(m_style);
+        }
+        
+        //! Retrieves a font name as a string.
+        /** The function retrieves a font name as a string.
+         @return A font name as a string.
+         */
+        inline static string getStyleName(const ulong styleFlags) noexcept
         {
             const bool bold = (styleFlags & Font::Bold);
             const bool italic = (styleFlags & Font::Italic);
@@ -238,28 +299,35 @@ namespace Kiwi
             const ulong flags = getStyle();
             setStyle(shouldBeUnderlined ? (flags | Underlined) : (flags & ~Underlined));
         }
-    };
-    
-    // ================================================================================ //
-    //                                      ATTR                                        //
-    // ================================================================================ //
-    
-    class FontValue : public Font, public Attr::Value
-    {
-    public:
-        using Font::Font;
         
-        //! Retrieve the attribute value as a vector of atoms.
-        /** The function retrieves the attribute value as a vector of atoms.
+        //! Retrieve the font as a vector of atoms.
+        /** The function retrieves the font as a vector of atoms.
          @return The vector of atoms.
          */
-        Vector get() const noexcept override;
+        inline Vector get() const noexcept
+        {
+            return Vector({m_name, m_size, getStyleName()});
+        }
         
-        //! Set the attribute value with a vector of atoms.
-        /** The function sets the attribute value with a vector of atoms.
+        //! Set the font with a vector of atoms.
+        /** The function sets the font with a vector of atoms.
          @param vector The vector of atoms.
          */
-        void set(Vector const& vector) override;
+        inline void set(Vector const& vector) noexcept
+        {
+            if(!vector.empty() && vector[0].isTag())
+            {
+                setName(sTag(vector[0])->getName());
+                if(vector.size() > 1 && vector[1].isNumber())
+                {
+                    setSize(double(vector[1]));
+                }
+                if(vector.size() > 2 && vector[2].isTag())
+                {
+                    int todo;
+                }
+            }
+        }
     };
 }
 
