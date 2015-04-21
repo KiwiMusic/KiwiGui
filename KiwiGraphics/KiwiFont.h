@@ -78,6 +78,7 @@ namespace Kiwi
         string          m_name;
         double			m_size;
         ulong           m_style;
+        double          m_height;
         
         inline static void setAvailableFonts(vector<Font> const& fonts) noexcept
         {
@@ -228,21 +229,6 @@ namespace Kiwi
             return getStyleName(m_style);
         }
         
-        //! Retrieves a font name as a string.
-        /** The function retrieves a font name as a string.
-         @return A font name as a string.
-         */
-        inline static string getStyleName(const ulong styleFlags) noexcept
-        {
-            const bool bold = (styleFlags & Font::Bold);
-            const bool italic = (styleFlags & Font::Italic);
-            
-            if (bold && italic) return "Bold Italic";
-            if (bold)           return "Bold";
-            if (italic)         return "Italic";
-            return "Regular";
-        }
-        
         //! Retrieve if the font is boldened.
         /** The function retrieves if a font is boldened.
          @return True if boldened, false otherwise.
@@ -298,6 +284,21 @@ namespace Kiwi
         {
             const ulong flags = getStyle();
             setStyle(shouldBeUnderlined ? (flags | Underlined) : (flags & ~Underlined));
+        }
+        
+        //! Retrieves a font name as a string.
+        /** The function retrieves a font name as a string.
+         @return A font name as a string.
+         */
+        inline static string getStyleName(const ulong styleFlags) noexcept
+        {
+            const bool bold = (styleFlags & Font::Bold);
+            const bool italic = (styleFlags & Font::Italic);
+            
+            if (bold && italic) return "Bold Italic";
+            else if (bold)      return "Bold";
+            else if (italic)    return "Italic";
+            else return "Regular";
         }
         
         //! Retrieve the font as a vector of atoms.

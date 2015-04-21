@@ -39,10 +39,15 @@ namespace Kiwi
     class Color
     {
     private:
-        double m_red;
-        double m_green;
-        double m_blue;
-        double m_alpha;
+        enum Mode
+        {
+            RGBA = 0,
+            HSLD = 1
+        };
+        
+        double m_data[4];
+        bool   m_mode;
+        static constexpr inline double cclip(const double val){return (val > 1.) ? 1 : ((val > 0.) ? val : 0.);}
         static const string m_hex_digits;
         static double hueToRGB(double const v1, double const v2, double vH);
     public:
@@ -50,7 +55,8 @@ namespace Kiwi
         //! Constructor.
         /** The function initialize a default black color.
          */
-        Color() noexcept;
+        constexpr inline Color() noexcept :
+        m_data{0., 0., 0., 1}, m_mode(RGBA) {}
         
         //! Constructor.
         /** The function initialize a color with rgba values.
@@ -59,18 +65,26 @@ namespace Kiwi
          @param blue The blue value.
          @param alpha The alpha value.
          */
-        Color(const double red, const double green, const double blue, const double alpha = 1.) noexcept;
+        constexpr inline Color(const double red, const double green, const double blue, const double alpha = 1.) noexcept :
+        m_data{cclip(red), cclip(green), cclip(blue), cclip(alpha)}, m_mode(RGBA) {}
         
         //! Constructor.
         /** The function initialize a color with another.
          @param other The other color.
          */
-        Color(Color const& other) noexcept;
+        constexpr inline Color(Color const& other) noexcept :
+        m_data{other.m_data[0], other.m_data[1], other.m_data[2], other.m_data[3]}, m_mode(other.m_mode) {}
+        
+        //! Constructor.
+        /** The function initialize a color with another.
+         @param other The other color.
+         */
+        inline Color(Color&& other) noexcept : m_mode(other.m_mode) {swap(m_data, other.m_data);}
         
         //! Destructor.
         /** The function deletes the color.
          */
-        ~Color() noexcept;
+        inline ~Color() noexcept {}
         
         //! Retrieve a color with hsla values.
         /** The function retrieves the a color with hsla values.
@@ -144,7 +158,7 @@ namespace Kiwi
          */
         inline double red() const noexcept
         {
-            return m_red;
+            return m_data[0];
         }
         
         //! Retrieve the green value.
@@ -153,7 +167,7 @@ namespace Kiwi
          */
         inline double green() const noexcept
         {
-            return m_green;
+            return m_data[1];
         }
         
         //! Retrieve the blue value.
@@ -162,7 +176,7 @@ namespace Kiwi
          */
         inline double blue() const noexcept
         {
-            return m_blue;
+            return m_data[2];
         }
         
         //! Retrieve the alpha value.
@@ -171,7 +185,7 @@ namespace Kiwi
          */
         inline double alpha() const noexcept
         {
-            return m_alpha;
+            return m_data[3];
         }
         
         //! Retrieve the hue value.
@@ -213,7 +227,7 @@ namespace Kiwi
          */
         inline void red(const double value) noexcept
         {
-            m_red = clip(value, 0., 1.);
+            m_data[0] = clip(value, 0., 1.);
         }
         
         //! Set the green value.
@@ -222,7 +236,7 @@ namespace Kiwi
          */
         inline void green(const double value) noexcept
         {
-            m_green = clip(value, 0., 1.);
+            m_data[1] = clip(value, 0., 1.);
         }
         
         //! Set the blue value.
@@ -231,7 +245,7 @@ namespace Kiwi
          */
         inline void blue(const double value) noexcept
         {
-            m_blue = clip(value, 0., 1.);
+            m_data[2] = clip(value, 0., 1.);
         }
         
         //! Set the alpha value.
@@ -240,7 +254,7 @@ namespace Kiwi
          */
         inline void alpha(const double value) noexcept
         {
-            m_alpha = clip(value, 0., 1.);
+            m_data[3] = clip(value, 0., 1.);
         }
         
         //! Set the hue value.
@@ -249,7 +263,7 @@ namespace Kiwi
          */
         inline void hue(const double value) noexcept
         {
-            *this = withHSLA(value, saturation(), lightness(), m_alpha);
+            *this = withHSLA(value, saturation(), lightness(), alpha());
         }
     
         //! Set the saturation value.
@@ -258,7 +272,7 @@ namespace Kiwi
          */
         inline void saturation(const double value) noexcept
         {
-           *this = withHSLA(hue(), value, lightness(), m_alpha);
+           *this = withHSLA(hue(), value, lightness(), alpha());
         }
         
         //! Set the lightness value.
@@ -267,7 +281,7 @@ namespace Kiwi
          */
         inline void lightness(const double value) noexcept
         {
-            *this = withHSLA(hue(), saturation(), value, m_alpha);
+            *this = withHSLA(hue(), saturation(), value, alpha());
         }
         
         //! Set the color with another.
@@ -276,10 +290,19 @@ namespace Kiwi
          */
         inline Color& operator=(Color const& other) noexcept
         {
-            m_red = other.m_red;
-            m_green = other.m_green;
-            m_blue = other.m_blue;
-            m_alpha = other.m_alpha;
+            memcpy(m_data, other.m_data, sizeof(double)*4);
+            m_mode = other.m_mode;
+            return *this;
+        }
+        
+        //! Set the color with another.
+        /** The function sets the color with another.
+         @param other The other color.
+         */
+        inline Color& operator=(Color&& other) noexcept
+        {
+            swap(m_data, other.m_data);
+            m_mode = other.m_mode;
             return *this;
         }
         
@@ -290,7 +313,7 @@ namespace Kiwi
          */
         inline bool operator!=(Color const& other) const noexcept
         {
-            return m_red != other.m_red || m_green != other.m_green ||  m_blue != other.m_blue ||  m_alpha != other.m_alpha;
+            return red() != other.red() || green() != other.green() ||  blue() != other.blue() ||  alpha() != other.alpha();
         }
         
         //! Compare the color with another.
@@ -300,43 +323,28 @@ namespace Kiwi
          */
         inline bool operator==(Color const& other) const noexcept
         {
-            return m_red == other.m_red && m_green == other.m_green && m_blue == other.m_blue && m_alpha == other.m_alpha;
+            return red() == other.red() && green() == other.green() && blue() == other.blue() && alpha() == other.alpha();
+        }
+        
+        inline void set(Vector const& vector) noexcept
+        {
+            if(vector.size() > 2 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber())
+            {
+                red((double)vector[0]);
+                green((double)vector[1]);
+                blue((double)vector[2]);
+                if(vector.size() > 3 && vector[3].isNumber())
+                {
+                    alpha((double)vector[3]);
+                }
+            }
+        }
+        
+        inline Vector get() const noexcept
+        {
+            return Vector{red(), green(), blue(), alpha()};
         }
     };
-    
-    // ================================================================================ //
-    //                                      ATTR                                        //
-    // ================================================================================ //
-    
-    class ColorValue : public Color, public Attr::Value
-    {
-    public:
-        using Color::Color;
-        
-        ColorValue()
-        {
-            ;
-        }
-        
-        ColorValue(Color const& color) noexcept : Color(color)
-        {
-            ;
-        }
-        
-        //! Retrieve the attribute value as a vector of atoms.
-        /** The function retrieves the attribute value as a vector of atoms.
-         @return The vector of atoms.
-         */
-        Vector get() const noexcept override;
-        
-        //! Set the attribute value with a vector of atoms.
-        /** The function sets the attribute value with a vector of atoms.
-         @param vector The vector of atoms.
-         */
-        void set(Vector const& vector) override;
-    };
-    
-    typedef shared_ptr<Attr::Typed<ColorValue>>  	sAttrColor;
     
     // ================================================================================ //
     //                                      DEFAULTS                                    //

@@ -27,29 +27,6 @@ namespace Kiwi
 {
     const string Color::m_hex_digits = string("0123456789ABCDEF");
     
-    Color::Color() noexcept :
-    m_red(0.), m_green(0.), m_blue(0.), m_alpha(1.)
-    {
-        ;
-    }
-    
-    Color::Color(const double red, const double green, const double blue, const double alpha) noexcept :
-    m_red(clip(red, 0., 1.)), m_green(clip(green, 0., 1.)), m_blue(clip(blue, 0., 1.)), m_alpha(clip(alpha, 0., 1.))
-    {
-        ;
-    }
-    
-    Color::Color(Color const& other) noexcept :
-    m_red(other.m_red), m_green(other.m_green), m_blue(other.m_blue), m_alpha(other.m_alpha)
-    {
-        ;
-    }
-    
-    Color::~Color() noexcept
-    {
-        ;
-    }
-    
     Color Color::contrasted(const double value) const noexcept
     {
         if(luminance() < 0.5)
@@ -202,29 +179,6 @@ namespace Kiwi
         if(( 3 * vH) < 2.)
             return (v1 + (v2 - v1) * ((2. / 3.) - vH) * 6.);
         return v1;
-    }
-    
-    // ================================================================================ //
-    //                                      ATTR                                        //
-    // ================================================================================ //
-    
-    void ColorValue::set(Vector const& vector)
-    {
-        if(vector.size() > 2 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber())
-        {
-            red((double)vector[0]);
-            green((double)vector[1]);
-            blue((double)vector[2]);
-            if(vector.size() > 3 && vector[3].isNumber())
-            {
-                alpha((double)vector[3]);
-            }
-        }
-    }
-    
-    Vector ColorValue::get() const noexcept
-    {
-        return {red(), green(), blue(), alpha()};
     }
     
     // ================================================================================ //
