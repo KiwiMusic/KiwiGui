@@ -78,7 +78,6 @@ namespace Kiwi
         string          m_name;
         double			m_size;
         ulong           m_style;
-        double          m_height;
         
         inline static void setAvailableFonts(vector<Font> const& fonts) noexcept
         {

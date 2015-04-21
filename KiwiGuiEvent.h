@@ -114,18 +114,12 @@ namespace Kiwi
         //! Constructor.
         /** The function does nothing.
          */
-        constexpr inline Sketch() noexcept
-        {
-            ;
-        }
+        constexpr inline Sketch() noexcept {}
         
         //! Destrcutor.
         /** The function does nothing.
          */
-        inline virtual ~Sketch() noexcept
-        {
-            ;
-        }
+        inline virtual ~Sketch() noexcept {}
         
         //! Retrieve the position.
         /** The function retrieves the position.

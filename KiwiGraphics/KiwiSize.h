@@ -80,10 +80,7 @@ namespace Kiwi
         /** The function initializes a point with another point.
          @param size The other point.
          */
-        inline Size(Size&& size) noexcept
-        {
-            swap(m_data, size.m_data);
-        }
+        inline Size(Size&& size) noexcept {swap(m_data, size.m_data);}
         
         //! Destructor.
         /** The function deletes the point.

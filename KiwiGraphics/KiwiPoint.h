@@ -68,10 +68,7 @@ namespace Kiwi
         /** The function initializes a point with another point.
          @param pt The other point.
          */
-        inline Point(Point&& pt) noexcept
-        {
-            swap(m_data, pt.m_data);
-        }
+        inline Point(Point&& pt) noexcept {swap(m_data, pt.m_data);}
         
         //! Destructor.
         /** The function deletes the point.
