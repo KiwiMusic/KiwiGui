@@ -125,6 +125,7 @@ namespace Kiwi
     m_button_minimize(make_shared<GuiButton>(getContext(), Colors::yellow.brighter(0.4))),
     m_button_maximize(make_shared<GuiButton>(getContext(), Colors::green.brighter(0.4))),
     m_title(title),
+    m_buttons(noButton),
     m_bg_color(bgcolor),
     m_bd_color(bdcolor),
     m_txt_color(txtcolor)

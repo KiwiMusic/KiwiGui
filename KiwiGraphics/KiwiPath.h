@@ -39,7 +39,8 @@ namespace Kiwi
      */
     class Path
     {
-    public:
+    private:
+        //! @internal
         enum Mode
         {
             Move        = 0,
@@ -48,10 +49,7 @@ namespace Kiwi
             Cubic       = 3
         };
         
-    private:
-        //! Node.
-        /** A node repesent a point in a pth.
-         */
+        //! @internal
         class Node
         {
         private:
@@ -74,77 +72,6 @@ namespace Kiwi
         
         vector<Node> m_nodes;
         Rectangle    m_bounds;
-        
-        //@internal
-        inline void rebound(Node const& newnode) noexcept
-        {
-            if(m_nodes.size() > 1)
-            {
-                const Point pt = newnode.point();
-                if(pt.x() < m_bounds.x()) m_bounds.left(pt.x());
-                else if(pt.x() > m_bounds.right()) m_bounds.right(pt.x());
-                if(pt.y() < m_bounds.y()) m_bounds.top(pt.y());
-                else if(pt.y() > m_bounds.bottom()) m_bounds.bottom(pt.y());
-            }
-            else
-            {
-                m_bounds.position(m_nodes[0].point());
-            }
-        }
-        
-        //@internal
-        inline void resize(const vector<Node>::size_type size) noexcept
-        {
-            m_nodes.resize(size);
-        }
-        
-        //@internal
-        inline void addNodes(initializer_list<Point> il, Mode mode) noexcept
-        {
-            vector<Node>::size_type size = m_nodes.size();
-            resize(size + il.size());
-            for(auto it = il.begin(); it != il.end(); ++it){
-                addNode(size++, Node((*it), mode));
-            }
-        }
-        
-        //@internal
-        inline void addNodes(const vector<Node>::size_type s, const Point* begin, const Point* end, Mode mode) noexcept
-        {
-            vector<Node>::size_type size = m_nodes.size();
-            resize(size + s);
-            for(auto it = begin; it != end; ++it){
-                addNode(size++, Node((*it), mode));
-            }
-        }
-        
-        //@internal
-        inline void addNode(Node const& node) noexcept
-        {
-            m_nodes.push_back(node);
-            rebound(node);
-        }
-        
-        //@internal
-        inline void addNode(Node&& node) noexcept
-        {
-            m_nodes.push_back(forward<Node>(node));
-            rebound(m_nodes[m_nodes.size() - 1]);
-        }
-        
-        //@internal
-        inline void addNode(const vector<Node>::size_type pos, Node const& node) noexcept
-        {
-            m_nodes[pos] = node;
-            rebound(node);
-        }
-        
-        //@internal
-        inline void addNode(const vector<Node>::size_type pos, Node&& node) noexcept
-        {
-            m_nodes[pos] = forward<Node>(node);
-            rebound(m_nodes[pos]);
-        }
     public:
         
         //! Constructor.
@@ -379,7 +306,6 @@ namespace Kiwi
          */
         inline void addLinear(Point const& point) noexcept
         {
-            assert(empty() && "The path must not be empty to add lines.");
             addNode(Node(point, Linear));
         }
         
@@ -389,7 +315,6 @@ namespace Kiwi
          */
         inline void addLinear(Point&& point) noexcept
         {
-            assert(empty() && "The path must not be empty to add lines.");
             addNode(Node(forward<Point>(point), Linear));
         }
         
@@ -399,7 +324,6 @@ namespace Kiwi
          */
         inline void addLinear(initializer_list<Point> il) noexcept
         {
-            assert(empty() && "The path must not be empty to add lines.");
             addNodes(il, Linear);
         }
         
@@ -410,7 +334,6 @@ namespace Kiwi
          */
         inline void addQuadratic(Point const& control, Point const& end) noexcept
         {
-            assert(empty() && "The path must not be empty to add quadratic bezier curves.");
             addNode(Node(control, Quadratic));
             addNode(Node(end, Quadratic));
         }
@@ -422,7 +345,6 @@ namespace Kiwi
          */
         inline void addQuadratic(Point&& control, Point&& end) noexcept
         {
-            assert(empty() && "The path must not be empty to add quadratic bezier curves.");
             addNode(Node(forward<Point>(control), Quadratic));
             addNode(Node(forward<Point>(end), Quadratic));
         }
@@ -433,7 +355,6 @@ namespace Kiwi
          */
         inline void addQuadratic(initializer_list<Point> il) noexcept
         {
-            assert(empty() && "The path must not be empty to add quadratic bezier curves.");
             assert(!(il.size() % 2) && "Quadractic bezier curve must have an even number of points.");
             addNodes(il, Quadratic);
         }
@@ -446,7 +367,6 @@ namespace Kiwi
          */
         inline void addCubic(Point const& control1, Point const& control2, Point const& end) noexcept
         {
-            assert(empty() && "The path must not be empty to add cubic bezier curves.");
             addNode(Node(control1, Quadratic));
             addNode(Node(control2, Quadratic));
             addNode(Node(end, Quadratic));
@@ -460,7 +380,6 @@ namespace Kiwi
          */
         inline void addCubic(Point&& control1, Point&& control2, Point&& end) noexcept
         {
-            assert(empty() && "The path must not be empty to add cubic bezier curves.");
             addNode(Node(forward<Point>(control1), Quadratic));
             addNode(Node(forward<Point>(control2), Quadratic));
             addNode(Node(forward<Point>(end), Quadratic));
@@ -472,9 +391,21 @@ namespace Kiwi
          */
         inline void addCubic(initializer_list<Point> il) noexcept
         {
-            assert(empty() && "The path must not be empty to add cubic bezier curves.");
             assert(!(il.size() % 3) && "Cubic bezier curve must have a number of points multiple of 3.");
             addNodes(il, Cubic);
+        }
+        
+        //! Add rectangle to the path.
+        /** The function adds rectangle to the path.
+         @param rect The rectangle.
+         */
+        inline void addRectangle(Rectangle const& rect) noexcept
+        {
+            addNode(Node(rect.position(), Move));
+            addNode(Node(Point(rect.right(), rect.y()), Linear));
+            addNode(Node(Point(rect.right(), rect.bottom()), Linear));
+            addNode(Node(Point(rect.x(), rect.bottom()), Linear));
+            addNode(Node(rect.position(), Linear));
         }
         
         //! Add a node to close the path.
@@ -502,6 +433,79 @@ namespace Kiwi
         bool near(Point const& pt, double const distance) const noexcept;
         
         bool overlaps(Rectangle const& rect) const noexcept;
+        
+    private:
+        
+        //@internal
+        inline void rebound(Node const& newnode) noexcept
+        {
+            if(m_nodes.size() > 1)
+            {
+                const Point pt = newnode.point();
+                if(pt.x() < m_bounds.x()) m_bounds.left(pt.x());
+                else if(pt.x() > m_bounds.right()) m_bounds.right(pt.x());
+                if(pt.y() < m_bounds.y()) m_bounds.top(pt.y());
+                else if(pt.y() > m_bounds.bottom()) m_bounds.bottom(pt.y());
+            }
+            else
+            {
+                m_bounds.position(m_nodes[0].point());
+            }
+        }
+        
+        //@internal
+        inline void resize(const vector<Node>::size_type size) noexcept
+        {
+            m_nodes.resize(size);
+        }
+        
+        //@internal
+        inline void addNodes(initializer_list<Point> il, Mode mode) noexcept
+        {
+            vector<Node>::size_type size = m_nodes.size();
+            resize(size + il.size());
+            for(auto it = il.begin(); it != il.end(); ++it){
+                addNode(size++, Node((*it), mode));
+            }
+        }
+        
+        //@internal
+        inline void addNodes(const vector<Node>::size_type s, const Point* begin, const Point* end, Mode mode) noexcept
+        {
+            vector<Node>::size_type size = m_nodes.size();
+            resize(size + s);
+            for(auto it = begin; it != end; ++it){
+                addNode(size++, Node((*it), mode));
+            }
+        }
+        
+        //@internal
+        inline void addNode(Node const& node) noexcept
+        {
+            m_nodes.push_back(node);
+            rebound(node);
+        }
+        
+        //@internal
+        inline void addNode(Node&& node) noexcept
+        {
+            m_nodes.push_back(forward<Node>(node));
+            rebound(m_nodes[m_nodes.size() - 1]);
+        }
+        
+        //@internal
+        inline void addNode(const vector<Node>::size_type pos, Node const& node) noexcept
+        {
+            m_nodes[pos] = node;
+            rebound(node);
+        }
+        
+        //@internal
+        inline void addNode(const vector<Node>::size_type pos, Node&& node) noexcept
+        {
+            m_nodes[pos] = forward<Node>(node);
+            rebound(m_nodes[pos]);
+        }
     };
 }
 
