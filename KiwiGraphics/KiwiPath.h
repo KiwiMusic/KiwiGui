@@ -48,146 +48,102 @@ namespace Kiwi
             Cubic       = 3
         };
         
+    private:
+        //! Node.
+        /** A node repesent a point in a pth.
+         */
         struct Node
         {
             Point point;
             Mode  mode;
-            
-            Node(Point const& pt, Mode const mode) noexcept;
-            Node(Point const& pt) noexcept;
-            Node(Node const& other) noexcept;
-            ~Node() noexcept;
-            
-            inline operator Point() const noexcept
-            {
-                return point;
-            }
-            
-            inline operator Mode() const noexcept
-            {
-                return mode;
-            }
-            
+            inline Node(Point const& pt, Mode const m = Linear) noexcept : point(pt), mode(m) {};
+            inline Node(Node const& other) noexcept : point(other.point), mode(other.mode) {};
+            inline Node(Point&& pt, Mode const m = Linear) noexcept : mode(m) {swap(point, pt);};
+            inline Node(Node&& other) noexcept : mode(other.mode) {swap(point, other.point);};
+            inline ~Node() noexcept {};
+            inline Node& operator=(Node const& other) noexcept {point = other.point; mode = other.mode; return *this;}
+            inline Node& operator=(Point const& pt) noexcept {point = pt; return *this;}
+            inline Node& operator=(Node&& other) noexcept {swap(point, other.point); mode = other.mode; return *this;}
+            inline Node& operator=(Point&& pt) noexcept {swap(point, pt); return *this;}
+            inline operator Point() const noexcept {return point;}
+            inline operator Mode() const noexcept{return mode;}
         };
         
-    private:
+    
         vector<Node> m_points;
-        
     public:
         
         //! Constructor.
         /** The function initialize an empty path.
          */
-        Path() noexcept;
+        inline Path() noexcept {};
         
         //! Constructor.
         /** The function initialize a path with another.
          @param path The other path.
          */
-        Path(Path const& path) noexcept;
+        inline Path(Path const& path) noexcept :
+        m_points(path.m_points) {}
         
         //! Constructor.
-        /** The function initialize a path with a point.
-         @param pt The first point of the path.
+        /** The function initialize a path with another.
+         @param path The other path.
          */
-        Path(Point const& pt) noexcept;
+        inline Path(Path&& path) noexcept
+        {m_points.swap(path.m_points);}
         
-        //! Constructor.
-        /** The function initialize a path with a rectangle.
-         @param rect The rectangle.
+        //! Constructor with a list of points.
+        /** The function allocates the path with a list of points.
+         @param The
          */
-        Path(Rectangle const& rect) noexcept;
+        Path(initializer_list<Point> il) noexcept;
         
-        //! Constructor.
-        /** The function initialize a path with a line.
-         @param start The starting position of the line.
-         @param end The ending position of the line.
+        //! Constructor with a list of points.
+        /** The function allocates the path with a list of points.
+         @param The 
          */
-        Path(Point const& start, Point const& end) noexcept;
-        
-        //! Constructor.
-        /** The function initialize a path with a quadratic bezier line.
-         @param start The starting position of the line.
-         @param control The control point.
-         @param end     The end point.
-         */
-        Path(Point const& start, Point const& ctrl, Point const& end) noexcept;
-        
-        //! Constructor.
-        /** The function initialize a path with a cubic bezier line.
-         @param start The starting position of the line.
-         @param control1 The first control point.
-         @param control2 The seconf control point.
-         @param end     The end point.
-         */
-        Path(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end) noexcept;
+        Path(const Mode mode, initializer_list<Point> il) noexcept;
         
         //! Destructor.
         /** The function deletes the path.
          */
-        ~Path() noexcept;
+        inline ~Path() noexcept {clear();}
         
         //! Retrieve the number of nodes of the path.
         /** The function retrieves the number of nodes of the path.
          @return The number of nodes of the path.
          */
-        ulong size() const noexcept
-        {
-            return (ulong)m_points.size();
-        }
+        ulong size() const noexcept {return (ulong)m_points.size(); }
         
         //! Retrieve if the path is empty.
         /** The function retrieves if the path is empty.
          @return True if the path is empty, otherwise false.
          */
-        bool empty() const noexcept
-        {
-            return m_points.empty();
-        }
+        bool empty() const noexcept {return m_points.empty();}
         
         //! Clear the path.
         /** The function clears a point to the path.
          */
-        void clear() noexcept;
-        
-        //! Retrieve the node at a specific index.
-        /** The function retrieves the node at a specific index.
-         @param index The adress of the node.
-         @return The node.
-         */
-        inline Node& operator[](ulong index)
-        {
-            return m_points[vector<Node>::size_type(index)];
-        }
-        
-        //! Retrieve the node at a specific index.
-        /** The function retrieves the node at a specific index.
-         @param index The adress of the node.
-         @return The node.
-         */
-        inline Node const& operator[](ulong index) const
-        {
-            return m_points[vector<Node>::size_type(index)];
-        }
+        inline void clear() noexcept {m_points.clear();};
         
         //! Add a node to the path that won't be linked to the previous point.
         /** The function adds a node to the path that won't be linked to the previous node.
          @param point The point to add.
          */
-        void move(Point const& point) noexcept;
+        void moveTo(Point const& point) noexcept;
         
         //! Add a node to the path that will be linked to the previous point linearly.
         /** The function adds a node to the path that will be linked to the previous node linearly.
          @param point The point to add.
          */
-        void line(Point const& point) noexcept;
+        void lineTo(Point const& point) noexcept;
         
         //! Add a node to the path that will be linked to the previous node with a quadratic bezier curve.
         /** The function adds a node to the path that will be linked to the previous node with a quadratic bezier curve.
          @param control The control point.
          @param end     The end point.
          */
-        void quadratic(Point const& control, Point const& end);
+        void quadraticTo(Point const& control, Point const& end);
         
         //! Add a node to the path that will be linked to the previous node with a cubic bezier curve.
         /** The function adds a node to the path that will be linked to the previous node with a cubic bezier curve.
@@ -195,7 +151,7 @@ namespace Kiwi
          @param control2 The seconf control point.
          @param end     The end point.
          */
-        void cubic(Point const& control1, Point const& control2, Point const& end);
+        void cubicTo(Point const& control1, Point const& control2, Point const& end);
         
         //! Add a node to close the path.
         /** The function adds a node to close the path.

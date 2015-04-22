@@ -25,97 +25,78 @@
 
 namespace Kiwi
 {
-    Path::Node::Node(Point const& pt, Mode const mode) noexcept :
-    point(pt), mode(mode)
+    Path::Path(initializer_list<Point> il) noexcept
     {
-        
+        if(il.size())
+        {
+            auto it = il.begin();
+            m_points.push_back(Node(*it, Move));
+            while(++it != il.end())
+            {
+                m_points.push_back(Node(*it, Linear));
+            }
+        }
     }
     
-    Path::Node::Node(Point const& pt) noexcept :
-    point(pt), mode(Linear)
+    Path::Path(const Mode mode, initializer_list<Point> il) noexcept
     {
-        
+        if(il.size())
+        {
+            auto it = il.begin();
+            m_points.push_back(Node(*it++, Move));
+            if(mode == Linear)
+            {
+                while(it != il.end())
+                {
+                    m_points.push_back(Node(*it++, Linear));
+                }
+            }
+            else if(mode == Quadratic)
+            {
+                while(it != il.end())
+                {
+                    auto it1 = it++;
+                    if(it != il.end())
+                    {
+                        m_points.push_back(Node(*it1, Quadratic));
+                        m_points.push_back(Node(*it++, Linear));
+                    }
+                }
+            }
+            else if(mode == Cubic)
+            {
+                while(it != il.end())
+                {
+                    auto it1 = it++;
+                    auto it2 = it != il.end() ? it++ : il.end();
+                    if(it != il.end())
+                    {
+                        m_points.push_back(Node(*it1, Cubic));
+                        m_points.push_back(Node(*it2, Cubic));
+                        m_points.push_back(Node(*it++, Linear));
+                    }
+                }
+            }
+        }
     }
     
-    Path::Node::Node(Node const& other) noexcept :
-    point(other.point), mode(other.mode)
-    {
-        
-    }
-    
-    Path::Node::~Node() noexcept
-    {
-        ;
-    }
-    
-    Path::Path() noexcept
-    {
-        ;
-    }
-    
-    Path::Path(Path const& path) noexcept
-    {
-        m_points = path.m_points;
-    }
-    
-    Path::Path(Point const& pt) noexcept
-    {
-        m_points.push_back({pt, Move});
-    }
-    
-    Path::Path(Rectangle const& rect) noexcept
-    {
-        m_points.push_back({rect.position(), Move});
-        m_points.push_back({Point(rect.x() + rect.width(), rect.y()), Linear});
-        m_points.push_back({Point(rect.x() + rect.width(), rect.y() + rect.height()), Linear});
-        m_points.push_back({Point(rect.x(), rect.y() + rect.height()), Linear});
-        close();
-    }
-    
-    Path::Path(Point const& start, Point const& end) noexcept
-    {
-        m_points.push_back({start, Move});
-        m_points.push_back({end, Linear});
-    }
-    
-    Path::Path(Point const& start, Point const& ctrl, Point const& end) noexcept
-    {
-        m_points.push_back({start, Move});
-        m_points.push_back({ctrl, Quadratic});
-        m_points.push_back({end, Linear});
-    }
-    
-
-    Path::Path(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end) noexcept
-    {
-        m_points.push_back({start, Move});
-        m_points.push_back({ctrl1, Cubic});
-        m_points.push_back({ctrl2, Cubic});
-        m_points.push_back({end, Linear});
-    }
-    
-    Path::~Path() noexcept
-    {
-        m_points.clear();
-    }
-    
-    void Path::move(const Point &pt) noexcept
+    void Path::moveTo(const Point &pt) noexcept
     {
         m_points.push_back({pt, Move});
     }
     
-    void Path::line(const Point &pt) noexcept
+    void Path::lineTo(const Point &pt) noexcept
     {
         m_points.push_back({pt, Linear});
     }
     
-    void Path::quadratic(Point const& control, Point const& end)
+    void Path::quadraticTo(Point const& control, Point const& end)
     {
         m_points.push_back({control, Quadratic});
         m_points.push_back({end, Linear});
     }
     
-    void Path::cubic(Point const& control1, Point const& control2, Point const& end)
+    void Path::cubicTo(Point const& control1, Point const& control2, Point const& end)
     {
         m_points.push_back({control1, Cubic});
         m_points.push_back({control2, Cubic});
@@ -128,11 +109,6 @@ namespace Kiwi
         {
             m_points.push_back({m_points[0].point, Linear});
         }
-    }
-    
-    void Path::clear() noexcept
-    {
-        m_points.clear();
     }
     
     Rectangle Path::bounds() const noexcept
