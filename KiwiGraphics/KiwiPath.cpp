@@ -107,20 +107,18 @@ namespace Kiwi
         }
         else if(m_nodes.size() > 1)
         {
-            Point previous;
-            for(vector<Node>::size_type i = 0; i < m_nodes.size(); i++)
+            for(vector<Node>::size_type i = 1; i < m_nodes.size(); i++)
             {
-                Point current = m_nodes[i].point();
                 switch(m_nodes[i].mode())
                 {
                     case Move:
-                        if(pt.near(current, distance))
+                        if(pt.near(m_nodes[i].point(), distance))
                         {
                             return true;
                         }
                         break;
                     case Linear:
-                        if(pt.near(previous, current, distance))
+                        if(pt.near(m_nodes[i-1].point(), m_nodes[i].point(), distance))
                         {
                             return true;
                         }
@@ -129,34 +127,25 @@ namespace Kiwi
                         i++;
                         if(i < m_nodes.size())
                         {
-                            const Point ctrl = current;
-                            current = m_nodes[i].point();
-                            if(pt.near(previous, ctrl, current, distance))
+                            if(pt.near(m_nodes[i-2].point(), m_nodes[i-1].point(), m_nodes[i].point(), distance))
                             {
                                 return true;
                             }
-                            
                         }
                         break;
                     case Cubic:
                         i += 2;
                         if(i < m_nodes.size())
                         {
-                            const Point ctrl1 = current;
-                            const Point ctrl2 = m_nodes[i-1].point();
-                            current = m_nodes[i].point();
-                            if(pt.near(previous, ctrl1, ctrl2, current, distance))
+                            if(pt.near(m_nodes[i-3].point(), m_nodes[i-2].point(), m_nodes[i-1].point(), m_nodes[i].point(), distance))
                             {
                                 return true;
                             }
-                            
                         }
                         break;
-                        
                     default:
                         break;
                 }
-                previous = current;
             }
         }
         return false;

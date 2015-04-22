@@ -39,7 +39,7 @@ namespace Kiwi
      */
     class Path
     {
-    private:
+    protected:
         //! @internal
         enum Mode
         {
