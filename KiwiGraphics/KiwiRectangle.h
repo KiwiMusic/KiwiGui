@@ -156,7 +156,7 @@ namespace Kiwi
          */
         inline Rectangle withPosition(Point&& newpos) const noexcept
         {
-            return Rectangle(newpos, size());
+            return Rectangle(forward<Point>(newpos), size());
         }
         
         //! Return the same rectangle with a position at zero origin.
