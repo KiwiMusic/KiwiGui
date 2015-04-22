@@ -40,6 +40,7 @@ namespace Kiwi
     class Point
     {
     private:
+        friend class Path;
         double m_data[2];
         
         static ulong solve(double a, double b, double c, double const d, double &solution1, double &solution2, double &solution3);
