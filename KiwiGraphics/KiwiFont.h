@@ -300,6 +300,26 @@ namespace Kiwi
             else return "Regular";
         }
         
+        //! Compare the font with another.
+        /** The function compare the font with another.
+         @param other The other font.
+         @return true is the fonts are not similar, otherwise false.
+         */
+        inline bool operator!=(Font const& other) const noexcept
+        {
+            return getName() != other.getName() || getStyle() != other.getStyle() ||  getSize() != other.getSize();
+        }
+        
+        //! Compare the font with another.
+        /** The function compare the font with another.
+         @param other The other font.
+         @return true is the fonts are similar, otherwise false.
+         */
+        inline bool operator==(Font const& other) const noexcept
+        {
+            return getName() == other.getName() && getStyle() == other.getStyle() && getSize() == other.getSize();
+        }
+        
         //! Retrieve the font as a vector of atoms.
         /** The function retrieves the font as a vector of atoms.
          @return The vector of atoms.
