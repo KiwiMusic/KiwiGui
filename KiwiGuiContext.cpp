@@ -99,29 +99,29 @@ namespace Kiwi
         }
     }
     
-    Size GuiContext::getTextSize(Font const& font, string const& text) const noexcept
+    double GuiContext::getTextWidth(Font const& font, string const& text) const noexcept
     {
         sGuiDeviceManager device = getDeviceManager();
         if(device)
         {
-            return device->getTextSize(font, text);
+            return device->getTextWidth(font, text);
         }
         else
         {
-            return Size();
+            return 0.;
         }
     }
     
-    Size GuiContext::getTextSize(Font const& font, wstring const& text) const noexcept
+    double GuiContext::getTextWidth(Font const& font, wstring const& text) const noexcept
     {
         sGuiDeviceManager device = getDeviceManager();
         if(device)
         {
-            return device->getTextSize(font, text);
+            return device->getTextWidth(font, text);
         }
         else
         {
-            return Size();
+            return 0.;
         }
     }
 }

@@ -26,32 +26,83 @@
 
 namespace Kiwi
 {
+    
     // ================================================================================ //
     //                                     TEXT EDITOR                                  //
     // ================================================================================ //
     
     GuiTextEditor::GuiTextEditor(sGuiContext context) noexcept :
-    GuiSketcher(context)
+    GuiSketcher(context),
+    m_caret(make_shared<Caret>(context))
     {
-        m_multi_line = false;
-        m_wrap_word  = false;
         m_notify_return = true;
         m_notify_tab    = true;
         m_formated      = false;
-        m_line_space    = 0.;
+        m_line_space    = 1.5;
+        m_justification = Font::Justification::CentredLeft;
+        m_caret->setPosition(Point(0., 0.));
+        m_caret->setSize(Size(2., m_font.getSize()));
+        m_caret->start();
+        add(m_caret);
     }
     
     GuiTextEditor::~GuiTextEditor() noexcept
     {
-        
+        m_lines.clear();
     }
     
-    void GuiTextEditor::setDisplay(const bool shouldBeMultiLine, const bool shouldWordWrap)
+    void GuiTextEditor::setFont(Font const& font) noexcept
     {
-        if(m_multi_line != shouldBeMultiLine || m_wrap_word != (shouldWordWrap && shouldBeMultiLine))
+        if(font != m_font)
         {
-            m_multi_line   = shouldBeMultiLine;
-            m_wrap_word    = shouldWordWrap && shouldBeMultiLine;
+            m_formated = false;
+            m_font = font;
+            m_caret->setSize(Size(1., m_font.getSize()));
+            getLineWidths();
+            format();
+            redraw();
+        }
+    }
+    
+    void GuiTextEditor::setJustification(const Font::Justification justification) noexcept
+    {
+        if(justification != m_justification)
+        {
+            m_justification = justification;
+            redraw();
+        }
+    }
+    
+    void GuiTextEditor::setLineSpacing(const double factor) noexcept
+    {
+        if(factor != m_line_space)
+        {
+            m_line_space = factor;
+            redraw();
+        }
+    }
+    
+    void GuiTextEditor::setDisplayMode(const DisplayMode mode) noexcept
+    {
+        if(mode != m_mode)
+        {
+            m_mode = mode;
+            format();
+            redraw();
+        }
+    }
+    
+    void GuiTextEditor::showCaret(const bool state) noexcept
+    {
+        if(state && !m_caret->state())
+        {
+            add(m_caret);
+            m_caret->start();
+        }
+        else if(!state && m_caret->state())
+        {
+            m_caret->stop();
+            remove(m_caret);
         }
     }
     
@@ -64,37 +115,13 @@ namespace Kiwi
     void GuiTextEditor::draw(scGuiView view, Sketch& sketch) const
     {
         const Size size = getSize();
-        sketch.fillAll(Colors::white);
-        if(!m_multi_line)
+        sketch.setColor(Colors::black);
+        sketch.setFont(m_font);
+        const double height = m_font.getSize() * m_line_space;
+        for(vector<wstring>::size_type i = 0; i < m_lines.size(); i++)
         {
-            sketch.setColor(Colors::black);
-            sketch.setFont(m_font);
-            wstring::size_type pos = m_text.find(L'\n');
-            if(pos == wstring::npos)
-            {
-                sketch.drawText(m_text, 0., 0., size.width(), m_font.getSize(), Font::TopLeft);
-            }
-            else
-            {
-                sketch.drawText(wstring(m_text.c_str(), m_text.c_str()+pos), 0., 0., size.width(), m_font.getSize(), Font::TopLeft);
-                wstring::size_type next = m_text.find(L'\n', pos+1);
-                double y = m_font.getSize() + m_line_space;
-                while(next != wstring::npos)
-                {
-                    sketch.drawText(wstring(m_text.c_str()+pos, m_text.c_str()+next), 0., y, size.width(), m_font.getSize(), Font::TopLeft);
-                    pos = next;
-                    next = m_text.find(L'\n', pos+1);
-                    y += m_font.getSize() + m_line_space;
-                }
-                sketch.drawText(wstring(m_text.c_str()+pos), 0., y *  m_font.getSize(), size.width(), m_font.getSize(), Font::TopLeft);
-            }
+            sketch.drawText(m_lines[i], 0., i * height, size.width(), height, m_justification);
         }
-        else
-        {
-            sketch.setColor(Colors::black);
-            sketch.setFont(m_font);
-            sketch.drawText(m_text, 0., 0., size.width(), size.height(), Font::CentredLeft);
-        }        
     }
     
     bool GuiTextEditor::receive(scGuiView view, MouseEvent const& event)
@@ -106,7 +133,9 @@ namespace Kiwi
     {
         if(event.isBackspace())
         {
+            m_formated = false;
             m_text.pop_back();
+            getLineWidths();
             lock_guard<mutex> guard(m_lists_mutex);
             auto it = m_lists.begin();
             while(it != m_lists.end())
@@ -122,6 +151,7 @@ namespace Kiwi
                     it = m_lists.erase(it);
                 }
             }
+            format();
             redraw();
         }
         else if(event.isReturn())
@@ -206,10 +236,9 @@ namespace Kiwi
     
     Size GuiTextEditor::getTextSize() const noexcept
     {
-        sGuiContext ctxt = getContext();
-        if(ctxt)
+        if(!m_widths.empty())
         {
-            return ctxt->getTextSize(m_font, m_text);
+            return Size(*max_element(m_widths.begin(), m_widths.end()), (m_widths.size() - 1) * m_line_space * m_font.getSize() + m_font.getSize());
         }
         else
         {
@@ -236,6 +265,7 @@ namespace Kiwi
     {
         m_formated = false;
         m_text += character;
+        getLineWidths();
         lock_guard<mutex> guard(m_lists_mutex);
         auto it = m_lists.begin();
         while(it != m_lists.end())
@@ -251,7 +281,52 @@ namespace Kiwi
                 it = m_lists.erase(it);
             }
         }
+        format();
         redraw();
+    }
+    
+    void GuiTextEditor::getLineWidths() noexcept
+    {
+        sGuiContext ctxt = getContext();
+        if(ctxt)
+        {
+            m_widths.clear();
+            wistringstream stream(m_text);
+            wstring line;
+            while(bool(getline(stream, line)))
+            {
+                m_widths.push_back(ctxt->getTextWidth(m_font, line));
+            }
+            if(m_text[m_text.size() - 1] == L'\n')
+            {
+                m_widths.push_back(0.);
+            }
+        }
+    }
+    
+    void GuiTextEditor::format() noexcept
+    {
+        if(!m_formated)
+        {
+            m_lines.clear();
+            wistringstream stream(m_text);
+            wstring line;
+            while(bool(getline(stream, line)))
+            {
+                m_lines.push_back(line);
+            }
+            if(m_text[m_text.size() - 1] == L'\n')
+            {
+                m_lines.push_back(wstring());
+            }
+            sGuiContext ctxt = getContext();
+            if(ctxt && !m_lines.empty())
+            {
+                const ulong nlines = ulong(m_lines.size()) - 1ul;
+                m_caret->setPosition(Point(ctxt->getTextWidth(m_font, m_lines[nlines]), nlines * m_line_space * m_font.getSize()));
+            }
+            m_formated = true;
+        }
     }
     
     void GuiTextEditor::addListener(sListener listener)
