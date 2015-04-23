@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_RECTANGLE__
 #define __DEF_KIWI_GUI_RECTANGLE__
 
-#include "KiwiSize.h"
+#include "KiwiSegment.h"
 
 namespace Kiwi
 {
@@ -42,22 +42,6 @@ namespace Kiwi
         Point m_position;
         Size  m_size;
         
-        //@internal
-        enum Positioning
-        {
-            Inside      = 0,
-            Left        = 1,
-            Right       = 2,
-            Bottom      = 4,
-            BottomLeft  = 5,
-            BottomRight = 6,
-            Top         = 8,
-            TopLeft     = 9,
-            TopRight    = 10
-        };
-        
-        //@internal
-        Positioning positioning(Point const& pt) const noexcept;
     public:
         
         //! Constructor.
@@ -225,7 +209,7 @@ namespace Kiwi
         /** The function retrieves the ordinate of the bottom.
          @return The ordinate of the bottom.
          */
-        double bottom() const noexcept
+        inline double bottom() const noexcept
         {
             return y() + height();
         }
@@ -234,9 +218,45 @@ namespace Kiwi
         /** The function retrieves the abscissa of the right.
          @return The abscissa of the right.
          */
-        double right() const noexcept
+        inline double right() const noexcept
         {
             return x() + width();
+        }
+        
+        //! Retrieve the top-left point.
+        /** The function retrieves the top-left point.
+         @return The top-left point.
+         */
+        inline Point topLeft() const noexcept
+        {
+            return m_position;
+        }
+        
+        //! Retrieve the top-right point.
+        /** The function retrieves the top-right point.
+         @return The top-right point.
+         */
+        inline Point topRight() const noexcept
+        {
+            return Point(right(), y());
+        }
+        
+        //! Retrieve the bottom-right point.
+        /** The function retrieves the bottom-right point.
+         @return The bottom-right point.
+         */
+        inline Point bottomRight() const noexcept
+        {
+            return Point(right(), bottom());
+        }
+        
+        //! Retrieve the bottom-right point.
+        /** The function retrieves the bottom-right point.
+         @return The bottom-right point.
+         */
+        inline Point bottomLeft() const noexcept
+        {
+            return Point(x(), bottom());
         }
         
         //! Retrieves the centre of the rectangle.
@@ -611,8 +631,8 @@ namespace Kiwi
             expand(Point(value, value));
         }
         
-        //! Return an the expanded rectangle.
-        /** The function returns an expanded rectangle.
+        //! Return an expanded version of this rectangle.
+        /** The function returns an expanded version of this rectangle.
          @param pt The amount of expansion.
          @return The new rectangle.
         */
@@ -669,16 +689,6 @@ namespace Kiwi
             return reduced(Point(value, value));
         }
         
-        //! Get if the rectangle contains a point.
-        /** The function retrieves if the rectangle contains a point.
-         @param pt The point.
-         @return true if the rectangle contains the point, otherwise false.
-         */
-        inline bool contains(Point const& pt) const noexcept
-        {
-            return positioning(pt) == Inside;
-        }
-        
         //! Get if the rectangle overlaps another rectangle.
         /** The function retrieves if the rectangle overlaps another rectangle.
          @param other The other rectangle.
@@ -686,16 +696,43 @@ namespace Kiwi
          */
         inline bool overlaps(Rectangle const& other) const noexcept
         {
-            return x() + width() > other.x() && y() + height() > other.y() && x() < other.x() + other.width() && y() < other.y() + other.height();
+            return (x() + width() >= other.x() && y() + height() >= other.y() && x() <= other.x() + other.width() && y() <= other.y() + other.height());
         }
         
-        //! Get if the rectangle overlaps a line.
-        /** The function gets if the rectangle overlaps a line.
+        //! Get if the rectangle contains a point.
+        /** The function retrieves if the rectangle contains a point.
+         @param pt The point.
+         @return true if the rectangle contains the point, otherwise false.
+         */
+        inline bool contains(Point const& pt) const noexcept
+        {
+            return (pt.x() >= x() && pt.y() >= y() && pt.x() <= right() && pt.y() <= bottom());
+        }
+        
+        //! Get if the rectangle contains a segment.
+        /** The function returns true if the rectangle contains both the start and end point.
+         @param segment The segment.
+         @return true if the rectangle contains the segment, otherwise false.
+         */
+        bool contains(Segment const& segment) const noexcept
+        {
+            return (contains(segment.start()) && contains(segment.end()));
+        }
+        
+        //! Get if the rectangle intesects a segment.
+        /** The function gets if the rectangle intersects a segment.
+         @param segment The segment.
+         @return true if the rectangle intersects the segment, otherwise false.
+         */
+        bool intersects(Segment const& segment) const noexcept;
+        
+        //! Get if the rectangle overlaps a segment.
+        /** The function gets if the rectangle overlaps a segment.
          @param begin The first point of the line.
          @param end   The end point of the line.
          @return true if the rectangle overlaps a line, otherwise false.
          */
-        bool overlaps(Point const& begin, Point const& end) const noexcept;
+        bool overlaps(Segment const& segment) const noexcept;
         
         //! Get if the rectangle overlaps a quadratic bezier line.
         /** The function gets if the rectangle overlaps a quadratic bezier line.

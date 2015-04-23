@@ -24,46 +24,18 @@
 #include "KiwiRectangle.h"
 
 namespace Kiwi
-{        
-    
-    Rectangle::Positioning Rectangle::positioning(Point const& pt) const noexcept
+{
+    bool Rectangle::intersects(Segment const& segment) const noexcept
     {
-        int code = Inside;
-        if(pt.x() < x())
-        {
-            code |= Left;
-        }
-        else if(pt.x() > x() + width())
-        {
-            code |= Right;
-        }
-        if(pt.y() < y())
-        {
-            code |= Bottom;
-        }
-        else if(pt.y() > y() + height())
-        {
-            code |= Top;
-        }
-        return (Positioning)code;
+        return (Segment::intersects(Segment(topLeft(),    topRight()),    segment) ||
+                Segment::intersects(Segment(topRight(),   bottomRight()), segment) ||
+                Segment::intersects(Segment(bottomLeft(), bottomRight()), segment) ||
+                Segment::intersects(Segment(topLeft(),    bottomLeft()),  segment) );
     }
     
-    bool Rectangle::overlaps(Point const& begin, Point const& end) const noexcept
+    bool Rectangle::overlaps(Segment const& segment) const noexcept
     {
-        if(contains(begin) || contains(end))
-        {
-            return true;
-        }
-        else if(begin.x() < x() && end.x() > x())
-        {
-            
-        }
-        
-        else
-        {
-            
-        }
-        return false;
+        return (contains(segment.start()) || contains(segment.end()) || intersects(segment));
     }
     
     bool Rectangle::overlaps(Point const& begin, Point const& ctrl, Point const& end) const noexcept
