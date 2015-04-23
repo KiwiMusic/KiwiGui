@@ -299,7 +299,7 @@ namespace Kiwi
          @param pt The point to add.
          @return The new point.
          */
-        inline Point operator+(Point const& pt) noexcept
+        inline Point operator+(Point const pt) const noexcept
         {
             return Point(m_data[0] + pt.x(), m_data[1] + pt.y());
         }
@@ -309,7 +309,7 @@ namespace Kiwi
          @param value The value to add.
          @return The new point.
          */
-        inline Point operator+(double const value) noexcept
+        inline Point operator+(double const value) const noexcept
         {
             return Point(m_data[0] + value, m_data[1] + value);
         }
@@ -395,10 +395,10 @@ namespace Kiwi
         
         //! Retrieve a copy and apply a rotation from the origin.
         /** The function retrieves a copy and applies a rotation from the origin.
-         @param The angle
+         @param angle The angle
          @return The copy with the rotation.
          */
-        Point rotate(double const angle) const noexcept
+        Point rotated(double const angle) const noexcept
         {
             return Point(m_data[0] * cos(angle) - m_data[1] * sin(angle), m_data[0] * sin(angle) + m_data[1] * cos(angle));
         }
@@ -406,13 +406,32 @@ namespace Kiwi
         //! Retrieve a copy and apply a rotation from another point.
         /** The function retrieves a copy and applies a rotation from another point.
          @pram pt The other point.
-         @param The angle
+         @param angle The angle
          @return The copy with the rotation.
          */
-        inline Point rotate(Point const& pt, double const angle) const noexcept
+        inline Point rotated(Point const& pt, double const angle) const noexcept
         {
             const Point newpt = *this - pt;
             return Point(newpt.x() * cos (angle) - newpt.y() * sin (angle) + pt.x(), newpt.x() * sin (angle) + newpt.y() * cos (angle) + pt.y());
+        }
+        
+        //! Apply a rotation from the origin.
+        /** The function retrieves Applies a rotation from the origin.
+         @param angle The angle
+         */
+        void rotate(double const angle) noexcept
+        {
+            *this = rotated(angle);
+        }
+        
+        //! Retrieve a copy and apply a rotation from another point.
+        /** The function retrieves a copy and applies a rotation from another point.
+         @param pt The other point.
+         @param angle The angle
+         */
+        void rotate(Point const& pt, double const angle) noexcept
+        {
+            *this = rotated(pt, angle);
         }
         
         //! Retrieve the length from the origin.

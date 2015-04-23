@@ -56,20 +56,20 @@ namespace Kiwi
             const double ratio = (*this - begin).dot(delta) / length;
             if(ratio < 0.)
             {
-                return this->distance(begin);
+                return distance(begin);
             }
             else if(ratio > 1.)
             {
-                return this->distance(end);
+                return distance(end);
             }
             else
             {
-                return this->distance((ratio * delta) + begin);
+                return distance((ratio * delta) + begin);
             }
         }
         else
         {
-            return min(this->distance(begin), this->distance(end));
+            return min(distance(begin), distance(end));
         }
     }
     
@@ -83,10 +83,10 @@ namespace Kiwi
         const ulong nresult = solve(B.length(), 3 * A.dot(B), 2 * A.length() + C.dot(B), A.dot(C), sol1, sol2, sol3);
         if(nresult)
         {
-            double dist = this->distance(fromLine(begin, ctrl, end, sol1));
+            double dist = distance(fromLine(begin, ctrl, end, sol1));
             if(nresult > 1)
             {
-                const double dist2 = this->distance(fromLine(begin, ctrl, end, sol2));
+                const double dist2 = distance(fromLine(begin, ctrl, end, sol2));
                 if(dist2 < dist)
                 {
                     dist = dist2;
@@ -94,7 +94,7 @@ namespace Kiwi
             }
             if(nresult > 2)
             {
-                const double dist2 = this->distance(fromLine(begin, ctrl, end, sol3));
+                const double dist2 = distance(fromLine(begin, ctrl, end, sol3));
                 if(dist2 < dist)
                 {
                     dist  = dist2;
@@ -104,7 +104,7 @@ namespace Kiwi
         }
         else
         {
-            return min(this->distance(begin), this->distance(end));
+            return min(distance(begin), distance(end));
         }
     }
     
@@ -147,22 +147,22 @@ namespace Kiwi
     
     bool Point::near(Point const& pt, double const dist) const noexcept
     {
-        return this->distance(pt) <= dist;
+        return distance(pt) <= dist;
     }
     
     bool Point::near(Point const& begin, Point const& end, double const dist) const noexcept
     {
-        return this->distance(begin, end) <= dist;
+        return distance(begin, end) <= dist;
     }
     
     bool Point::near(Point const& begin, Point const& ctrl, Point const& end, double const dist) const noexcept
     {
-        return this->distance(begin, ctrl, end) <= dist;
+        return distance(begin, ctrl, end) <= dist;
     }
     
     bool Point::near(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end, double const dist) const noexcept
     {
-        return this->distance(begin, ctrl1, ctrl2, end) <= dist;
+        return distance(begin, ctrl1, ctrl2, end) <= dist;
     }
     
     ulong Point::solve(double a, double b, double c, double const d, double &solution1, double &solution2, double &solution3)

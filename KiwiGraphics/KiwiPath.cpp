@@ -327,7 +327,7 @@ namespace Kiwi
                         }
                         break;
                     case Linear:
-                        if(rect.overlaps(previous, current))
+                        if(rect.overlaps(Segment(previous, current)))
                         {
                             return true;
                         }
