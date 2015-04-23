@@ -62,11 +62,13 @@ namespace Kiwi
         Font                    m_font;
         Font::Justification     m_justification;
         wstring                 m_text;
+        
         bool                    m_multi_line;
         bool                    m_wrap_word;
         bool                    m_notify_return;
         bool                    m_notify_tab;
         bool                    m_formated;
+        double                  m_line_space;
         
         set<wListener,
         owner_less<wListener>> m_lists;

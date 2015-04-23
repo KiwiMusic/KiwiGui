@@ -24,164 +24,21 @@
 #include "KiwiPath.h"
 
 namespace Kiwi
-{
-    Path::Node::Node(Point const& pt, Mode const mode) noexcept :
-    point(pt), mode(mode)
-    {
-        
-    }
-    
-    Path::Node::Node(Point const& pt) noexcept :
-    point(pt), mode(Linear)
-    {
-        
-    }
-    
-    Path::Node::Node(Node const& other) noexcept :
-    point(other.point), mode(other.mode)
-    {
-        
-    }
-    
-    Path::Node::~Node() noexcept
-    {
-        ;
-    }
-    
-    Path::Path() noexcept
-    {
-        ;
-    }
-    
-    Path::Path(Path const& path) noexcept
-    {
-        m_points = path.m_points;
-    }
-    
-    Path::Path(Point const& pt) noexcept
-    {
-        m_points.push_back({pt, Move});
-    }
-    
-    Path::Path(Rectangle const& rect) noexcept
-    {
-        m_points.push_back({rect.position(), Move});
-        m_points.push_back({Point(rect.x() + rect.width(), rect.y()), Linear});
-        m_points.push_back({Point(rect.x() + rect.width(), rect.y() + rect.height()), Linear});
-        m_points.push_back({Point(rect.x(), rect.y() + rect.height()), Linear});
-        close();
-    }
-    
-    Path::Path(Point const& start, Point const& end) noexcept
-    {
-        m_points.push_back({start, Move});
-        m_points.push_back({end, Linear});
-    }
-    
-    Path::Path(Point const& start, Point const& ctrl, Point const& end) noexcept
-    {
-        m_points.push_back({start, Move});
-        m_points.push_back({ctrl, Quadratic});
-        m_points.push_back({end, Linear});
-    }
-    
-
-    Path::Path(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end) noexcept
-    {
-        m_points.push_back({start, Move});
-        m_points.push_back({ctrl1, Cubic});
-        m_points.push_back({ctrl2, Cubic});
-        m_points.push_back({end, Linear});
-    }
-    
-    Path::~Path() noexcept
-    {
-        m_points.clear();
-    }
-    
-    void Path::move(const Point &pt) noexcept
-    {
-        m_points.push_back({pt, Move});
-    }
-    
-    void Path::line(const Point &pt) noexcept
-    {
-        m_points.push_back({pt, Linear});
-    }
-    
-    void Path::quadratic(Point const& control, Point const& end)
-    {
-        m_points.push_back({control, Quadratic});
-        m_points.push_back({end, Linear});
-    }
-    
-    void Path::cubic(Point const& control1, Point const& control2, Point const& end)
-    {
-        m_points.push_back({control1, Cubic});
-        m_points.push_back({control2, Cubic});
-        m_points.push_back({end, Linear});
-    }
-    
-    void Path::close() noexcept
-    {
-        if(!m_points.empty())
-        {
-            m_points.push_back({m_points[0].point, Linear});
-        }
-    }
-    
-    void Path::clear() noexcept
-    {
-        m_points.clear();
-    }
-    
-    Rectangle Path::bounds() const noexcept
-    {
-        Point position(0., 0.);
-        Point size(0., 0.);
-        if(!m_points.empty())
-        {
-            position = m_points[0].point;
-            size = m_points[0].point;
-            for(vector<Point>::size_type i = 1; i < m_points.size(); i++)
-            {
-                if(m_points[i].point.x() < position.x())
-                {
-                    position.x(m_points[i].point.x());
-                }
-                else if(m_points[i].point.x() > size.x())
-                {
-                    size.x(m_points[i].point.x());
-                }
-                
-                if(m_points[i].point.y() < position.y())
-                {
-                    position.y(m_points[i].point.y());
-                }
-                else if(m_points[i].point.y() > size.y())
-                {
-                    size.y(m_points[i].point.y());
-                }
-            }
-        }
-        return Rectangle(position, Size(size.x() - position.x(), size.y() - position.y()));
-        
-    }
-    
+{    
     double Path::distance(Point const& pt) const noexcept
     {
-        if(m_points.size() == 1)
+        if(m_nodes.size() == 1)
         {
-            return pt.distance(m_points[0].point);
+            return pt.distance(m_nodes[0].point());
         }
-        else if(m_points.size() > 1)
+        else if(m_nodes.size() > 1)
         {
             double dist = numeric_limits<double>::max();
             Point previous;
-            for(vector<Node>::size_type i = 0; i < m_points.size(); i++)
+            for(vector<Node>::size_type i = 0; i < m_nodes.size(); i++)
             {
-                Point current = m_points[i].point;
-                switch(m_points[i].mode)
+                Point current = m_nodes[i].point();
+                switch(m_nodes[i].mode())
                 {
                     case Move:
                     {
@@ -204,10 +61,10 @@ namespace Kiwi
                     case Quadratic:
                     {
                         i++;
-                        if(i < m_points.size())
+                        if(i < m_nodes.size())
                         {
                             const Point ctrl = current;
-                            current = m_points[i].point;
+                            current = m_nodes[i].point();
                             const double newdist = pt.distance(previous, ctrl, current);
                             if(newdist < dist)
                             {
@@ -219,11 +76,11 @@ namespace Kiwi
                     case Cubic:
                     {
                         i += 2;
-                        if(i < m_points.size())
+                        if(i < m_nodes.size())
                         {
                             const Point ctrl1 = current;
-                            const Point ctrl2 = m_points[i-1].point;
-                            current = m_points[i].point;
+                            const Point ctrl2 = m_nodes[i-1].point();
+                            current = m_nodes[i].point();
                             const double newdist = pt.distance(previous, ctrl1, ctrl2, current);
                             if(newdist < dist)
                             {
@@ -244,62 +101,51 @@ namespace Kiwi
     
     bool Path::near(Point const& pt, double const distance) const noexcept
     {
-        if(m_points.size() == 1)
+        if(m_nodes.size() == 1)
         {
-            return pt.near(m_points[0].point, distance);
+            return pt.near(m_nodes[0].point(), distance);
         }
-        else if(m_points.size() > 1)
+        else if(m_nodes.size() > 1)
         {
-            Point previous;
-            for(vector<Node>::size_type i = 0; i < m_points.size(); i++)
+            for(vector<Node>::size_type i = 1; i < m_nodes.size(); i++)
             {
-                Point current = m_points[i].point;
-                switch(m_points[i].mode)
+                switch(m_nodes[i].mode())
                 {
                     case Move:
-                        if(pt.near(current, distance))
+                        if(pt.near(m_nodes[i].point(), distance))
                         {
                             return true;
                         }
                         break;
                     case Linear:
-                        if(pt.near(previous, current, distance))
+                        if(pt.near(m_nodes[i-1].point(), m_nodes[i].point(), distance))
                         {
                             return true;
                         }
                         break;
                     case Quadratic:
                         i++;
-                        if(i < m_points.size())
+                        if(i < m_nodes.size())
                         {
-                            const Point ctrl = current;
-                            current = m_points[i].point;
-                            if(pt.near(previous, ctrl, current, distance))
+                            if(pt.near(m_nodes[i-2].point(), m_nodes[i-1].point(), m_nodes[i].point(), distance))
                             {
                                 return true;
                             }
-                            
                         }
                         break;
                     case Cubic:
                         i += 2;
-                        if(i < m_points.size())
+                        if(i < m_nodes.size())
                         {
-                            const Point ctrl1 = current;
-                            const Point ctrl2 = m_points[i-1].point;
-                            current = m_points[i].point;
-                            if(pt.near(previous, ctrl1, ctrl2, current, distance))
+                            if(pt.near(m_nodes[i-3].point(), m_nodes[i-2].point(), m_nodes[i-1].point(), m_nodes[i].point(), distance))
                             {
                                 return true;
                             }
-                            
                         }
                         break;
-                        
                     default:
                         break;
                 }
-                previous = current;
             }
         }
         return false;
@@ -308,17 +154,17 @@ namespace Kiwi
     
     bool Path::overlaps(Rectangle const& rect) const noexcept
     {
-        if(m_points.size() == 1)
+        if(m_nodes.size() == 1)
         {
-            return rect.contains(m_points[0].point);
+            return rect.contains(m_nodes[0].point());
         }
-        else if(m_points.size() > 1)
+        else if(m_nodes.size() > 1)
         {
             Point previous;
-            for(vector<Node>::size_type i = 0; i < m_points.size(); i++)
+            for(vector<Node>::size_type i = 0; i < m_nodes.size(); i++)
             {
-                Point current = m_points[i].point;
-                switch(m_points[i].mode)
+                Point current = m_nodes[i].point();
+                switch(m_nodes[i].mode())
                 {
                     case Move:
                         if(rect.contains(current))
@@ -334,10 +180,10 @@ namespace Kiwi
                         break;
                     case Quadratic:
                         i++;
-                        if(i < m_points.size())
+                        if(i < m_nodes.size())
                         {
                             const Point ctrl = current;
-                            current = m_points[i].point;
+                            current = m_nodes[i].point();
                             if(rect.overlaps(previous, ctrl, current))
                             {
                                 return true;
@@ -347,11 +193,11 @@ namespace Kiwi
                         break;
                     case Cubic:
                         i += 2;
-                        if(i < m_points.size())
+                        if(i < m_nodes.size())
                         {
                             const Point ctrl1 = current;
-                            const Point ctrl2 = m_points[i-1].point;
-                            current = m_points[i].point;
+                            const Point ctrl2 = m_nodes[i-1].point();
+                            current = m_nodes[i].point();
                             if(rect.overlaps(previous, ctrl1, ctrl2, current))
                             {
                                 return true;

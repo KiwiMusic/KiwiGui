@@ -42,7 +42,7 @@ namespace Kiwi
         enum Mode
         {
             RGBA = 0,
-            HSLD = 1
+            HSLA = 1
         };
         
         double m_data[4];

@@ -38,6 +38,7 @@ namespace Kiwi
         m_notify_return = true;
         m_notify_tab    = true;
         m_formated      = false;
+        m_line_space    = 0.;
     }
     
     GuiTextEditor::~GuiTextEditor() noexcept
@@ -68,7 +69,25 @@ namespace Kiwi
         {
             sketch.setColor(Colors::black);
             sketch.setFont(m_font);
-            sketch.drawText(m_text, 0., 0., size.width(), size.height(), Font::CentredLeft);
+            wstring::size_type pos = m_text.find(L'\n');
+            if(pos == wstring::npos)
+            {
+                sketch.drawText(m_text, 0., 0., size.width(), m_font.getSize(), Font::TopLeft);
+            }
+            else
+            {
+                sketch.drawText(wstring(m_text.c_str(), m_text.c_str()+pos), 0., 0., size.width(), m_font.getSize(), Font::TopLeft);
+                wstring::size_type next = m_text.find(L'\n', pos+1);
+                double y = m_font.getSize() + m_line_space;
+                while(next != wstring::npos)
+                {
+                    sketch.drawText(wstring(m_text.c_str()+pos, m_text.c_str()+next), 0., y, size.width(), m_font.getSize(), Font::TopLeft);
+                    pos = next;
+                    next = m_text.find(L'\n', pos+1);
+                    y += m_font.getSize() + m_line_space;
+                }
+                sketch.drawText(wstring(m_text.c_str()+pos), 0., y *  m_font.getSize(), size.width(), m_font.getSize(), Font::TopLeft);
+            }
         }
         else
         {
