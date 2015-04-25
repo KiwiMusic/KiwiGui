@@ -667,8 +667,8 @@ namespace Kiwi
     // ================================================================================ //
     
     typedef bool KeyboardFocus;
-    static const bool KeyboardFocusIn  = 0;
-    static const bool KeyboardFocusOut = 1;
+    static const bool KeyboardFocusIn  = 1;
+    static const bool KeyboardFocusOut = 0;
     
 	class KeyboardEvent
 	{
