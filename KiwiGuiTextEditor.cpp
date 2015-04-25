@@ -35,11 +35,11 @@ namespace Kiwi
     GuiSketcher(context),
     m_caret(make_shared<Caret>(context))
     {
-        m_notify_return = true;
-        m_notify_tab    = true;
+        m_notify_return = UsedAsCharacter;
+        m_notify_tab    = UsedAsCharacter;
         m_formated      = false;
-        m_line_space    = 1.5;
-        m_justification = Font::Justification::CentredLeft;
+        m_line_space    = 1.;
+        m_justification = Font::Justification::TopLeft;
         m_caret->setPosition(Point(0., 0.));
         m_caret->setSize(Size(2., m_font.getSize()));
         m_caret->start();
@@ -66,9 +66,19 @@ namespace Kiwi
     
     void GuiTextEditor::setJustification(const Font::Justification justification) noexcept
     {
-        if(justification != m_justification)
+        if(justification & Font::Justification::Left && !(m_justification & Font::Justification::Left))
         {
-            m_justification = justification;
+            m_justification = Font::Justification::TopLeft;
+            redraw();
+        }
+        else if(justification & Font::Justification::Right && !(m_justification & Font::Justification::Right))
+        {
+            m_justification = Font::Justification::TopRight;
+            redraw();
+        }
+        else if(justification & Font::Justification::HorizontallyCentered && !(m_justification & Font::Justification::HorizontallyCentered))
+        {
+            m_justification = Font::Justification::CentredTop;
             redraw();
         }
     }
@@ -92,30 +102,29 @@ namespace Kiwi
         }
     }
     
-    void GuiTextEditor::showCaret(const bool state) noexcept
+    void GuiTextEditor::setReturnKeyBehavior(const bool notify) noexcept
     {
-        if(state && !m_caret->state())
-        {
-            add(m_caret);
-            m_caret->start();
-        }
-        else if(!state && m_caret->state())
-        {
-            m_caret->stop();
-            remove(m_caret);
-        }
+        m_notify_return = notify;
     }
     
-    void GuiTextEditor::setKeyNotification(const bool returnNotifies, const bool tabNotifies) noexcept
+    void GuiTextEditor::setTabKeyBehavior(const bool notify) noexcept
     {
-        m_notify_return = returnNotifies;
-        m_notify_tab    = tabNotifies;
+        m_notify_tab    = notify;
+    }
+    
+    void GuiTextEditor::setColor(Color const& color) noexcept
+    {
+        if(m_color != color)
+        {
+            m_color = color;
+            redraw();
+        }
     }
     
     void GuiTextEditor::draw(scGuiView view, Sketch& sketch) const
     {
         const Size size = getSize();
-        sketch.setColor(Colors::black);
+        sketch.setColor(m_color);
         sketch.setFont(m_font);
         const double height = m_font.getSize() * m_line_space;
         for(vector<wstring>::size_type i = 0; i < m_lines.size(); i++)
@@ -131,100 +140,151 @@ namespace Kiwi
     
     bool GuiTextEditor::receive(scGuiView view, KeyboardEvent const& event)
     {
-        if(event.isBackspace())
+        if(event.isCharacter())
         {
-            m_formated = false;
-            m_text.pop_back();
-            getLineWidths();
-            lock_guard<mutex> guard(m_lists_mutex);
-            auto it = m_lists.begin();
-            while(it != m_lists.end())
-            {
-                sListener listener = (*it).lock();
-                if(listener)
-                {
-                    listener->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
-                    ++it;
-                }
-                else
-                {
-                    it = m_lists.erase(it);
-                }
-            }
-            format();
-            redraw();
+            wcout << L"receive : " << event.getCharacter() << endl;
         }
-        else if(event.isReturn())
+        else
         {
-            if(m_notify_return)
+            cout << event.getKeyCode() << " " << event.getModifiers() << endl;
+        }
+        
+        if(event.isCharacter())
+        {
+            switch(event.getCharacter())
             {
-                lock_guard<mutex> guard(m_lists_mutex);
-                auto it = m_lists.begin();
-                while(it != m_lists.end())
+                case KeyboardEvent::Key::Escape:
                 {
-                    sListener listener = (*it).lock();
-                    if(listener)
+                    lock_guard<mutex> guard(m_lists_mutex);
+                    auto it = m_lists.begin();
+                    while(it != m_lists.end())
                     {
-                        listener->returnKeyPressed(static_pointer_cast<GuiTextEditor>(shared_from_this()));
-                        ++it;
+                        sListener listener = (*it).lock();
+                        if(listener)
+                        {
+                            listener->escapeKeyPressed(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+                            ++it;
+                        }
+                        else
+                        {
+                            it = m_lists.erase(it);
+                        }
+                    }
+                }
+                    break;
+                case KeyboardEvent::Key::Return:
+                {
+                    if(m_notify_return)
+                    {
+                        lock_guard<mutex> guard(m_lists_mutex);
+                        auto it = m_lists.begin();
+                        while(it != m_lists.end())
+                        {
+                            sListener listener = (*it).lock();
+                            if(listener)
+                            {
+                                listener->returnKeyPressed(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+                                ++it;
+                            }
+                            else
+                            {
+                                it = m_lists.erase(it);
+                            }
+                        }
                     }
                     else
                     {
-                        it = m_lists.erase(it);
+                        addCharacter(L'\n');
                     }
                 }
-            }
-            else
-            {
-                addCharacter(L'\n');
-            }
-        }
-        else if(event.isTab())
-        {
-            if(m_notify_tab)
-            {
-                lock_guard<mutex> guard(m_lists_mutex);
-                auto it = m_lists.begin();
-                while(it != m_lists.end())
+                    break;
+                case KeyboardEvent::Key::Tab:
                 {
-                    sListener listener = (*it).lock();
-                    if(listener)
+                    if(m_notify_tab)
                     {
-                        listener->tabKeyPressed(static_pointer_cast<GuiTextEditor>(shared_from_this()));
-                        ++it;
+                        lock_guard<mutex> guard(m_lists_mutex);
+                        auto it = m_lists.begin();
+                        while(it != m_lists.end())
+                        {
+                            sListener listener = (*it).lock();
+                            if(listener)
+                            {
+                                listener->tabKeyPressed(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+                                ++it;
+                            }
+                            else
+                            {
+                                it = m_lists.erase(it);
+                            }
+                        }
                     }
                     else
                     {
-                        it = m_lists.erase(it);
+                        addCharacter(L'\t');
                     }
                 }
-            }
-            else
-            {
-                addCharacter(L'\t');
+                    break;
+                case KeyboardEvent::Key::Backspace:
+                {
+                    if(!m_text.empty())
+                    {
+                        m_formated = false;
+                        m_text.pop_back();
+                        getLineWidths();
+                        lock_guard<mutex> guard(m_lists_mutex);
+                        auto it = m_lists.begin();
+                        while(it != m_lists.end())
+                        {
+                            sListener listener = (*it).lock();
+                            if(listener)
+                            {
+                                listener->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+                                ++it;
+                            }
+                            else
+                            {
+                                it = m_lists.erase(it);
+                            }
+                        }
+                        format();
+                        redraw();
+                    }
+                }
+                    break;
+                    
+                default:
+                    addCharacter(event.getCharacter());
+                    break;
             }
         }
-        else if(event.isEscape())
+        else
         {
-            lock_guard<mutex> guard(m_lists_mutex);
-            auto it = m_lists.begin();
-            while(it != m_lists.end())
+            switch (event.getKeyCode())
             {
-                sListener listener = (*it).lock();
-                if(listener)
+                case KeyboardEvent::Key::Left:
                 {
-                    listener->escapeKeyPressed(static_pointer_cast<GuiTextEditor>(shared_from_this()));
-                    ++it;
+                    cout << "Left" << endl;
                 }
-                else
+                    break;
+                case KeyboardEvent::Key::Right:
                 {
-                    it = m_lists.erase(it);
+                    cout << "Right" << endl;
                 }
+                    break;
+                case KeyboardEvent::Key::Up:
+                {
+                    cout << "Up" << endl;
+                }
+                    break;
+                case KeyboardEvent::Key::Down:
+                {
+                    cout << "Down" << endl;
+                }
+                    break;
+                    
+                default:
+                    break;
             }
-        }
-        else if(event.isCharacter())
-        {
-            addCharacter(event.getCharacter());
         }
         return true;
     }
@@ -242,23 +302,32 @@ namespace Kiwi
         }
         else
         {
-            return Size();
+            return Size(0., m_font.getSize());
         }
     }
     
     void GuiTextEditor::clearText() noexcept
     {
-        
-    }
-    
-    ulong GuiTextEditor::getCaretPosition() const noexcept
-    {
-        return 0ul;
-    }
-    
-    void GuiTextEditor::setCaretPosition(ulong pos) noexcept
-    {
-        
+        m_formated = false;
+        m_text.clear();
+        getLineWidths();
+        lock_guard<mutex> guard(m_lists_mutex);
+        auto it = m_lists.begin();
+        while(it != m_lists.end())
+        {
+            sListener listener = (*it).lock();
+            if(listener)
+            {
+                listener->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+                ++it;
+            }
+            else
+            {
+                it = m_lists.erase(it);
+            }
+        }
+        format();
+        redraw();
     }
     
     void GuiTextEditor::addCharacter(wchar_t character) noexcept
@@ -281,8 +350,10 @@ namespace Kiwi
                 it = m_lists.erase(it);
             }
         }
-        format();
-        redraw();
+        if(format())
+        {
+            redraw();
+        }
     }
     
     void GuiTextEditor::getLineWidths() noexcept
@@ -290,9 +361,9 @@ namespace Kiwi
         sGuiContext ctxt = getContext();
         if(ctxt)
         {
+            wstring line;
             m_widths.clear();
             wistringstream stream(m_text);
-            wstring line;
             while(bool(getline(stream, line)))
             {
                 m_widths.push_back(ctxt->getTextWidth(m_font, line));
@@ -304,7 +375,7 @@ namespace Kiwi
         }
     }
     
-    void GuiTextEditor::format() noexcept
+    bool GuiTextEditor::format() noexcept
     {
         if(!m_formated)
         {
@@ -326,7 +397,35 @@ namespace Kiwi
                 m_caret->setPosition(Point(ctxt->getTextWidth(m_font, m_lines[nlines]), nlines * m_line_space * m_font.getSize()));
             }
             m_formated = true;
+            return true;
         }
+        return false;
+    }
+    
+    bool GuiTextEditor::receive(scGuiView view, KeyboardFocus const event)
+    {
+        if(event == KeyboardFocusIn)
+        {
+            add(m_caret);
+        }
+        else
+        {
+            remove(m_caret);
+        }
+        return true;
+    }
+    
+    bool GuiTextEditor::notify(sAttr attr)
+    {
+        if(attr->getName() == "size")
+        {
+            m_formated = false;
+            if(format())
+            {
+                redraw();
+            }
+        }
+        return true;
     }
     
     void GuiTextEditor::addListener(sListener listener)
