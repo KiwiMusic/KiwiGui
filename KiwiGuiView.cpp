@@ -222,6 +222,18 @@ namespace Kiwi
             return false;
         }
     }
+    
+    void GuiView::attrChanged(Attr::sManager manager, sAttr attr)
+    {
+        if(attr->getName() == Tags::position)
+        {
+            move();
+        }
+        else if(attr->getName() == Tags::size)
+        {
+            resize();
+        }
+    }
 }
 
 

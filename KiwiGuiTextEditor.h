@@ -65,6 +65,12 @@ namespace Kiwi
             Wrap    = 2
         };
         
+        enum BehaviorMode //: bool
+        {
+            UsedAsCharacter = 0,
+            Notify          = 1
+        };
+        
     private:
         class Caret : public GuiSketcher, public Clock
         {
@@ -78,12 +84,24 @@ namespace Kiwi
             /** The function does nothing.
              @param context The context.
              */
-            Caret(sGuiContext context) noexcept : GuiSketcher(context), m_color(Colors::black) {}
+            inline Caret(sGuiContext context) noexcept : GuiSketcher(context), m_color(Colors::black) {}
             
             //! Destructor.
             /** The function does nothing.
              */
-            ~Caret() noexcept {};
+            inline  ~Caret() noexcept {}
+            
+            //! Sets the color of the caret.
+            /** The function sets the color of the caret.
+             @param color   The new color.
+             */
+            inline void setColor(Color const& color) noexcept {m_color = color;}
+            
+            //! Retrievs the color of the caret.
+            /** The function retrieves the color of the caret.
+             @return The color.
+             */
+            inline Color getColor() const noexcept {return m_color;}
             
             //! The draw method that should be override.
             /** The function shoulds draw some stuff in the sketch.
@@ -127,12 +145,12 @@ namespace Kiwi
             //! Stops the blinking.
             /** The function stops the blinking.
              */
-            void stop()
+            inline void stop()
             {
                 m_active = false;
             }
             
-            //! Stops the blinking.
+            //! Retrieves the blinking.
             /** The function stops the blinking.
              */
             inline bool state()
@@ -148,7 +166,7 @@ namespace Kiwi
         Font::Justification     m_justification;
         double                  m_line_space;
         DisplayMode             m_mode;
-        
+        Color                   m_color;
         
         wstring                 m_text;
         vector<wstring>         m_lines;
@@ -165,7 +183,7 @@ namespace Kiwi
         //@internal
         void addCharacter(wchar_t character) noexcept;
         void getLineWidths() noexcept;
-        void format() noexcept;
+        bool format() noexcept;
         
     public:
         //! Constructor.
@@ -186,7 +204,7 @@ namespace Kiwi
         void setFont(Font const& font) noexcept;
         
         //! Sets the justification of the editor.
-        /** The function sets the justification of the editor.
+        /** The function sets the justification of the editor. The text will always be top justified, only the horizontal position can be changed.
          @param justification The new justification.
          */
         void setJustification(const Font::Justification justification) noexcept;
@@ -203,11 +221,45 @@ namespace Kiwi
          */
         void setDisplayMode(const DisplayMode mode) noexcept;
         
-        //! Shows or hides the caret.
-        /** The function enables or disables the display of the caret.
-         @param state true to show the caret, otherwise false.
+        //! Sets the behavior of the return and tab keys of the editor.
+        /** The function sets if the return key or the tab key notify the listeners or if the keys should be consider as new characters.
+         @param returnNotifies  True if the return key should notify the listeners.
+         @param tabNotifies     True if the return tab should notify the listeners.
          */
-        void showCaret(const bool state) noexcept;
+        inline void setKeyBehavior(const bool returnNotifies, const bool tabNotifies) noexcept
+        {
+            setReturnKeyBehavior(returnNotifies);
+            setTabKeyBehavior(tabNotifies);
+        }
+        
+        //! Sets the behavior of the return key of the editor.
+        /** The function sets if the return key notifies the listeners or if the key should be consider as new characters.
+         @param notify  True if the return key should notify the listeners.
+         */
+        void setReturnKeyBehavior(const bool notify) noexcept;
+        
+        //! Sets the behavior of the tab key of the editor.
+        /** The function sets if the tab key notifies the listeners or if the key should be consider as new characters.
+         @param notify  True if the tab key should notify the listeners.
+         */
+        void setTabKeyBehavior(const bool notify) noexcept;
+        
+        //! Sets the color of the text.
+        /** The function sets the color of the text.
+         @param color The new color.
+         */
+        void setColor(Color const& color) noexcept;
+        
+        //! Sets the text of the editor.
+        /** The function sets the text of the editor.
+         @param text The text.
+         */
+        void setText(wstring const& text) noexcept;
+        
+        //! Clears the text of the editor.
+        /** The function clears the text of the editor.
+         */
+        void clearText() noexcept;
         
         //! Retrieves the font of the editor.
         /** The function retrieves the font of the editor. 
@@ -245,39 +297,37 @@ namespace Kiwi
             return m_mode;
         }
         
-        //! Retrieves if the editor shows the caret.
-        /** The function retrieves if the editor shows the caret.
-         @return true if the editor shows the caret, otherwise false..
+        //! Retrieves if the return key is used as a character or if it notifies the listeners.
+        /** The function retrieves if the return key is used as a character or if it notifies the listeners.
+         @return true if the return key is used as a character, otherwise false if it notifies the listeners.
          */
-        inline bool isCaretActive() const noexcept
-        {
-            return m_caret->state();
-        }
-        
-        //! Sets the key notifications of the editor.
-        /** The function sets if the return key or the tab key notify the listeners or if the keys should be consider as new characters.
-         @param returnNotifies  True if the return key should notify the listeners.
-         @param tabNotifies     True if the return tab should notify the listeners.
-         */
-        void setKeyNotification(const bool returnNotifies, const bool tabNotifies) noexcept;
-        
-        //! Retrieves if the return key is used as a character.
-        /** The function retrieves if the return key is used as a character.
-         @return True if the return key is used as a character, otherwise false.
-         */
-        inline bool isReturnKeyUsedAsCharacter() const noexcept
+        inline bool getReturnKeyBehavior() const noexcept
         {
             return !m_notify_return;
         }
         
-        //! Retrieves if the tab key is used as a character.
-        /** The function retrieves if the tab key is used as a character.
-         @return True if the tab key is used as a character, otherwise false.
+        //! Retrieves if the tab key is used as a character or if it notifies the listeners.
+        /** The function retrieves if the tab key is used as a character or if it notifies the listeners.
+         @return true if the tab key is used as a character, otherwise false if it notifies the listeners.
          */
-        inline bool isTabKeyUsedAsCharacter() const noexcept
+        inline bool getTabKeyBehavior() const noexcept
         {
             return !m_notify_tab;
         }
+        
+        //! Retrieves the text of the editor.
+        /** The function retrieves the text of the editor.
+         @return The text.
+         */
+        inline wstring getText() const noexcept
+        {
+            return m_text;
+        }
+        
+        //! Retrieves the size of the text.
+        /** The function retrieves the size of the text.
+         */
+        Size getTextSize() const noexcept;
 
         //! The draw method that should be override.
         /** The function shoulds draw some stuff in the sketch.
@@ -306,47 +356,19 @@ namespace Kiwi
          @param event    A focus event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(scGuiView view, KeyboardFocus const event)
-        {
-            return false;
-        }
+        bool receive(scGuiView view, KeyboardFocus const event) override;
         
-        //! Retrieves the text of the editor.
-        /** The function retrieves the text of the editor.
-         @return The text.
+        //! Notify the text editor that it should grab the keayboard focus.
+        /** The function notifies the text editor that it should grab the keayboard focus.
          */
-        inline wstring getText() const noexcept
-        {
-            return m_text;
-        }
+        inline void grabFocus() {GuiSketcher::grabFocus();}
         
-        //! Retrieves the size of the text.
-        /** The function retrieves the size of the text.
+        //! Notify the manager that the values of an attribute has changed.
+        /** The function notifies the manager that the values of an attribute has changed.
+         @param attr An attribute.
+         @return pass true to notify changes to listeners, false if you don't want them to be notified
          */
-        Size getTextSize() const noexcept;
-        
-        //! Sets the text of the editor.
-        /** The function sets the text of the editor.
-         @param text The text.
-         */
-        void setText(wstring const& text) noexcept;
-        
-        //! Clears the text of the editor.
-        /** The function clears the text of the editor.
-         */
-        void clearText() noexcept;
-        
-        //! Retrieves the current position of the caret.
-        /** The function retrieves the current position of the caret.
-         @return The position of the caret.
-         */
-        ulong getCaretPosition() const noexcept;
-        
-        //! Sets the current position of the caret.
-        /** The function sets the current position of the caret.
-         @param pos The position of the caret.
-         */
-        void setCaretPosition(ulong pos) noexcept;
+        bool notify(sAttr attr) override;
         
         //! Add an instance listener in the binding list of the text editor.
         /** The function adds an instance listener in the binding list of the text editor.

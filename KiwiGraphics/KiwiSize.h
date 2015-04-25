@@ -386,28 +386,6 @@ namespace Kiwi
         {
             return Point(width(), height());
         }
-            
-        //! Retrieve the size as a vector of atoms.
-        /** The function retrieves the size as a vector of atoms.
-         @return The vector of atoms.
-         */
-        inline Vector get() const noexcept
-        {
-            return Vector({width(), height()});
-        }
-        
-        //! Set the size with a vector of atoms.
-        /** The function sets the size with a vector of atoms.
-         @param vector The vector of atoms.
-         */
-        inline void set(Vector const& vector) noexcept
-        {
-            if(vector.size() > 1 && vector[0].isNumber() && vector[1].isNumber())
-            {
-                width(double(vector[0]));
-                height(double(vector[1]));
-            }
-        }
         
         //! Get the equality of the size with another.
         /** The function retrieves the equality of the size with another.
@@ -427,6 +405,37 @@ namespace Kiwi
         inline bool operator!=(Size const& size) const noexcept
         {
             return width() != size.width() || height() != size.height();
+        }
+        
+        // ================================================================================ //
+        //                                      ATTR                                        //
+        // ================================================================================ //
+        
+        //! Retrieve the size as an atom.
+        /** The function retrieves the size as an atom.
+         @return The atom.
+         */
+        inline operator Atom() const noexcept
+        {
+            return Atom({width(), height()});
+        }
+        
+        //! Set the size with an atom.
+        /** The function sets the size with an atom.
+         @param atom The atom.
+         */
+        inline Size& operator=(Atom const& atom) noexcept
+        {
+            if(atom.isVector())
+            {
+                Vector vector = atom;
+                if(vector.size() > 1 && vector[0].isNumber() && vector[1].isNumber())
+                {
+                    width(double(vector[0]));
+                    height(double(vector[1]));
+                }
+            }
+            return *this;
         }
     };
             

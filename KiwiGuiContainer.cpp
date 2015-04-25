@@ -40,7 +40,7 @@ namespace Kiwi
         ;
     }
     
-    void GuiContainer:: draw(scGuiView ctrl, Sketch& sketch) const
+    void GuiContainer::draw(scGuiView ctrl, Sketch& sketch) const
     {
         
     }

@@ -35,7 +35,7 @@ namespace Kiwi
 	//! The sketcher...
 	/** The sketcher...
 	 */
-    class GuiSketcher : public inheritable_enable_shared_from_this<GuiSketcher>
+    class GuiSketcher : public Attr::Manager
 	{
 	private:
         const wGuiContext           m_context;
@@ -45,18 +45,13 @@ namespace Kiwi
         set<wGuiSketcher,
         owner_less<wGuiSketcher>>   m_childs;
         mutex                       m_childs_mutex;
-        Point                       m_position;
-        Size                        m_size;
 	public:
 		
 		//! Constructor.
 		/** The function does nothing.
          @param context The context.
 		 */
-        inline GuiSketcher(sGuiContext context) noexcept : m_context(context)
-        {
-            ;
-        }
+        GuiSketcher(sGuiContext context) noexcept;
 		
 		//! Destructor.
 		/** The function does nothing.
@@ -84,7 +79,7 @@ namespace Kiwi
          */
         inline Point getPosition() const noexcept
         {
-            return m_position;
+            return Attr::Manager::getAttrValue<Point>(Tags::position);
         }
         
         //! Retrieves the size of the sketcher.
@@ -93,7 +88,7 @@ namespace Kiwi
          */
         inline Size getSize() const noexcept
         {
-            return m_size;
+            return Attr::Manager::getAttrValue<Size>(Tags::size);
         }
         
         //! Retrieves the bounds of the sketcher.
@@ -102,7 +97,7 @@ namespace Kiwi
          */
         inline Rectangle getBounds() const noexcept
         {
-            return Rectangle(m_position, m_size);
+            return Rectangle(getPosition(), getSize());
         }
 		
 		//! The draw method that should be override.
@@ -169,9 +164,15 @@ namespace Kiwi
         void remove(sGuiSketcher child) noexcept;
     
 		//! Send a notification to each view that the sketcher needs to be redrawn.
-		/** The function sends a notification to each each that the sketcher should be redrawn.
+		/** The function sends a notification to each view that the sketcher should be redrawn.
 		 */
 		void redraw() noexcept;
+        
+        //! Send a notification to a view that the sketcher needs the keyboard focus.
+        /** The function sends a notification to a view that the sketcher wants the keyboard focus. If the view is empty, the notification will be sent to the first view.
+         @param view The view that should retrieve the focus.
+         */
+        void grabFocus(sGuiView view = sGuiView()) noexcept;
 
     private:
         
