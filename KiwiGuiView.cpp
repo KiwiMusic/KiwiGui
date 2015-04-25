@@ -222,6 +222,18 @@ namespace Kiwi
             return false;
         }
     }
+    
+    void GuiView::notify(sAttr attr)
+    {
+        if(attr->getName() == "position")
+        {
+            resize();
+        }
+        else if(attr->getName() == "size")
+        {
+            resize();
+        }
+    }
 }
 
 

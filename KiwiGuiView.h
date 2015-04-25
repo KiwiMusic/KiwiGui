@@ -32,7 +32,7 @@ namespace Kiwi
     //                                      GUI VIEW                                    //
     // ================================================================================ //
     
-    class GuiView : public enable_shared_from_this<GuiView>//: public Attr::Listener
+    class GuiView : public Attr::Listener, public enable_shared_from_this<GuiView>
     {
     private:
         const wGuiContext       m_context;
@@ -155,6 +155,11 @@ namespace Kiwi
          */
         virtual void resize() = 0;
         
+        //! Receives the notification that the sketcher needs the keyboard focus.
+        /** This function is called by the sketcher whenever it needs the keyboard focus.
+         */
+        virtual void grabFocus() = 0;
+        
         //! Adds the view to the desktop.
         /** This function adds the view to the desktop as a top level window.
          */
@@ -187,7 +192,7 @@ namespace Kiwi
          @param attr		The attribute that has been modified.
          @param type		The type of notification.
          */
-        //virtual void notify(sAttr attr) = 0;
+        void notify(sAttr attr) override;
         
         //! The mouse receive method.
         /** The function pass the mouse event to the sketcher if it inherits from mouser.
