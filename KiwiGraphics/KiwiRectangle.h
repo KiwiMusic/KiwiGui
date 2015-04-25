@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_RECTANGLE__
 #define __DEF_KIWI_GUI_RECTANGLE__
 
-#include "KiwiSegment.h"
+#include "KiwiLine.h"
 
 namespace Kiwi
 {
@@ -55,7 +55,7 @@ namespace Kiwi
          @param y       The ordinate of the top-left corner.
          @param w       The width of the rectangle.
          @param h       The height of the rectangle.
-         @param ratio   If the ratio width over height should be respect.
+         @param ratio   If width over height optional ratio.
          */
         inline Rectangle(const double x, const double y, const double w, const double h, const bool ratio = false) noexcept :
         m_position(x, y), m_size(w, h, ratio) {}
@@ -457,50 +457,6 @@ namespace Kiwi
             return *this;
         }
         
-        //! Shift the rectangle with a point.
-        /** The function shifts the rectangle with a point.
-         @param point The point.
-         @return The rectangle.
-         */
-        inline Rectangle& operator*=(Point const& pt) noexcept
-        {
-            m_position *= pt;
-            return *this;
-        }
-        
-        //! Shift the rectangle with a value.
-        /** The function shifts the rectangle with a value.
-         @param value The value.
-         @return The rectangle.
-         */
-        inline Rectangle& operator*=(double const value) noexcept
-        {
-            m_position  *= value;
-            return *this;
-        }
-        
-        //! Shift the rectangle with a point.
-        /** The function shifts the rectangle with a point.
-         @param point The point.
-         @return The rectangle.
-         */
-        inline Rectangle& operator/=(Point const& pt) noexcept
-        {
-            m_position /= pt;
-            return *this;
-        }
-        
-        //! Shift the rectangle with a value.
-        /** The function shifts the rectangle with a value.
-         @param value The value.
-         @return The rectangle.
-         */
-        inline Rectangle& operator/=(double const value) noexcept
-        {
-            m_position /= value;
-            return *this;
-        }
-        
         //! Retrieve the rectangle shifted with a point.
         /** The function the rectangle shifted with a point.
          @param pt The point.
@@ -539,46 +495,6 @@ namespace Kiwi
         inline Rectangle operator-(double const value) noexcept
         {
             return Rectangle(m_position - value, m_size);
-        }
-        
-        //! Retrieve the rectangle shifted with a point.
-        /** The function the rectangle shifted with a point.
-         @param pt The point.
-         @return The rectangle.
-         */
-        inline Rectangle operator*(Point const& pt) noexcept
-        {
-            return Rectangle(m_position * pt, m_size);
-        }
-        
-        //! Retrieve the rectangle shifted with a value.
-        /** The function the rectangle shifted with a value.
-         @param value The value.
-         @return The rectangle.
-         */
-        inline Rectangle operator*(double const value) noexcept
-        {
-            return Rectangle(m_position * value, m_size);
-        }
-        
-        //! Retrieve the rectangle shifted with a point.
-        /** The function the rectangle shifted with a point.
-         @param pt The point.
-         @return The rectangle.
-         */
-        inline Rectangle operator/(Point const& pt) noexcept
-        {
-            return Rectangle(m_position / pt, m_size);
-        }
-        
-        //! Retrieve the rectangle shifted with a value.
-        /** The function the rectangle shifted with a value.
-         @param value The value.
-         @return The rectangle.
-         */
-        inline Rectangle operator/(double const value) noexcept
-        {
-            return Rectangle(m_position / value, m_size);
         }
         
         //! Get the equality two rectangle.
@@ -736,22 +652,17 @@ namespace Kiwi
         
         //! Get if the rectangle overlaps a quadratic bezier line.
         /** The function gets if the rectangle overlaps a quadratic bezier line.
-         @param begin The first point of the line.
-         @param ctrl  The control point of the line.
-         @param end   The end point of the line.
+         @param curve The quadratic bezier line.
          @return true if the rectangle overlaps a line, otherwise false.
          */
-        bool overlaps(Point const& begin, Point const& ctrl, Point const& end) const noexcept;
+        bool overlaps(BezierQuad const& curve) const noexcept;
         
         //! Get if the rectangle overlaps a cubic bezier line.
         /** The function gets if the rectangle overlaps a cubic bezier line.
-         @param begin The first point of the line.
-         @param ctrl1 The first control point of the line.
-         @param ctrl2 The second control point of the line.
-         @param end   The end point of the line.
+         @param curve The cubic bezier line.
          @return true if the rectangle overlaps a line, otherwise false.
          */
-        bool overlaps(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept;
+        bool overlaps(BezierCubic const& curve) const noexcept;
         
         //! Retrieve the rectangle as a vector of atoms.
         /** The function retrieves the attribute value as a vector of atoms.
