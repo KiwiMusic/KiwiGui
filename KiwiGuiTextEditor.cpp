@@ -417,7 +417,7 @@ namespace Kiwi
     
     bool GuiTextEditor::notify(sAttr attr)
     {
-        if(attr->getName() == "size")
+        if(attr->getName() == Tags::size)
         {
             m_formated = false;
             if(format())
