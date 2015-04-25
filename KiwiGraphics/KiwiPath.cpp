@@ -184,7 +184,7 @@ namespace Kiwi
                         {
                             const Point ctrl = current;
                             current = m_nodes[i].point();
-                            if(rect.overlaps(previous, ctrl, current))
+                            if(rect.overlaps(BezierQuad(previous, ctrl, current)))
                             {
                                 return true;
                             }
@@ -198,7 +198,7 @@ namespace Kiwi
                             const Point ctrl1 = current;
                             const Point ctrl2 = m_nodes[i-1].point();
                             current = m_nodes[i].point();
-                            if(rect.overlaps(previous, ctrl1, ctrl2, current))
+                            if(rect.overlaps(BezierCubic(previous, ctrl1, ctrl2, current)))
                             {
                                 return true;
                             }
