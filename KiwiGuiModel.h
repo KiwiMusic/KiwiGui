@@ -39,8 +39,6 @@ namespace Kiwi
 	{
 	private:
         const wGuiContext           m_context;
-        const sAttrPoint            m_position;
-        const sAttrSize             m_size;
 		set<wGuiView,
 		owner_less<wGuiView>>       m_views;
 		mutex                       m_views_mutex;
@@ -81,7 +79,7 @@ namespace Kiwi
          */
         inline Point getPosition() const noexcept
         {
-            return m_position->getValue();
+            return Attr::Manager::getAttrValue<Point>(Tags::position);
         }
         
         //! Retrieves the size of the sketcher.
@@ -90,7 +88,7 @@ namespace Kiwi
          */
         inline Size getSize() const noexcept
         {
-            return m_size->getValue();
+            return Attr::Manager::getAttrValue<Size>(Tags::size);
         }
         
         //! Retrieves the bounds of the sketcher.

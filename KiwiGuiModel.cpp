@@ -31,12 +31,10 @@ namespace Kiwi
 	// ================================================================================ //
 	
     GuiSketcher::GuiSketcher(sGuiContext context) noexcept :
-    m_context(context),
-    m_position(Attr::create("position", "Position", "Appearance", Point(0., 0.))),
-    m_size(Attr::create("size",  "Size", "Appearance", Size(10., 10.)))
+    m_context(context)
     {
-        addAttr(m_position);
-        addAttr(m_size);
+        createAttr(Tags::position,  "Position", "Appearance", Point(0., 0.));
+        createAttr(Tags::size,      "Size",     "Appearance", Size(10., 10.));
     }
     
 	GuiSketcher::~GuiSketcher() noexcept
@@ -83,8 +81,7 @@ namespace Kiwi
                 try
                 {
                     view = ctxt->createView(ctrl);
-                    m_position->addListener(view);
-                    m_size->addListener(view);
+                    addListener(view, {Tags::position, Tags::size});
                 }
                 catch(exception& e)
                 {
@@ -129,9 +126,9 @@ namespace Kiwi
     {
         if(view)
         {
+            lock_guard<mutex> guard(m_views_mutex);
             m_views.erase(view);
-            m_position->removeListener(view);
-            m_size->removeListener(view);
+            removeListener(view);
         }
     }
     
@@ -213,27 +210,12 @@ namespace Kiwi
     
     void GuiSketcher::setPosition(Point const& position) noexcept
     {
-        m_position->setValue(position);
-        lock_guard<mutex> guard_view(m_views_mutex);
-        auto it = m_views.begin();
-        while(it != m_views.end())
-        {
-            if((*it).expired())
-            {
-                it = m_views.erase(it);
-            }
-            else
-            {
-                sGuiView view = (*it).lock();
-                view->resize();
-                ++it;
-            }
-        }
+        setAttrValue(Tags::position, position);
     }
     
     void GuiSketcher::setSize(Size const& size) noexcept
     {
-        m_size->setValue(size);
+        setAttrValue(Tags::size, size);
     }
     
     void GuiSketcher::add(sGuiSketcher child) noexcept
