@@ -142,28 +142,6 @@ namespace Kiwi
             m_data[1] = y;
         }
         
-        //! Retrieve the point as a vector of atoms.
-        /** The function retrieves the point as a vector of atoms.
-         @return The vector of atoms.
-         */
-        inline Vector get() const noexcept
-        {
-            return Vector({m_data[0], m_data[1]});
-        }
-        
-        //! Set the attribute value with a vector of atoms.
-        /** The function sets the attribute value with a vector of atoms.
-         @param vector The vector of atoms.
-         */
-        void set(Vector const& vector) noexcept
-        {
-            if(vector.size() > 1 && vector[0].isNumber() && vector[1].isNumber())
-            {
-                m_data[0] = double(vector[0]);
-                m_data[1] = double(vector[1]);
-            }
-        }
-        
         //! Sets the abscissa and the ordinate with another point.
         /** The function sets the abscissa and the ordinate with another point.
          @param pt Another point.
@@ -556,6 +534,37 @@ namespace Kiwi
          @return true if the point is near to the line, otherwise false.
          */
         bool near(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end, double const distance) const noexcept;
+        
+        // ================================================================================ //
+        //                                      ATTR                                        //
+        // ================================================================================ //
+        
+        //! Retrieve the point as an atom.
+        /** The function retrieves the point as an atom.
+         @return The atom.
+         */
+        inline operator Atom() const noexcept
+        {
+            return Atom({m_data[0], m_data[1]});
+        }
+        
+        //! Set the point with an atom.
+        /** The function sets the point with an atom.
+         @param atom The atom.
+         */
+        inline Point operator=(Atom const& atom) noexcept
+        {
+            if(atom.isVector())
+            {
+                Vector vector = atom;
+                if(vector.size() > 1 && vector[0].isNumber() && vector[1].isNumber())
+                {
+                    m_data[0] = double(vector[0]);
+                    m_data[1] = double(vector[1]);
+                }
+            }
+            return *this;
+        }
     };
     
     //! Multiply a value with a point.

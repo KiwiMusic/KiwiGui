@@ -326,23 +326,40 @@ namespace Kiwi
             return red() == other.red() && green() == other.green() && blue() == other.blue() && alpha() == other.alpha();
         }
         
-        inline void set(Vector const& vector) noexcept
+        // ================================================================================ //
+        //                                      ATTR                                        //
+        // ================================================================================ //
+        
+        //! Retrieve the color as an atom.
+        /** The function retrieves the color as an atom.
+         @return The atom.
+         */
+        inline operator Atom() const noexcept
         {
-            if(vector.size() > 2 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber())
-            {
-                red((double)vector[0]);
-                green((double)vector[1]);
-                blue((double)vector[2]);
-                if(vector.size() > 3 && vector[3].isNumber())
-                {
-                    alpha((double)vector[3]);
-                }
-            }
+            return Atom({red(), green(), blue(), alpha()});
         }
         
-        inline Vector get() const noexcept
+        //! Set the color with an atom.
+        /** The function sets the color with an atom.
+         @param atom The atom.
+         */
+        inline Color& operator=(Atom const& atom) noexcept
         {
-            return Vector{red(), green(), blue(), alpha()};
+            if(atom.isVector())
+            {
+                Vector vector = atom;
+                if(vector.size() > 2 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber())
+                {
+                    red((double)vector[0]);
+                    green((double)vector[1]);
+                    blue((double)vector[2]);
+                    if(vector.size() > 3 && vector[3].isNumber())
+                    {
+                        alpha((double)vector[3]);
+                    }
+                }
+            }
+            return *this;
         }
     };
     
