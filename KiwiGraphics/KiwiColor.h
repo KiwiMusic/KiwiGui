@@ -103,6 +103,21 @@ namespace Kiwi
          */
         static Color withHexa(string const& color) noexcept;
         
+        //! Retrieve a color from the interpolation of two colors.
+        /** The function retrieves the a color from the interpolation of two colors.
+         @param color1 The first color.
+         @param color2 The second color.
+         @param factor The interpolation factor (between 0. and 1.).
+         @return The color.
+         */
+        static Color interpolate(const Color& color1, const Color& color2, const double factor)
+        {
+            return Color(lerp(color1.red(),   color2.red(),   factor),
+                         lerp(color1.green(), color2.green(), factor),
+                         lerp(color1.blue(),  color2.blue(),  factor),
+                         lerp(color1.alpha(), color2.alpha(), factor));
+        }
+        
         //! Retrieve a brighter color.
         /** The function retrieves a the brighter color.
          @param value The amount of brightness.
