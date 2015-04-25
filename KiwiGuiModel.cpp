@@ -30,6 +30,15 @@ namespace Kiwi
 	//                                      SKETCHER                                    //
 	// ================================================================================ //
 	
+    GuiSketcher::GuiSketcher(sGuiContext context) noexcept :
+    m_context(context),
+    m_position(Attr::create("position", "Position", "Appearance", Point(0., 0.))),
+    m_size(Attr::create("size",  "Size", "Appearance", Size(10., 10.)))
+    {
+        addAttr(m_position);
+        addAttr(m_size);
+    }
+    
 	GuiSketcher::~GuiSketcher() noexcept
 	{
         {
@@ -74,6 +83,8 @@ namespace Kiwi
                 try
                 {
                     view = ctxt->createView(ctrl);
+                    m_position->addListener(view);
+                    m_size->addListener(view);
                 }
                 catch(exception& e)
                 {
@@ -119,13 +130,30 @@ namespace Kiwi
         if(view)
         {
             m_views.erase(view);
+            m_position->removeListener(view);
+            m_size->removeListener(view);
         }
     }
     
     vector<sGuiView> GuiSketcher::getViews() noexcept
     {
+        vector<sGuiView> views;
         lock_guard<mutex> guard(m_views_mutex);
-        return vector<sGuiView>(m_views.begin(), m_views.end());
+        auto it = m_views.begin();
+        while(it != m_views.end())
+        {
+            sGuiView view = (*it).lock();
+            if(view)
+            {
+                views.push_back(view);
+                ++it;
+            }
+            else
+            {
+                it = m_views.erase(it);
+            }
+        }
+        return views;
     }
     
     void GuiSketcher::redraw() noexcept
@@ -147,6 +175,36 @@ namespace Kiwi
         }
     }
     
+    void GuiSketcher::grabFocus(sGuiView view) noexcept
+    {
+        if(view)
+        {
+            lock_guard<mutex> guard(m_views_mutex);
+            if(m_views.find(view) != m_views.end())
+            {
+                view->grabFocus();
+            }
+        }
+        else
+        {
+            lock_guard<mutex> guard(m_views_mutex);
+            auto it = m_views.begin();
+            while(it != m_views.end())
+            {
+                if((*it).expired())
+                {
+                    it = m_views.erase(it);
+                }
+                else
+                {
+                    sGuiView view = (*it).lock();
+                    view->grabFocus();
+                    return;
+                }
+            }
+        }
+    }
+    
     void GuiSketcher::setBounds(Rectangle const& bounds) noexcept
     {
         setPosition(bounds.position());
@@ -155,28 +213,8 @@ namespace Kiwi
     
     void GuiSketcher::setPosition(Point const& position) noexcept
     {
-        m_position = position;
-        lock_guard<mutex> guard(m_views_mutex);
-        auto it = m_views.begin();
-        while(it != m_views.end())
-        {
-            if((*it).expired())
-            {
-                it = m_views.erase(it);
-            }
-            else
-            {
-                sGuiView view = (*it).lock();
-                view->move();
-                ++it;
-            }
-        }
-    }
-    
-    void GuiSketcher::setSize(Size const& size) noexcept
-    {
-        m_size = size;
-        lock_guard<mutex> guard(m_views_mutex);
+        m_position->setValue(position);
+        lock_guard<mutex> guard_view(m_views_mutex);
         auto it = m_views.begin();
         while(it != m_views.end())
         {
@@ -191,6 +229,11 @@ namespace Kiwi
                 ++it;
             }
         }
+    }
+    
+    void GuiSketcher::setSize(Size const& size) noexcept
+    {
+        m_size->setValue(size);
     }
     
     void GuiSketcher::add(sGuiSketcher child) noexcept
@@ -265,7 +308,7 @@ namespace Kiwi
     
     sGuiController GuiSketcher::createController()
     {
-        return make_shared<GuiController>(shared_from_this());
+        return make_shared<GuiController>(static_pointer_cast<GuiSketcher>(shared_from_this()));
     }
     
     // ================================================================================ //
