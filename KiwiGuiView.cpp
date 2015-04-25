@@ -223,13 +223,13 @@ namespace Kiwi
         }
     }
     
-    void GuiView::notify(sAttr attr)
+    void GuiView::attrChanged(Attr::sManager manager, sAttr attr)
     {
-        if(attr->getName() == "position")
+        if(attr->getName() == Tags::position)
         {
-            resize();
+            move();
         }
-        else if(attr->getName() == "size")
+        else if(attr->getName() == Tags::size)
         {
             resize();
         }

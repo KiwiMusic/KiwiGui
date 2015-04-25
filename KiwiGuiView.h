@@ -189,10 +189,10 @@ namespace Kiwi
         
         //! Receive the notification that an attribute has changed.
         /** The function must be implement to receive notifications when an attribute is added or removed, or when its value, appearance or behavior changes.
+         @param manager     The attribute manager.
          @param attr		The attribute that has been modified.
-         @param type		The type of notification.
          */
-        void notify(sAttr attr) override;
+        void attrChanged(Attr::sManager manager, sAttr attr) override;
         
         //! The mouse receive method.
         /** The function pass the mouse event to the sketcher if it inherits from mouser.
