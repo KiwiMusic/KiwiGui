@@ -27,10 +27,10 @@ namespace Kiwi
 {
     bool Rectangle::intersects(Segment const& segment) const noexcept
     {
-        return (Segment::intersects(Segment(topLeft(),    topRight()),    segment) ||
-                Segment::intersects(Segment(topRight(),   bottomRight()), segment) ||
-                Segment::intersects(Segment(bottomLeft(), bottomRight()), segment) ||
-                Segment::intersects(Segment(topLeft(),    bottomLeft()),  segment) );
+        return (segment.intersects(Segment(topLeft(),    topRight()))    ||
+                segment.intersects(Segment(topRight(),   bottomRight())) ||
+                segment.intersects(Segment(bottomLeft(), bottomRight())) ||
+                segment.intersects(Segment(topLeft(),    bottomLeft())));
     }
     
     bool Rectangle::overlaps(Segment const& segment) const noexcept
@@ -38,23 +38,47 @@ namespace Kiwi
         return (contains(segment.start()) || contains(segment.end()) || intersects(segment));
     }
     
-    bool Rectangle::overlaps(Point const& begin, Point const& ctrl, Point const& end) const noexcept
+    bool Rectangle::overlaps(BezierQuad const& curve) const noexcept
     {
-        int zaza;
-        if(contains(begin) || contains(end))
+        if(contains(curve.start()) || contains(curve.end()))
         {
             return true;
         }
+        else
+        {
+            const vector<Point> points = curve.discretized(100);
+            
+            for(ulong i = 0; i < points.size(); i+=2)
+            {
+                if(intersects(Segment(points[i], points[i+1])))
+                {
+                    return true;
+                }
+            }
+        }
+        
         return false;
     }
     
-    bool Rectangle::overlaps(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept
+    bool Rectangle::overlaps(BezierCubic const& curve) const noexcept
     {
-        int zaza;
-        if(contains(begin) || contains(end))
+        if(contains(curve.start()) || contains(curve.end()))
         {
             return true;
         }
+        else
+        {
+            const vector<Point> points = curve.discretized(100);
+            
+            for(ulong i = 0; i < points.size(); i+=2)
+            {
+                if(intersects(Segment(points[i], points[i+1])))
+                {
+                    return true;
+                }
+            }
+        }
+        
         return false;
     }
 }

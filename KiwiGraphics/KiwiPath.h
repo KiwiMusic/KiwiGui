@@ -39,7 +39,8 @@ namespace Kiwi
      */
     class Path
     {
-    protected:
+    //protected:
+    public:
         //! @internal
         enum Mode
         {
@@ -70,9 +71,19 @@ namespace Kiwi
             inline Mode mode() const noexcept{return m;}
         };
         
+    private:
         vector<Node> m_nodes;
         Rectangle    m_bounds;
     public:
+        
+        Node getNode(ulong index) const noexcept
+        {
+            if(m_nodes.size() > index)
+            {
+                return m_nodes[index];
+            }
+            return Node();
+        }
         
         //! Constructor.
         /** The function initializes an empty path.
@@ -367,9 +378,9 @@ namespace Kiwi
          */
         inline void addCubic(Point const& control1, Point const& control2, Point const& end) noexcept
         {
-            addNode(Node(control1, Quadratic));
-            addNode(Node(control2, Quadratic));
-            addNode(Node(end, Quadratic));
+            addNode(Node(control1, Cubic));
+            addNode(Node(control2, Cubic));
+            addNode(Node(end, Cubic));
         }
         
         //! Adds a cubic bezier curve to the path.
@@ -380,9 +391,9 @@ namespace Kiwi
          */
         inline void addCubic(Point&& control1, Point&& control2, Point&& end) noexcept
         {
-            addNode(Node(forward<Point>(control1), Quadratic));
-            addNode(Node(forward<Point>(control2), Quadratic));
-            addNode(Node(forward<Point>(end), Quadratic));
+            addNode(Node(forward<Point>(control1), Cubic));
+            addNode(Node(forward<Point>(control2), Cubic));
+            addNode(Node(forward<Point>(end), Cubic));
         }
         
         //! Add a set of quadratic bezier curves to the path.

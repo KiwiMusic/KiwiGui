@@ -39,7 +39,7 @@ namespace Kiwi
             return Color(fmod(red() * value + 1., 1.), fmod(green() * value + 1., 1.), fmod(blue() * value + 1., 1.), alpha());
         }
     }
-    
+
     Color Color::withHSLA(const double hue, const double saturation, const double lightness, const double alpha) noexcept
     {
         if(saturation == 0.)
