@@ -393,7 +393,7 @@ namespace Kiwi
          */
         const void reverse() noexcept
         {
-            *this = reversed();
+            swap(m_start, m_end);
         }
         
         //! Retrieve the angle of the segment.
