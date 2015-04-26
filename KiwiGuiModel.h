@@ -41,10 +41,10 @@ namespace Kiwi
         const wGuiContext           m_context;
 		set<wGuiView,
 		owner_less<wGuiView>>       m_views;
-		mutex                       m_views_mutex;
+		mutable mutex               m_views_mutex;
         set<wGuiSketcher,
         owner_less<wGuiSketcher>>   m_childs;
-        mutex                       m_childs_mutex;
+        mutable mutex               m_childs_mutex;
 	public:
 		
 		//! Constructor.
@@ -114,23 +114,29 @@ namespace Kiwi
         Point getMousePosition() const noexcept;
         
         //! Retrieves the views.
-        /** The function retrieves the views.
+        /** The function retrieves the views. The methods also cleans the view list if some of them are not valid anymore.
          @return The views.
          */
         vector<sGuiView> getViews() noexcept;
+        
+        //! Retrieves the views.
+        /** The function retrieves the views.
+         @return The views.
+         */
+        vector<sGuiView> getViews() const noexcept;
         
         //! Retrieves the first available view.
         /** The function retrieves the first available view.
          @return The view.
          */
-        sGuiView getFirstView() noexcept;
+        sGuiView getFirstView() const noexcept;
         
         //! Retrieves if the sketcher has a view.
         /** The function retrieves if the sketcher has a view.
          @param view The view.
          @return true if the sketcher has the view, otherwise false.
          */
-        bool hasView(sGuiView view) noexcept;
+        bool hasView(sGuiView view) const noexcept;
 		
         //! Sets the bounds of the sketcher.
         /** The function sets the bounds of the sketcher.
@@ -187,6 +193,18 @@ namespace Kiwi
          @param child The child.
          */
         void removeChild(sGuiSketcher child) noexcept;
+        
+        //! Retrives all the child sketchers from the sketcher.
+        /** The function retrieves all the child sketchers from the sketcher. The methods also cleans the childs list if some of them are not valid anymore.
+         @return The childs.
+         */
+        vector<sGuiSketcher> getChilds() noexcept;
+        
+        //! Retrives all the child sketchers from the sketcher.
+        /** The function retrieves all the child sketchers from the sketcher.
+         @return The childs.
+         */
+        vector<sGuiSketcher> getChilds() const noexcept;
     
 		//! Send a notification to each view that the sketcher needs to be redrawn.
 		/** The function sends a notification to each view that the sketcher should be redrawn.
@@ -222,12 +240,12 @@ namespace Kiwi
         //! Constructor.
         /** The function does nothing.
          */
-        GuiMouser() noexcept;
+        constexpr inline GuiMouser() noexcept {};
         
         //! Destructor.
         /** The function does nothing.
          */
-        virtual ~GuiMouser() noexcept;
+        virtual ~GuiMouser() noexcept {};
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
@@ -252,12 +270,12 @@ namespace Kiwi
         //! Constructor.
         /** The function does nothing.
          */
-        GuiKeyboarder() noexcept;
+        constexpr inline GuiKeyboarder() noexcept {};
         
         //! Destructor.
         /** The function does nothing.
          */
-        virtual ~GuiKeyboarder() noexcept;
+        virtual inline ~GuiKeyboarder() noexcept {};
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
@@ -292,12 +310,12 @@ namespace Kiwi
         //! Constructor.
         /** The function does nothing.
          */
-        GuiActionManager() noexcept;
+        constexpr inline GuiActionManager() noexcept {};
         
         //! Destructor.
         /** The function does nothing.
          */
-        virtual ~GuiActionManager() noexcept;
+        virtual inline ~GuiActionManager() noexcept {};
         
         //! Retrieves the action codes.
         /** The function retreives the action codes from the the manager.

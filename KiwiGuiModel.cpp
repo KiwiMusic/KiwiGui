@@ -39,14 +39,10 @@ namespace Kiwi
     
 	GuiSketcher::~GuiSketcher() noexcept
 	{
-        {
-            lock_guard<mutex> guard(m_views_mutex);
-            m_views.clear();
-        }
-        {
-            lock_guard<mutex> guard(m_childs_mutex);
-            m_childs.clear();
-        }
+        lock_guard<mutex> guard1(m_views_mutex);
+        m_views.clear();
+        lock_guard<mutex> guard2(m_childs_mutex);
+        m_childs.clear();
 	}
     
     sGuiDeviceManager GuiSketcher::getDeviceManager() const noexcept
@@ -67,6 +63,22 @@ namespace Kiwi
             return ctxt->getMousePosition();
         }
         return Point();
+    }
+    
+    void GuiSketcher::setBounds(Rectangle const& bounds) noexcept
+    {
+        setPosition(bounds.position());
+        setSize(bounds.size());
+    }
+    
+    void GuiSketcher::setPosition(Point const& position) noexcept
+    {
+        setAttrValue(Tags::position, position);
+    }
+    
+    void GuiSketcher::setSize(Size const& size) noexcept
+    {
+        setAttrValue(Tags::size, size);
     }
     
     sGuiView GuiSketcher::createView() noexcept
@@ -96,34 +108,26 @@ namespace Kiwi
                 }
                 if(view)
                 {
+                    bool status = false;
                     {
                         lock_guard<mutex> guard(m_views_mutex);
-                        m_views.insert(view);
-                        addListener(view, {Tags::position, Tags::size});
-                        ctrl->setView(view);
+                        status = m_views.insert(view).second;
                     }
+                    if(status)
                     {
-                        lock_guard<mutex> guard(m_childs_mutex);
-                        auto it = m_childs.begin();
-                        while(it != m_childs.end())
+                        ctrl->setView(view);
+                        addListener(view, {Tags::position, Tags::size});
+                        vector<sGuiSketcher> childs(getChilds());
+                        for(auto it : childs)
                         {
-                            sGuiSketcher child = (*it).lock();
-                            if(!child)
+                            sGuiView childview = it->createView();
+                            if(childview)
                             {
-                                it = m_childs.erase(it);
-                            }
-                            else
-                            {
-                                sGuiView childview = child->createView();
-                                if(childview)
-                                {
-                                    view->add(childview);
-                                }
-                                ++it;
+                                view->add(childview);
                             }
                         }
+                        viewCreated(view);
                     }
-                    viewCreated(view);
                 }
                 return view;
             }
@@ -135,10 +139,16 @@ namespace Kiwi
     {
         if(view)
         {
-            lock_guard<mutex> guard(m_views_mutex);
-            m_views.erase(view);
-            removeListener(view, {Tags::position, Tags::size});
-            viewRemoved(view);
+            bool status = false;
+            {
+                lock_guard<mutex> guard(m_views_mutex);
+                status = bool(m_views.erase(view));
+            }
+            if(status)
+            {
+                removeListener(view, {Tags::position, Tags::size});
+                viewRemoved(view);
+            }
         }
     }
     
@@ -163,7 +173,24 @@ namespace Kiwi
         return views;
     }
     
-    sGuiView GuiSketcher::getFirstView() noexcept
+    vector<sGuiView> GuiSketcher::getViews() const noexcept
+    {
+        vector<sGuiView> views;
+        lock_guard<mutex> guard(m_views_mutex);
+        auto it = m_views.begin();
+        while(it != m_views.end())
+        {
+            sGuiView view = (*it).lock();
+            if(view)
+            {
+                views.push_back(view);
+                ++it;
+            }
+        }
+        return views;
+    }
+    
+    sGuiView GuiSketcher::getFirstView() const noexcept
     {
         lock_guard<mutex> guard(m_views_mutex);
         auto it = m_views.begin();
@@ -174,15 +201,11 @@ namespace Kiwi
             {
                 return view;
             }
-            else
-            {
-                it = m_views.erase(it);
-            }
         }
         return sGuiView();
     }
     
-    bool GuiSketcher::hasView(sGuiView view) noexcept
+    bool GuiSketcher::hasView(sGuiView view) const noexcept
     {
         lock_guard<mutex> guard(m_views_mutex);
         return m_views.find(view) != m_views.end();
@@ -190,20 +213,10 @@ namespace Kiwi
     
     void GuiSketcher::redraw() noexcept
     {
-        lock_guard<mutex> guard(m_views_mutex);
-        auto it = m_views.begin();
-        while(it != m_views.end())
+        vector<sGuiView> views(getViews());
+        for(auto it : views)
         {
-            if((*it).expired())
-            {
-                it = m_views.erase(it);
-            }
-            else
-            {
-                sGuiView view = (*it).lock();
-                view->redraw();
-                ++it;
-            }
+            it->redraw();
         }
     }
     
@@ -223,54 +236,59 @@ namespace Kiwi
         }
     }
     
-    void GuiSketcher::setBounds(Rectangle const& bounds) noexcept
+    vector<sGuiSketcher> GuiSketcher::getChilds() noexcept
     {
-        setPosition(bounds.position());
-        setSize(bounds.size());
+        vector<sGuiSketcher> childs;
+        lock_guard<mutex> guard(m_childs_mutex);
+        auto it = m_childs.begin();
+        while(it != m_childs.end())
+        {
+            sGuiSketcher child = (*it).lock();
+            if(!child)
+            {
+                it = m_childs.erase(it);
+            }
+            else
+            {
+                childs.push_back(child);
+                ++it;
+            }
+        }
+        return childs;
     }
     
-    void GuiSketcher::setPosition(Point const& position) noexcept
+    vector<sGuiSketcher> GuiSketcher::getChilds() const noexcept
     {
-        setAttrValue(Tags::position, position);
-    }
-    
-    void GuiSketcher::setSize(Size const& size) noexcept
-    {
-        setAttrValue(Tags::size, size);
+        vector<sGuiSketcher> childs;
+        lock_guard<mutex> guard(m_childs_mutex);
+        auto it = m_childs.begin();
+        while(it != m_childs.end())
+        {
+            sGuiSketcher child = (*it).lock();
+            if(child)
+            {
+                childs.push_back(child);
+                ++it;
+            }
+        }
+        return childs;
     }
     
     void GuiSketcher::addChild(sGuiSketcher child) noexcept
     {
         if(child)
         {
-            lock_guard<mutex> guard(m_childs_mutex);
-            if(m_childs.insert(child).second)
+            bool status = false;
             {
-                lock_guard<mutex> guard_view(m_views_mutex);
-                auto it = m_views.begin();
-                while(it != m_views.end())
+                lock_guard<mutex> guard(m_childs_mutex);
+                status  = m_childs.insert(child).second;
+            }
+            if(status)
+            {
+                vector<sGuiView> views(getViews());
+                for(auto it : views)
                 {
-                    if((*it).expired())
-                    {
-                        it = m_views.erase(it);
-                    }
-                    else
-                    {
-                        sGuiView view = (*it).lock();
-                        sGuiView childview = child->createView();
-                        if(childview)
-                        {
-                            try
-                            {
-                                view->add(childview);
-                            }
-                            catch(exception& e)
-                            {
-                                ;
-                            }
-                        }
-                        ++it;
-                    }
+                    it->add(child->createView());
                 }
             }
         }
@@ -280,29 +298,20 @@ namespace Kiwi
     {
         if(child)
         {
-            lock_guard<mutex> guard(m_childs_mutex);
-            if(m_childs.erase(child))
+            bool status = false;
+            {
+                lock_guard<mutex> guard(m_childs_mutex);
+                status = bool(m_childs.erase(child));
+            }
+            if(status)
             {
                 vector<sGuiView> childviews = child->getViews();
-                lock_guard<mutex> guard_view(m_views_mutex);
-                for(vector<sGuiView>::size_type i = 0; i < childviews.size(); i++)
+                for(auto it : childviews)
                 {
-                    auto it = m_views.begin();
-                    while(it != m_views.end())
+                    sGuiView view = it->getParent();
+                    if(view && hasView(it->getParent()))
                     {
-                        if((*it).expired())
-                        {
-                            it = m_views.erase(it);
-                        }
-                        else
-                        {
-                            sGuiView view = (*it).lock();
-                            if(view == childviews[i]->getParent())
-                            {
-                                view->remove(childviews[i]);
-                            }
-                            ++it;
-                        }
+                        view->remove(it);
                     }
                 }
             }
@@ -312,47 +321,5 @@ namespace Kiwi
     sGuiController GuiSketcher::createController()
     {
         return make_shared<GuiController>(static_pointer_cast<GuiSketcher>(shared_from_this()));
-    }
-    
-    // ================================================================================ //
-    //                                      MOUSER                                      //
-    // ================================================================================ //
-    
-    GuiMouser::GuiMouser() noexcept
-    {
-        ;
-    }
-    
-    GuiMouser::~GuiMouser() noexcept
-    {
-        ;
-    }
-    
-    // ================================================================================ //
-    //                                      KEYBOARDER                                  //
-    // ================================================================================ //
-    
-    GuiKeyboarder::GuiKeyboarder() noexcept
-    {
-        ;
-    }
-    
-    GuiKeyboarder::~GuiKeyboarder() noexcept
-    {
-        ;
-    }
-    
-    // ================================================================================ //
-    //                                     ACTION MANAGER                               //
-    // ================================================================================ //
-    
-    GuiActionManager::GuiActionManager() noexcept
-    {
-        ;
-    }
-    
-    GuiActionManager::~GuiActionManager() noexcept
-    {
-        ;
     }
 }
