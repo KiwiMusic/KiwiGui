@@ -169,6 +169,7 @@ namespace Kiwi
         Color                   m_color;
         
         wstring                 m_text;
+        wstring::size_type      m_begin;
         vector<wstring>         m_lines;
         vector<double>          m_widths;
         
@@ -184,6 +185,9 @@ namespace Kiwi
         void addCharacter(wchar_t character) noexcept;
         void getLineWidths() noexcept;
         bool format() noexcept;
+        void computeCaretPosition() noexcept;
+        
+        void moveCaret(int const direction, const bool alt, const bool shift) noexcept;
         
     public:
         //! Constructor.

@@ -40,10 +40,10 @@ namespace Kiwi
         m_formated      = false;
         m_line_space    = 1.;
         m_justification = Font::Justification::TopLeft;
+        m_begin         = 0;
         m_caret->setPosition(Point(0., 0.));
         m_caret->setSize(Size(2., m_font.getSize()));
         m_caret->start();
-        add(m_caret);
     }
     
     GuiTextEditor::~GuiTextEditor() noexcept
@@ -142,15 +142,6 @@ namespace Kiwi
     {
         if(event.isCharacter())
         {
-            wcout << L"receive : " << event.getCharacter() << endl;
-        }
-        else
-        {
-            cout << event.getKeyCode() << " " << event.getModifiers() << endl;
-        }
-        
-        if(event.isCharacter())
-        {
             switch(event.getCharacter())
             {
                 case KeyboardEvent::Key::Escape:
@@ -230,6 +221,7 @@ namespace Kiwi
                     {
                         m_formated = false;
                         m_text.pop_back();
+                        m_begin--;
                         getLineWidths();
                         lock_guard<mutex> guard(m_lists_mutex);
                         auto it = m_lists.begin();
@@ -259,32 +251,7 @@ namespace Kiwi
         }
         else
         {
-            switch (event.getKeyCode())
-            {
-                case KeyboardEvent::Key::Left:
-                {
-                    cout << "Left" << endl;
-                }
-                    break;
-                case KeyboardEvent::Key::Right:
-                {
-                    cout << "Right" << endl;
-                }
-                    break;
-                case KeyboardEvent::Key::Up:
-                {
-                    cout << "Up" << endl;
-                }
-                    break;
-                case KeyboardEvent::Key::Down:
-                {
-                    cout << "Down" << endl;
-                }
-                    break;
-                    
-                default:
-                    break;
-            }
+            moveCaret(event.getKeyCode(), event.hasAlt(), event.hasShift());
         }
         return true;
     }
@@ -333,7 +300,8 @@ namespace Kiwi
     void GuiTextEditor::addCharacter(wchar_t character) noexcept
     {
         m_formated = false;
-        m_text += character;
+        m_text.insert(m_begin, 1ul, character);
+        m_begin++;
         getLineWidths();
         lock_guard<mutex> guard(m_lists_mutex);
         auto it = m_lists.begin();
@@ -390,12 +358,7 @@ namespace Kiwi
             {
                 m_lines.push_back(wstring());
             }
-            sGuiContext ctxt = getContext();
-            if(ctxt && !m_lines.empty())
-            {
-                const ulong nlines = ulong(m_lines.size()) - 1ul;
-                m_caret->setPosition(Point(ctxt->getTextWidth(m_font, m_lines[nlines]), nlines * m_line_space * m_font.getSize()));
-            }
+            computeCaretPosition();
             m_formated = true;
             return true;
         }
@@ -406,11 +369,11 @@ namespace Kiwi
     {
         if(event == KeyboardFocusIn)
         {
-            add(m_caret);
+            addChild(m_caret);
         }
         else
         {
-            remove(m_caret);
+            removeChild(m_caret);
         }
         return true;
     }
@@ -420,10 +383,7 @@ namespace Kiwi
         if(attr->getName() == Tags::size)
         {
             m_formated = false;
-            if(format())
-            {
-                redraw();
-            }
+            format();
         }
         return true;
     }
@@ -445,6 +405,50 @@ namespace Kiwi
             m_lists.erase(listener);
         }
     }
+    
+    void GuiTextEditor::computeCaretPosition() noexcept
+    {
+        wstring::size_type size = 0;
+        for(vector<wstring>::size_type i = 0; i < m_lines.size(); i++)
+        {
+            if(m_begin <= size + m_lines[i].size())
+            {
+                sGuiContext ctxt = getContext();
+                if(ctxt)
+                {
+                    const double w = ctxt->getTextWidth(m_font, wstring(m_lines[i].c_str(), max(m_begin - size, 0ul)));
+                    m_caret->setPosition(Point(w, double(i) * m_line_space * m_font.getSize()));
+                    return;
+                }
+            }
+        }
+        
+    }
+    
+    void GuiTextEditor::moveCaret(int const direction, const bool alt, const bool shift) noexcept
+    {
+        ulong newpos = m_begin;
+        if(!alt && !shift)
+        {
+            if(direction == KeyboardEvent::Key::Left)
+            {
+                m_begin > 0ul ? newpos = m_begin - 1 : newpos = m_begin;
+            }
+            else if(direction == KeyboardEvent::Key::Right)
+            {
+                m_begin < m_text.size() - 1ul ? newpos = m_begin + 1ul : newpos = m_begin;
+            }
+            else if(direction == KeyboardEvent::Key::Up)
+            {
+                ;
+            }
+            else if(direction == KeyboardEvent::Key::Down)
+            {
+                ;
+            }
+        }
+    }
+
 }
 
 
