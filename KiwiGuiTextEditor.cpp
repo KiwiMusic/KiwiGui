@@ -253,7 +253,7 @@ namespace Kiwi
                 }
                     break;
                 case KeyboardEvent::Key::Backspace:
-                    eraseSelection();
+                    eraseSelection(event.hasAlt());
                     break;
                 case KeyboardEvent::Key::Delete:
                     cout << "delete" << endl;
@@ -312,32 +312,54 @@ namespace Kiwi
         redraw();
     }
     
-    void GuiTextEditor::eraseSelection() noexcept
+    void GuiTextEditor::eraseSelection(const bool forward) noexcept
     {
-        if(!m_text.empty() && m_begin)
+        if(!m_text.empty())
         {
-            m_formated = false;
-            m_text.erase(m_begin-1, 1ul);
-            m_begin--;
-            getLineWidths();
-            lock_guard<mutex> guard(m_lists_mutex);
-            auto it = m_lists.begin();
-            while(it != m_lists.end())
+            if(forward && m_text.size() > m_begin)
             {
-                sListener listener = (*it).lock();
-                if(listener)
+                m_formated = false;
+                m_text.erase(m_begin, 1ul);
+                getLineWidths();
+                lock_guard<mutex> guard(m_lists_mutex);
+                auto it = m_lists.begin();
+                while(it != m_lists.end())
                 {
-                    listener->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
-                    ++it;
+                    sListener listener = (*it).lock();
+                    if(listener)
+                    {
+                        listener->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+                        ++it;
+                    }
+                    else
+                    {
+                        it = m_lists.erase(it);
+                    }
                 }
-                else
-                {
-                    it = m_lists.erase(it);
-                }
+                if(format()){redraw();}
             }
-            if(format())
+            else if(!forward && m_begin)
             {
-                redraw();
+                m_formated = false;
+                m_text.erase(m_begin-1, 1ul);
+                m_begin--;
+                getLineWidths();
+                lock_guard<mutex> guard(m_lists_mutex);
+                auto it = m_lists.begin();
+                while(it != m_lists.end())
+                {
+                    sListener listener = (*it).lock();
+                    if(listener)
+                    {
+                        listener->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+                        ++it;
+                    }
+                    else
+                    {
+                        it = m_lists.erase(it);
+                    }
+                }
+                if(format()){redraw();}
             }
         }
         
@@ -434,24 +456,6 @@ namespace Kiwi
         return true;
     }
     
-    void GuiTextEditor::addListener(sListener listener)
-    {
-        if(listener)
-        {
-            lock_guard<mutex> guard(m_lists_mutex);
-            m_lists.insert(listener);
-        }
-    }
-    
-    void GuiTextEditor::removeListener(sListener listener)
-    {
-        if(listener)
-        {
-            lock_guard<mutex> guard(m_lists_mutex);
-            m_lists.erase(listener);
-        }
-    }
-    
     void GuiTextEditor::computeCaretPosition() noexcept
     {
         wstring::size_type size = 0;
@@ -464,7 +468,7 @@ namespace Kiwi
                 {
                     const double w = ctxt->getTextWidth(m_font, wstring(m_lines[i].c_str(), max(m_begin - size, 0ul)));
                     m_caret->setPosition(Point(w, double(i) * m_line_space * m_font.getSize()));
-                    cout << m_begin - size << endl;
+                    cout << max(m_begin - size, 0ul) << endl;
                     return;
                     
                 }
@@ -474,6 +478,7 @@ namespace Kiwi
                 size += (m_lines[i].size() + 1);
             }
         }
+        m_caret->setPosition(Point(0., 0.));
     }
     
     void GuiTextEditor::moveCaret(int const direction, const bool alt, const bool shift) noexcept
@@ -496,8 +501,27 @@ namespace Kiwi
             }
             else if(direction == KeyboardEvent::Key::Down)
             {
-                ;
+                if(m_begin < m_text.size() - 1ul) ++m_begin;
+                computeCaretPosition();
             }
+        }
+    }
+                    
+    void GuiTextEditor::addListener(sListener listener)
+    {
+        if(listener)
+        {
+            lock_guard<mutex> guard(m_lists_mutex);
+            m_lists.insert(listener);
+        }
+    }
+
+    void GuiTextEditor::removeListener(sListener listener)
+    {
+        if(listener)
+        {
+            lock_guard<mutex> guard(m_lists_mutex);
+            m_lists.erase(listener);
         }
     }
 
