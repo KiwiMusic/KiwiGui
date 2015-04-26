@@ -78,33 +78,33 @@ namespace Kiwi
         
         //! Generates a point from a line and a position.
         /** The function retrieves the point over a line with its relative distance from the origin.
-         @param begin The first point of the line.
+         @param start The first point of the line.
          @param end   The end point of the line.
          @param delta The relative distance from the origin (first point is 0 and end point is 1).
          @return The point.
          */
-        static Point fromLine(Point const& begin, Point const& end, const double delta) noexcept;
+        static Point fromLine(Point const& start, Point const& end, const double delta) noexcept;
         
         //! Generates a point from a quadratic bezier line and a position.
         /** The function retrieves the point over a quadratic bezier line with its relative distance from the origin.
-         @param begin The first point of the line.
+         @param start The first point of the line.
          @param ctrl  The control point of the line.
          @param end   The end point of the line.
          @param delta The relative distance from the origin (first point is 0 and end point is 1).
          @return The point.
          */
-        static Point fromLine(Point const& begin, Point const& ctrl, Point const& end, const double delta) noexcept;
+        static Point fromLine(Point const& start, Point const& ctrl, Point const& end, const double delta) noexcept;
         
         //! Generates a point from a cubic bezier line and a position.
         /** The function retrieves the point over a cubic bezier line with its relative distance from the origin.
-         @param begin The first point of the line.
+         @param start The first point of the line.
          @param ctrl1 The first control point of the line.
          @param ctrl2 The second control point of the line.
          @param end   The end point of the line.
          @param delta The relative distance from the origin (first point is 0 and and end point is 1).
          @return The point.
          */
-        static Point fromLine(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end, const double delta) noexcept;
+        static Point fromLine(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end, const double delta) noexcept;
         
         //! Retrieves the abscissa.
         /** The function retrieves the abscissa.
@@ -472,30 +472,57 @@ namespace Kiwi
         
         //! Retrieve the distance from a line.
         /** The function retrieves the distance a line.
-         @param begin The first point of the line.
+         @param start The first point of the line.
          @param end   The end point of the line.
          @return The distance.
          */
-        double distance(Point const& begin, Point const& end) const noexcept;
+        double distance(Point const& start, Point const& end) const noexcept;
         
         //! Retrieve the distance from a quadratic bezier line.
         /** The function retrieves the distance a quadratic bezier line.
-         @param begin The first point of the line.
+         @param start The first point of the line.
          @param ctrl  The control point of the line.
          @param end   The end point of the line.
          @return The distance.
          */
-        double distance(Point const& begin, Point const& ctrl, Point const& end) const noexcept;
+        double distance(Point const& start, Point const& ctrl, Point const& end) const noexcept;
         
         //! Retrieve the distance from a cubic bezier line.
-        /** The function retrieves the distance a cubic bezier line.
-         @param begin The first point of the line.
+        /** The function retrieves the distance from a cubic bezier line.
+         @param start The first point of the line.
          @param ctrl1 The first control point of the line.
          @param ctrl2 The second control point of the line.
          @param end   The end point of the line.
          @return The distance.
          */
-        double distance(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept;
+        double distance(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept;
+        
+        //! Retrieve the nearest point from a line.
+        /** The function retrieves the nearest point a line.
+         @param start The first point of the line.
+         @param end   The end point of the line.
+         @return The distance.
+         */
+        Point nearest(Point const& start, Point const& end) const noexcept;
+        
+        //! Retrieve the nearest point from a quadratic bezier line.
+        /** The function retrieves the nearest point from a quadratic bezier line.
+         @param start The first point of the line.
+         @param ctrl  The control point of the line.
+         @param end   The end point of the line.
+         @return The distance.
+         */
+        Point nearest(Point const& start, Point const& ctrl, Point const& end) const noexcept;
+        
+        //! Retrieve the nearest point from a cubic bezier line.
+        /** The function retrieves the nearest point from a cubic bezier line.
+         @param start The first point of the line.
+         @param ctrl1 The first control point of the line.
+         @param ctrl2 The second control point of the line.
+         @param end   The end point of the line.
+         @return The distance.
+         */
+        Point nearest(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept;
         
         //! Get if the point is near to another point.
         /** The function gets if the point is near to another point.
@@ -507,33 +534,33 @@ namespace Kiwi
         
         //! Get if the point is near or over a line.
         /** The function gets if the point is near or over a line.
-         @param begin The first point of the line.
+         @param start The first point of the line.
          @param end   The end point of the line.
          @param distance The distance of neighborhood (0 means over the line).
          @return true if the point is near to the line, otherwise false.
          */
-        bool near(Point const& begin, Point const& end, double const distance) const noexcept;
+        bool near(Point const& start, Point const& end, double const distance) const noexcept;
         
         //! Get if the point is near or over a quadratic bezier line.
         /** The function gets if the point is near or over a quadratic bezier line.
-         @param begin The first point of the line.
+         @param start The first point of the line.
          @param ctrl  The control point of the line.
          @param end   The end point of the line.
          @param distance The distance of neighborhood (0 means over the line).
          @return true if the point is near to the line, otherwise false.
          */
-        bool near(Point const& begin, Point const& ctrl, Point const& end, double const distance) const noexcept;
+        bool near(Point const& start, Point const& ctrl, Point const& end, double const distance) const noexcept;
         
         //! Get if the point is near or over a cubic bezier line.
         /** The function gets if the point is near or over a cubic bezier line.
-         @param begin The first point of the line.
+         @param start The first point of the line.
          @param ctrl1 The first control point of the line.
          @param ctrl2 The second control point of the line.
          @param end   The end point of the line.
          @param distance The distance of neighborhood (0 means over the line).
          @return true if the point is near to the line, otherwise false.
          */
-        bool near(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end, double const distance) const noexcept;
+        bool near(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end, double const distance) const noexcept;
         
         // ================================================================================ //
         //                                      ATTR                                        //

@@ -30,33 +30,35 @@ namespace Kiwi
     //                                      POINT                                       //
     // ================================================================================ //
     
-    Point Point::fromLine(Point const& begin, Point const& end, double delta) noexcept
+    Point Point::fromLine(Point const& start, Point const& end, double delta) noexcept
     {
-        return (end - begin) * delta + begin;
+        return (end - start) * delta + start;
     }
     
-    Point Point::fromLine(Point const& begin, Point const& ctrl, Point const& end, const double delta) noexcept
+    Point Point::fromLine(Point const& start, Point const& ctrl, Point const& end, const double delta) noexcept
     {
         const double mdelta = (1. - delta);
-        return begin * (mdelta * mdelta) + ctrl * (2. * delta * mdelta) + end * (delta * delta);
+        return start * (mdelta * mdelta) + ctrl * (2. * delta * mdelta) + end * (delta * delta);
     }
     
-    Point Point::fromLine(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end, const double delta) noexcept
-    {
-        const double mdelta = (1. - delta);
-        return begin * (mdelta * mdelta * mdelta) + ctrl1 * (3. * delta * mdelta * mdelta) + ctrl2 * (3. * delta * delta * mdelta) + end * (delta * delta * mdelta);
+    Point Point::fromLine(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end, const double delta) noexcept
+    {        
+        const double d2 = delta * delta;
+        const double md = (1. - delta);
+        const double md2 = md * md;
+        return start * md2 * md + 3 * ctrl1 * md2 * delta + 3 * ctrl2 * md * d2 + end * d2 * delta;
     }
     
-    double Point::distance(Point const& begin, Point const& end) const noexcept
+    double Point::distance(Point const& start, Point const& end) const noexcept
     {
-        const Point delta(end - begin);
+        const Point delta(end - start);
         const double length = delta.length();
         if(length > 0.)
         {
-            const double ratio = (*this - begin).dot(delta) / length;
+            const double ratio = (*this - start).dot(delta) / length;
             if(ratio < 0.)
             {
-                return distance(begin);
+                return distance(start);
             }
             else if(ratio > 1.)
             {
@@ -64,29 +66,29 @@ namespace Kiwi
             }
             else
             {
-                return distance((ratio * delta) + begin);
+                return distance((ratio * delta) + start);
             }
         }
         else
         {
-            return min(distance(begin), distance(end));
+            return min(distance(start), distance(end));
         }
     }
     
-    double Point::distance(Point const& begin, Point const& ctrl, Point const& end) const noexcept
+    double Point::distance(Point const& start, Point const& ctrl, Point const& end) const noexcept
     {
-        const Point A = ctrl - begin;
-        const Point B = begin - ctrl * 2 - end;
-        const Point C = begin - *this;
+        const Point A = ctrl - start;
+        const Point B = start - ctrl * 2 - end;
+        const Point C = start - *this;
         double sol1, sol2, sol3;
     
         const ulong nresult = solve(B.length(), 3 * A.dot(B), 2 * A.length() + C.dot(B), A.dot(C), sol1, sol2, sol3);
         if(nresult)
         {
-            double dist = distance(fromLine(begin, ctrl, end, sol1));
+            double dist = distance(fromLine(start, ctrl, end, sol1));
             if(nresult > 1)
             {
-                const double dist2 = distance(fromLine(begin, ctrl, end, sol2));
+                const double dist2 = distance(fromLine(start, ctrl, end, sol2));
                 if(dist2 < dist)
                 {
                     dist = dist2;
@@ -94,7 +96,7 @@ namespace Kiwi
             }
             if(nresult > 2)
             {
-                const double dist2 = distance(fromLine(begin, ctrl, end, sol3));
+                const double dist2 = distance(fromLine(start, ctrl, end, sol3));
                 if(dist2 < dist)
                 {
                     dist  = dist2;
@@ -104,15 +106,15 @@ namespace Kiwi
         }
         else
         {
-            return min(distance(begin), distance(end));
+            return min(distance(start), distance(end));
         }
     }
     
-    double Point::distance(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept
+    double Point::distance(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept
     {
         array<Point, 6> W = {Point(0., 0.), Point(0.2, 0.), Point(0.4, 0.), Point(0.6, 0.), Point(0.8, 0.), Point(1., 0.)};
-        array<Point, 4> C = {Point(begin - *this), Point(ctrl1 - *this), Point(ctrl2 - *this), Point(end - *this)};
-        array<Point, 3> D = {Point((ctrl1 - begin) * 3.), Point((ctrl2 - ctrl1) * 3.), Point((end - ctrl2) * 3.)};
+        array<Point, 4> C = {Point(start - *this), Point(ctrl1 - *this), Point(ctrl2 - *this), Point(end - *this)};
+        array<Point, 3> D = {Point((ctrl1 - start) * 3.), Point((ctrl2 - ctrl1) * 3.), Point((end - ctrl2) * 3.)};
         static const double z[3][4] ={{1.0, 0.6, 0.3, 0.1}, {0.4, 0.6, 0.6, 0.4}, {0.1, 0.3, 0.6, 1.0}};
         double 	cd[3][4];
         for(int i = 0; i < 3; i++)
@@ -136,7 +138,7 @@ namespace Kiwi
         double dist = distance(end);
         for(int i = 0; i < n_solutions; i++)
         {
-            const double new_dist = distance(Point::fromLine(begin, ctrl1, ctrl2, end, t_candidate[i]));
+            const double new_dist = distance(Point::fromLine(start, ctrl1, ctrl2, end, t_candidate[i]));
             if(new_dist < dist)
             {
                 dist = new_dist;
@@ -145,24 +147,130 @@ namespace Kiwi
         return dist;
     }
     
+    Point Point::nearest(Point const& start, Point const& end) const noexcept
+    {
+        const Point delta(end - start);
+        const double length = delta.length();
+        if(length > 0.)
+        {
+            const double ratio = (*this - start).dot(delta) / length;
+            if(ratio < 0.)
+            {
+                return start;
+            }
+            else if(ratio > 1.)
+            {
+                return end;
+            }
+            else
+            {
+                return (ratio * delta) + start;
+            }
+        }
+        else
+        {
+            return (distance(start) < distance(end)) ? start : end;
+        }
+    }
+    
+    Point Point::nearest(Point const& start, Point const& ctrl, Point const& end) const noexcept
+    {
+        const Point A = ctrl - start;
+        const Point B = start - ctrl * 2 - end;
+        const Point C = start - *this;
+        double sol1, sol2, sol3;
+        
+        const ulong nresult = solve(B.length(), 3 * A.dot(B), 2 * A.length() + C.dot(B), A.dot(C), sol1, sol2, sol3);
+        if(nresult)
+        {
+            Point pt = fromLine(start, ctrl, end, sol1);
+            double dist = distance(pt);
+            if(nresult > 1)
+            {
+                const Point pt2 = fromLine(start, ctrl, end, sol2);
+                const double dist2 = distance(pt2);
+                if(dist2 < dist)
+                {
+                    dist = dist2;
+                    pt = pt2;
+                }
+            }
+            if(nresult > 2)
+            {
+                const Point pt2 = fromLine(start, ctrl, end, sol3);
+                const double dist2 = distance(pt2);
+                if(dist2 < dist)
+                {
+                    dist  = dist2;
+                    pt = pt2;
+                }
+            }
+            return pt;
+        }
+        else
+        {
+            return (distance(start) < distance(end)) ? start : end;
+        }
+    }
+    
+    Point Point::nearest(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end) const noexcept
+    {
+        array<Point, 6> W = {Point(0., 0.), Point(0.2, 0.), Point(0.4, 0.), Point(0.6, 0.), Point(0.8, 0.), Point(1., 0.)};
+        array<Point, 4> C = {Point(start - *this), Point(ctrl1 - *this), Point(ctrl2 - *this), Point(end - *this)};
+        array<Point, 3> D = {Point((ctrl1 - start) * 3.), Point((ctrl2 - ctrl1) * 3.), Point((end - ctrl2) * 3.)};
+        static const double z[3][4] ={{1.0, 0.6, 0.3, 0.1}, {0.4, 0.6, 0.6, 0.4}, {0.1, 0.3, 0.6, 1.0}};
+        double 	cd[3][4];
+        for(int i = 0; i < 3; i++)
+        {
+            for(int j = 0; j < 4; j++)
+            {
+                cd[i][j] = D[i].dot(C[j]);
+            }
+        }
+        for(int k = 0; k < 6; k++)
+        {
+            for(int i = max(0, k - 2); i <= min(k, 3); i++)
+            {
+                W[k].y(W[k].y() + cd[k - i][i] * z[k - i][i]);
+            }
+        }
+        
+        double 	t_candidate[5];
+        ulong n_solutions = solve(W, t_candidate, 0ul);
+        
+        Point pt = end;
+        double dist = distance(end);
+        for(int i = 0; i < n_solutions; i++)
+        {
+            const Point pt2 = fromLine(start, ctrl1, ctrl2, end, t_candidate[i]);
+            const double new_dist = distance(pt2);
+            if(new_dist < dist)
+            {
+                dist = new_dist;
+                pt = pt2;
+            }
+        }
+        return pt;
+    }
+    
     bool Point::near(Point const& pt, double const dist) const noexcept
     {
         return distance(pt) <= dist;
     }
     
-    bool Point::near(Point const& begin, Point const& end, double const dist) const noexcept
+    bool Point::near(Point const& start, Point const& end, double const dist) const noexcept
     {
-        return distance(begin, end) <= dist;
+        return distance(start, end) <= dist;
     }
     
-    bool Point::near(Point const& begin, Point const& ctrl, Point const& end, double const dist) const noexcept
+    bool Point::near(Point const& start, Point const& ctrl, Point const& end, double const dist) const noexcept
     {
-        return distance(begin, ctrl, end) <= dist;
+        return distance(start, ctrl, end) <= dist;
     }
     
-    bool Point::near(Point const& begin, Point const& ctrl1, Point const& ctrl2, Point const& end, double const dist) const noexcept
+    bool Point::near(Point const& start, Point const& ctrl1, Point const& ctrl2, Point const& end, double const dist) const noexcept
     {
-        return distance(begin, ctrl1, ctrl2, end) <= dist;
+        return distance(start, ctrl1, ctrl2, end) <= dist;
     }
     
     ulong Point::solve(double a, double b, double c, double const d, double &solution1, double &solution2, double &solution3)

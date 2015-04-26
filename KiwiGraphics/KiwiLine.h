@@ -633,6 +633,101 @@ namespace Kiwi
     };
     
     // ================================================================================ //
+    //                                      BEZIER                                      //
+    // ================================================================================ //
+    
+    //! The quadratic curve is a curved line that holds one control value.
+    /**
+     The quadratic curve is used to represent a curved line in a space and allows several modification.
+     */
+    class BezierCurve : public Line
+    {
+    public:
+        //! Constructor.
+        /** The function initializes a quadratic curve, using (0, 0) as its start and end points.
+         */
+        inline BezierCurve() noexcept : Line() {}
+        
+        //! Constructor.
+        /** The function initializes a quadratic curve with a segment.
+         @param start The start point.
+         @param end   The end point.
+         */
+        inline BezierCurve(const Segment& segment) noexcept : Line(segment.start(), segment.end()){}
+        
+        //! Constructor.
+        /** The function initializes a quadratic curve with three points.
+         @param start The start point.
+         @param ctrl  The control point.
+         @param end   The end point.
+         */
+        inline BezierCurve(const Point& start, const Point& end) noexcept : Line(start, end) {}
+        
+        //! Returns true if this curve intersects a segment.
+        /** The function returns true if this curve intersects a segment.
+         @param segment The other segment.
+         @return True if this curve intersects a segment.
+         */
+        bool intersects(Segment const& segment) const noexcept
+        {
+            const ulong steps = 100;
+            
+            const double factor = 1./(double)steps;
+            Point last = m_start;
+            
+            for(double t = 0.; t < 1.; t+=factor)
+            {
+                const Point next = getPointAt(t);
+                if(Segment(last, next).intersects(segment))
+                {
+                    return true;
+                }
+                last = next;
+            }
+            
+            if(Segment(last, m_end).intersects(segment))
+            {
+                return true;
+            }
+            
+            return false;
+        }
+        
+        //! Returns true if this curve intersects another.
+        /** The function returns true if this curve intersects another.
+         @param curve The other curve.
+         @return True if this curve intersects another.
+         */
+        bool intersects(BezierCurve const& curve) const noexcept
+        {
+            const vector<Point> points = curve.discretized(100);
+            for(vector<Point>::size_type i = 0; i < points.size() -1; i++)
+            {
+                if(intersects(Segment(points[i], points[i+1])))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        //! Retrieve the length of the bezier line.
+        /** The function retrieves the length of the bezier line.
+         @return The length of the bezier line.
+         */
+        inline double length() const noexcept override
+        {
+            double len = 0.;
+            const vector<Point> points = discretized(100);
+            for(vector<Point>::size_type i = 0; i < points.size() - 1; i++)
+            {
+                len += Segment(points[i], points[i+1]).length();
+            }
+            return len;
+        }
+    };
+    
+    // ================================================================================ //
     //                                    BEZIER QUAD                                   //
     // ================================================================================ //
     
@@ -640,7 +735,7 @@ namespace Kiwi
     /**
      The quadratic curve is used to represent a curved line in a space and allows several modification.
      */
-    class BezierQuad : public Line
+    class BezierQuad : public BezierCurve
     {
     private:
         Point m_ctrl;
@@ -649,14 +744,14 @@ namespace Kiwi
         //! Constructor.
         /** The function initializes a quadratic curve, using (0, 0) as its start and end points.
          */
-        inline BezierQuad() noexcept {}
+        inline BezierQuad() noexcept : m_ctrl() {}
         
         //! Constructor.
         /** The function initializes a quadratic curve with a segment.
          @param start The start point.
          @param end   The end point.
          */
-        inline BezierQuad(const Segment& segment) noexcept : Line(segment.start(), segment.end()), m_ctrl(segment.start()){}
+        inline BezierQuad(const Segment& segment) noexcept : BezierCurve(segment), m_ctrl(segment.start()){}
         
         //! Constructor.
         /** The function initializes a quadratic curve with three points.
@@ -664,13 +759,13 @@ namespace Kiwi
          @param ctrl  The control point.
          @param end   The end point.
          */
-        inline BezierQuad(const Point& start, const Point& ctrl, const Point& end) noexcept : Line(start, end), m_ctrl(ctrl){}
+        inline BezierQuad(const Point& start, const Point& ctrl, const Point& end) noexcept : BezierCurve(start, end), m_ctrl(ctrl){}
         
         //! Constructor.
         /** The function initializes a quadratic curve with another quadratic curve.
          @param curve The other quadratic curve.
          */
-        inline BezierQuad(BezierQuad const& curve) noexcept : Line(curve.m_start, curve.m_end), m_ctrl(curve.m_ctrl){}
+        inline BezierQuad(BezierQuad const& curve) noexcept : BezierCurve(curve.m_start, curve.m_end), m_ctrl(curve.m_ctrl){}
         
         //! Constructor.
         /** The function initializes a quadratic curve with another.
@@ -993,16 +1088,6 @@ namespace Kiwi
             swap(m_start, m_end);
         }
         
-        //! Retrieve the length of the quadratic curve.
-        /** The function retrieves the length of the quadratic curve.
-         @return The length.
-         */
-        inline double length() const noexcept override
-        {
-            int todo;
-            return 0.;
-        }
-        
         //! Retrieve the smallest distance from a point.
         /** The function retrieves the smallest distance from a point.
          @param pt The point.
@@ -1018,36 +1103,21 @@ namespace Kiwi
          @param pt The point.
          @return The nearest point.
          */
-        Point getNearestPoint(Point const& pt) const noexcept override;
+        Point getNearestPoint(Point const& pt) const noexcept override
+        {
+            return pt.nearest(m_start, m_ctrl, m_end);
+        }
         
         /** Retrieves the point which is at a given distance along this quadratic curve proportional to the quadratic curve's length.
          This function retrieves the the point which is at a given distance along this quadratic curve proportional to the quadratic curve's length.
-         @param proportionOfLength the distance to move along the quadratic curve from its start point, in multiples of the line's length.
+         @param delta the distance to move along the quadratic curve from its start point, in multiples of the line's length.
          So a value of 0.0 will return the quadratic curve's start point
          and a value of 1.0 will return its end point.
          */
-        Point getPointAt(const double proportionOfLength) const noexcept override;
-        
-        //! Returns true if this quadratic curve intersects a segment.
-        /** The function returns true if this quadratic curve intersects a segment.
-         @param segment The segment.
-         @return True if this quadratic curve intersects the segment.
-         */
-        bool intersects(Segment const& segment) const noexcept;
-        
-        //! Returns true if this quadratic curve intersects another.
-        /** The function returns true if this quadratic curve intersects another.
-         @param curve The other quadratic curve.
-         @return True if this quadratic curve intersects another.
-         */
-        bool intersects(BezierQuad const& curve) const noexcept;
-        
-        //! Returns true if this quadratic curve intersects a cubic bezier curve.
-        /** The function returns true if this quadratic curve intersects a cubic bezier curve.
-         @param curve The cubic bezier curve
-         @return True if this quadratic curve intersects.
-         */
-        bool intersects(BezierCubic const& curve) const noexcept;
+        Point getPointAt(const double delta) const noexcept override
+        {
+            return Point::fromLine(m_start, m_ctrl, m_end, delta);
+        }
     };
     
     // ================================================================================ //
@@ -1058,7 +1128,7 @@ namespace Kiwi
     /**
      The cubic curve is used to represent a curved line in a space and allows several modification.
      */
-    class BezierCubic : public Line
+    class BezierCubic : public BezierCurve
     {
     private:
         Point m_ctrl1, m_ctrl2;
@@ -1074,7 +1144,7 @@ namespace Kiwi
          @param segment The segment.
          */
         inline BezierCubic(const Segment& segment) noexcept :
-            Line(segment.start(), segment.end()), m_ctrl1(segment.start()), m_ctrl2(segment.end()) {}
+            BezierCurve(segment), m_ctrl1(segment.start()), m_ctrl2(segment.end()) {}
         
         //! Constructor.
         /** The function initializes a cubic curve with four points.
@@ -1084,7 +1154,7 @@ namespace Kiwi
          @param end   The end point.
          */
         inline BezierCubic(const Point& start, const Point& ctrl1, const Point& ctrl2, const Point& end) noexcept :
-            Line(start, end), m_ctrl1(ctrl1), m_ctrl2(ctrl2) {}
+            BezierCurve(start, end), m_ctrl1(ctrl1), m_ctrl2(ctrl2) {}
         
         //! Constructor.
         /** The function initializes a cubic curve with three points.
@@ -1093,21 +1163,21 @@ namespace Kiwi
          @param end   The end point.
          */
         inline BezierCubic(const Point& start, const Point& ctrl, const Point& end) noexcept :
-            Line(start, end), m_ctrl1(ctrl), m_ctrl2(ctrl) {}
+            BezierCurve(start, end), m_ctrl1(ctrl), m_ctrl2(ctrl) {}
         
         //! Constructor.
         /** The function initializes a cubic curve with another cubic curve.
          @param curve The other cubic curve.
          */
         inline BezierCubic(BezierCubic const& curve) noexcept :
-            Line(curve.m_start, curve.m_end), m_ctrl1(curve.m_ctrl1), m_ctrl2(curve.m_ctrl2) {}
+            BezierCurve(curve.m_start, curve.m_end), m_ctrl1(curve.m_ctrl1), m_ctrl2(curve.m_ctrl2) {}
         
         //! Constructor.
         /** The function initializes a cubic curve with a quadratic curve.
          @param curve The other cubic curve.
          */
         inline BezierCubic(BezierQuad const& curve) noexcept :
-            Line(curve.start(), curve.end()), m_ctrl1(curve.controlPoint()), m_ctrl2(curve.controlPoint()) {}
+            BezierCurve(curve.start(), curve.end()), m_ctrl1(curve.controlPoint()), m_ctrl2(curve.controlPoint()) {}
         
         //! Constructor.
         /** The function initializes a cubic curve with another.
@@ -1501,16 +1571,6 @@ namespace Kiwi
             swap(m_ctrl1, m_ctrl2);
         }
         
-        //! Retrieve the length of the cubic curve.
-        /** The function retrieves the length of the cubic curve.
-         @return The length.
-         */
-        inline double length() const noexcept override
-        {
-            int todo;
-            return 0.;
-        }
-        
         //! Retrieve the smallest distance from a point.
         /** The function retrieves the smallest distance from a point.
          @param pt The point.
@@ -1526,38 +1586,22 @@ namespace Kiwi
          @param pt The point.
          @return The nearest point.
          */
-        Point getNearestPoint(Point const& pt) const noexcept override;
+        Point getNearestPoint(Point const& pt) const noexcept override
+        {
+            return pt.nearest(m_start, m_ctrl1, m_ctrl2, m_end);
+        }
         
         /** Retrieves the point which is at a given distance along this cubic curve proportional to the cubic curve's length.
          This function retrieves the the point which is at a given distance along this cubic curve proportional to the cubic curve's length.
-         @param proportionOfLength the distance to move along the cubic curve from its start point, in multiples of the line's length.
+         @param delta the distance to move along the cubic curve from its start point, in multiples of the line's length.
          So a value of 0.0 will return the cubic curve's start point
          and a value of 1.0 will return its end point.
          */
-        Point getPointAt(const double proportionOfLength) const noexcept override;
-        
-        //! Returns true if this cubic curve intersects a segment.
-        /** The function returns true if this cubic curve intersects a segment.
-         @param segment The segment.
-         @return True if this cubic curve intersects the segment.
-         */
-        bool intersects(Segment const& segment) const noexcept;
-        
-        //! Returns true if this cubic curve intersects a quadratic bezier curve.
-        /** The function returns true if this cubic curve intersects a quadratic bezier curve.
-         @param curve The quadratic bezier curve
-         @return True if this cubic curve intersects.
-         */
-        bool intersects(BezierQuad const& curve) const noexcept;
-        
-        //! Returns true if this cubic curve intersects another cubic one.
-        /** The function returns true if this cubic curve intersects another cubic one.
-         @param curve The other cubic curve.
-         @return True if this cubic curve intersects another.
-         */
-        bool intersects(BezierCubic const& curve) const noexcept;
+        Point getPointAt(const double delta) const noexcept override
+        {
+            return Point::fromLine(m_start, m_ctrl1, m_ctrl2, m_end, delta);
+        }
     };
-    
 }
 
 #endif
