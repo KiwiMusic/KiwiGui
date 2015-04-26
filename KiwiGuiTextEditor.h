@@ -83,6 +83,7 @@ namespace Kiwi
         
         //@internal
         void addCharacter(wchar_t character) noexcept;
+        void eraseSelection() noexcept;
         void getLineWidths() noexcept;
         bool format() noexcept;
         void computeCaretPosition() noexcept;

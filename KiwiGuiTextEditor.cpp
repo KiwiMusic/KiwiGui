@@ -253,32 +253,10 @@ namespace Kiwi
                 }
                     break;
                 case KeyboardEvent::Key::Backspace:
-                {
-                    if(!m_text.empty())
-                    {
-                        m_formated = false;
-                        m_text.pop_back();
-                        m_begin--;
-                        getLineWidths();
-                        lock_guard<mutex> guard(m_lists_mutex);
-                        auto it = m_lists.begin();
-                        while(it != m_lists.end())
-                        {
-                            sListener listener = (*it).lock();
-                            if(listener)
-                            {
-                                listener->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
-                                ++it;
-                            }
-                            else
-                            {
-                                it = m_lists.erase(it);
-                            }
-                        }
-                        format();
-                        redraw();
-                    }
-                }
+                    eraseSelection();
+                    break;
+                case KeyboardEvent::Key::Delete:
+                    cout << "delete" << endl;
                     break;
                     
                 default:
@@ -334,12 +312,42 @@ namespace Kiwi
         redraw();
     }
     
+    void GuiTextEditor::eraseSelection() noexcept
+    {
+        if(!m_text.empty() && m_begin)
+        {
+            m_formated = false;
+            m_text.erase(m_begin-1, 1ul);
+            m_begin--;
+            getLineWidths();
+            lock_guard<mutex> guard(m_lists_mutex);
+            auto it = m_lists.begin();
+            while(it != m_lists.end())
+            {
+                sListener listener = (*it).lock();
+                if(listener)
+                {
+                    listener->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+                    ++it;
+                }
+                else
+                {
+                    it = m_lists.erase(it);
+                }
+            }
+            if(format())
+            {
+                redraw();
+            }
+        }
+        
+    }
+    
     void GuiTextEditor::addCharacter(wchar_t character) noexcept
     {
         m_formated = false;
-        m_text += character;
-        //m_text.insert(m_begin, 1ul, character);
-        //m_begin++;
+        m_text.insert(m_begin, 1ul, character);
+        m_begin++;
         getLineWidths();
         lock_guard<mutex> guard(m_lists_mutex);
         auto it = m_lists.begin();
@@ -446,7 +454,6 @@ namespace Kiwi
     
     void GuiTextEditor::computeCaretPosition() noexcept
     {
-        /*
         wstring::size_type size = 0;
         for(vector<wstring>::size_type i = 0; i < m_lines.size(); i++)
         {
@@ -455,29 +462,33 @@ namespace Kiwi
                 sGuiContext ctxt = getContext();
                 if(ctxt)
                 {
-                    
                     const double w = ctxt->getTextWidth(m_font, wstring(m_lines[i].c_str(), max(m_begin - size, 0ul)));
                     m_caret->setPosition(Point(w, double(i) * m_line_space * m_font.getSize()));
+                    cout << m_begin - size << endl;
                     return;
                     
                 }
             }
+            else
+            {
+                size += (m_lines[i].size() + 1);
+            }
         }
-        */
     }
     
     void GuiTextEditor::moveCaret(int const direction, const bool alt, const bool shift) noexcept
     {
-        ulong newpos = m_begin;
         if(!alt && !shift)
         {
             if(direction == KeyboardEvent::Key::Left)
             {
-                m_begin > 0ul ? newpos = m_begin - 1 : newpos = m_begin;
+                if(m_begin > 0ul)--m_begin;
+                computeCaretPosition();
             }
             else if(direction == KeyboardEvent::Key::Right)
             {
-                m_begin < m_text.size() - 1ul ? newpos = m_begin + 1ul : newpos = m_begin;
+                if(m_begin < m_text.size() - 1ul) ++m_begin;
+                computeCaretPosition();
             }
             else if(direction == KeyboardEvent::Key::Up)
             {
