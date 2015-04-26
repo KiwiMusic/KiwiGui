@@ -416,9 +416,11 @@ namespace Kiwi
                 sGuiContext ctxt = getContext();
                 if(ctxt)
                 {
+                    /*
                     const double w = ctxt->getTextWidth(m_font, wstring(m_lines[i].c_str(), max(m_begin - size, 0ul)));
                     m_caret->setPosition(Point(w, double(i) * m_line_space * m_font.getSize()));
                     return;
+                     */
                 }
             }
         }
