@@ -81,7 +81,6 @@ namespace Kiwi
                 try
                 {
                     view = ctxt->createView(ctrl);
-                    addListener(view, {Tags::position, Tags::size});
                 }
                 catch(exception& e)
                 {
@@ -92,6 +91,7 @@ namespace Kiwi
                     {
                         lock_guard<mutex> guard(m_views_mutex);
                         m_views.insert(view);
+                        addListener(view, {Tags::position, Tags::size});
                         ctrl->setView(view);
                     }
                     {
@@ -218,7 +218,7 @@ namespace Kiwi
         setAttrValue(Tags::size, size);
     }
     
-    void GuiSketcher::add(sGuiSketcher child) noexcept
+    void GuiSketcher::addChild(sGuiSketcher child) noexcept
     {
         if(child)
         {
@@ -255,7 +255,7 @@ namespace Kiwi
         }
     }
     
-    void GuiSketcher::remove(sGuiSketcher child) noexcept
+    void GuiSketcher::removeChild(sGuiSketcher child) noexcept
     {
         if(child)
         {
