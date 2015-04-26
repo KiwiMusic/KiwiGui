@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_TEXT_EDITOR__
 #define __DEF_KIWI_GUI_TEXT_EDITOR__
 
-#include "KiwiGuiModel.h"
+#include "KiwiGuiView.h"
 
 namespace Kiwi
 {
@@ -39,22 +39,11 @@ namespace Kiwi
     class GuiTextEditor : public GuiSketcher, public GuiMouser, public GuiKeyboarder
     {
     public:
-        class Listener
-        {
-        public:
-            inline virtual ~Listener()  {}
-            
-            virtual void textChanged(sGuiTextEditor editor) {}
-            
-            virtual void returnKeyPressed(sGuiTextEditor editor) {}
-            
-            virtual void tabKeyPressed(sGuiTextEditor editor) {}
-            
-            virtual void escapeKeyPressed(sGuiTextEditor editor) {}
-            
-            virtual void focusLost(sGuiTextEditor editor) {}
-        };
+        class Caret;
+        typedef shared_ptr<Caret>       sCaret;
+        typedef weak_ptr<Caret>         wCaret;
         
+        class Listener;
         typedef shared_ptr<Listener>    sListener;
         typedef weak_ptr<Listener>      wListener;
         
@@ -72,95 +61,6 @@ namespace Kiwi
         };
         
     private:
-        class Caret : public GuiSketcher, public Clock
-        {
-        private:
-            atomic_bool m_status;
-            atomic_bool m_active;
-            Color       m_color;
-        public:
-            
-            //! Constructor.
-            /** The function does nothing.
-             @param context The context.
-             */
-            inline Caret(sGuiContext context) noexcept : GuiSketcher(context), m_color(Colors::black) {}
-            
-            //! Destructor.
-            /** The function does nothing.
-             */
-            inline  ~Caret() noexcept {}
-            
-            //! Sets the color of the caret.
-            /** The function sets the color of the caret.
-             @param color   The new color.
-             */
-            inline void setColor(Color const& color) noexcept {m_color = color;}
-            
-            //! Retrievs the color of the caret.
-            /** The function retrieves the color of the caret.
-             @return The color.
-             */
-            inline Color getColor() const noexcept {return m_color;}
-            
-            //! The draw method that should be override.
-            /** The function shoulds draw some stuff in the sketch.
-             @param ctrl    The controller that ask the draw.
-             @param sketch  A sketch to draw.
-             */
-            void draw(scGuiView view, Sketch& sketch) const override
-            {
-                if(m_status)
-                {
-                    sketch.setColor(m_color);
-                    sketch.drawLine(0., 0., 0., sketch.getSize().height(), 2.);
-                }
-            }
-            
-            //! The tick function that must be override.
-            /** The tick function is called by a clock after a delay.
-             */
-            void tick() override
-            {
-                if(m_active)
-                {
-                    m_status = !m_status;
-                    redraw();
-                    delay(500.);
-                }
-            }
-            
-            //! Starts the blinking.
-            /** The function starts the blinking.
-             */
-            void start()
-            {
-                if(!m_active)
-                {
-                    m_active = true;
-                    tick();
-                }
-            }
-            
-            //! Stops the blinking.
-            /** The function stops the blinking.
-             */
-            inline void stop()
-            {
-                m_active = false;
-            }
-            
-            //! Retrieves the blinking.
-            /** The function stops the blinking.
-             */
-            inline bool state()
-            {
-                return m_active;
-            }
-        };
-        
-        typedef shared_ptr<Caret> sCaret;
-        
         const sCaret            m_caret;
         Font                    m_font;
         Font::Justification     m_justification;
@@ -385,6 +285,109 @@ namespace Kiwi
          @param listener  The listener.
          */
         void removeListener(sListener listener);
+    };
+    
+    //! The caret of the text editor.
+    /**
+     The caret...
+     */
+    class GuiTextEditor::Caret : public GuiSketcher, public Clock
+    {
+    private:
+        atomic_bool m_status;
+        atomic_bool m_active;
+        Color       m_color;
+    public:
+        
+        //! Constructor.
+        /** The function does nothing.
+         @param context The context.
+         */
+        inline Caret(sGuiContext context) noexcept : GuiSketcher(context), m_color(Colors::black) {}
+        
+        //! Destructor.
+        /** The function does nothing.
+         */
+        inline  ~Caret() noexcept {}
+        
+        //! Sets the color of the caret.
+        /** The function sets the color of the caret.
+         @param color   The new color.
+         */
+        inline void setColor(Color const& color) noexcept {m_color = color;}
+        
+        //! Retrievs the color of the caret.
+        /** The function retrieves the color of the caret.
+         @return The color.
+         */
+        inline Color getColor() const noexcept {return m_color;}
+        
+        //! The draw method that should be override.
+        /** The function shoulds draw some stuff in the sketch.
+         @param ctrl    The controller that ask the draw.
+         @param sketch  A sketch to draw.
+         */
+        void draw(scGuiView view, Sketch& sketch) const override;
+        
+        //! Receives the notification that a view has been created.
+        /** The function notfies the sketcher that a view has been created.
+         @param view The view.
+         */
+        void viewCreated(sGuiView view) noexcept override;
+        
+        //! Receives the notification that a view has been removed.
+        /** The function notfies the sketcher that a view has been removed.
+         @param view The view.
+         */
+        void viewRemoved(sGuiView view) noexcept override;
+        
+        //! The tick function that must be override.
+        /** The tick function is called by a clock after a delay.
+         */
+        void tick() override;
+    };
+    
+    //! The listener of the text editor.
+    /**
+     The listener...
+     */
+    class GuiTextEditor::Listener
+    {
+    public:
+        //! Destructor.
+        /** The function does nothing.
+         */
+        inline virtual ~Listener() {}
+        
+        //! Receives the notification that the text changed.
+        /** The function notifies the listener that the text changed.
+         @param editor The text editor that notifies.
+         */
+        virtual void textChanged(sGuiTextEditor editor) {}
+        
+        //! Receives the notification that the return key has been pressed.
+        /** The function notifies the listener that the return key has been pressed.
+         @param editor The text editor that notifies.
+         */
+        virtual void returnKeyPressed(sGuiTextEditor editor) {}
+        
+        //! Receives the notification that the tab key has been pressed.
+        /** The function notifies the listener that the tab key has been pressed.
+         @param editor The text editor that notifies.
+         */
+        virtual void tabKeyPressed(sGuiTextEditor editor) {}
+        
+        //! Receives the notification that the escape key has been pressed.
+        /** The function notifies the listener that the escape key has been pressed.
+         @param editor The text editor that notifies.
+         */
+        virtual void escapeKeyPressed(sGuiTextEditor editor) {}
+        
+        //! Receives the notification that the text editor lose the focus.
+        /** The function notifies the listener that the text editor lose the focus.
+         @param editor The text editor that notifies.
+         */
+        virtual void focusLost(sGuiTextEditor editor) {}
     };
 }
 

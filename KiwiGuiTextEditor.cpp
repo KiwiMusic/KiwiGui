@@ -27,6 +27,42 @@
 namespace Kiwi
 {
     
+    void GuiTextEditor::Caret::draw(scGuiView view, Sketch& sketch) const
+    {
+        if(m_status)
+        {
+            sketch.setColor(m_color);
+            sketch.drawLine(0., 0., 0., getSize().height(), 2.);
+        }
+    }
+    
+    void GuiTextEditor::Caret::viewCreated(sGuiView view) noexcept
+    {
+        if(!m_active)
+        {
+            m_active = true;
+            m_status = true;
+            redraw();
+            delay(500.);
+        }
+    }
+    
+    void GuiTextEditor::Caret::viewRemoved(sGuiView view) noexcept
+    {
+        m_active = false;
+    }
+    
+    void GuiTextEditor::Caret::tick()
+    {
+        if(m_active)
+        {
+            m_status = !m_status;
+            redraw();
+            delay(500.);
+        }
+    }
+    
+    
     // ================================================================================ //
     //                                     TEXT EDITOR                                  //
     // ================================================================================ //
@@ -43,12 +79,13 @@ namespace Kiwi
         m_begin         = 0;
         m_caret->setPosition(Point(0., 0.));
         m_caret->setSize(Size(2., m_font.getSize()));
-        m_caret->start();
     }
     
     GuiTextEditor::~GuiTextEditor() noexcept
     {
         m_lines.clear();
+        lock_guard<mutex> guard(m_lists_mutex);
+        m_lists.clear();
     }
     
     void GuiTextEditor::setFont(Font const& font) noexcept
@@ -300,8 +337,9 @@ namespace Kiwi
     void GuiTextEditor::addCharacter(wchar_t character) noexcept
     {
         m_formated = false;
-        m_text.insert(m_begin, 1ul, character);
-        m_begin++;
+        m_text += character;
+        //m_text.insert(m_begin, 1ul, character);
+        //m_begin++;
         getLineWidths();
         lock_guard<mutex> guard(m_lists_mutex);
         auto it = m_lists.begin();
@@ -408,6 +446,7 @@ namespace Kiwi
     
     void GuiTextEditor::computeCaretPosition() noexcept
     {
+        /*
         wstring::size_type size = 0;
         for(vector<wstring>::size_type i = 0; i < m_lines.size(); i++)
         {
@@ -416,15 +455,15 @@ namespace Kiwi
                 sGuiContext ctxt = getContext();
                 if(ctxt)
                 {
-                    /*
+                    
                     const double w = ctxt->getTextWidth(m_font, wstring(m_lines[i].c_str(), max(m_begin - size, 0ul)));
                     m_caret->setPosition(Point(w, double(i) * m_line_space * m_font.getSize()));
                     return;
-                     */
+                    
                 }
             }
         }
-        
+        */
     }
     
     void GuiTextEditor::moveCaret(int const direction, const bool alt, const bool shift) noexcept
