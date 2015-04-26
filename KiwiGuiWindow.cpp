@@ -36,7 +36,7 @@ namespace Kiwi
         setPosition(Point(0., 0.));
         setSize(Size(800., 600.));
         setBackgroundColor(Color(1., 1., 1., 0.));
-        add(m_container);
+        addChild(m_container);
         m_container->setSize(getSize());
     }
     
@@ -157,32 +157,32 @@ namespace Kiwi
         {
             if((buttons & closeButton) && !(m_buttons & closeButton))
             {
-                add(m_button_close);
+                addChild(m_button_close);
                 m_button_close->addListener(getShared());
             }
             else if(!(buttons & closeButton) && (m_buttons & closeButton))
             {
-                remove(m_button_close);
+                removeChild(m_button_close);
                 m_button_close->removeListener(getShared());
             }
             if((buttons & minimiseButton) && !(m_buttons & minimiseButton))
             {
-                add(m_button_minimize);
+                addChild(m_button_minimize);
                 m_button_minimize->addListener(getShared());
             }
             else if(!(buttons & minimiseButton) && (m_buttons & minimiseButton))
             {
-                remove(m_button_minimize);
+                removeChild(m_button_minimize);
                 m_button_minimize->removeListener(getShared());
             }
             if((buttons & maximiseButton) && !(m_buttons & maximiseButton))
             {
-                add(m_button_maximize);
+                addChild(m_button_maximize);
                 m_button_maximize->addListener(getShared());
             }
             else if(!(buttons & maximiseButton) && (m_buttons & maximiseButton))
             {
-                remove(m_button_maximize);
+                removeChild(m_button_maximize);
                 m_button_maximize->removeListener(getShared());
             }
             m_buttons = buttons;

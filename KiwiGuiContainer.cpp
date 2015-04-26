@@ -47,12 +47,12 @@ namespace Kiwi
 
     void GuiContainer::addContent(sGuiSketcher sketcher) noexcept
     {
-        add(sketcher);
+        addChild(sketcher);
     }
     
     void GuiContainer::removeContent(sGuiSketcher sketcher) noexcept
     {
-        remove(sketcher);
+        removeChild(sketcher);
     }
 
 }
