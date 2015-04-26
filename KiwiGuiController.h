@@ -38,19 +38,6 @@ namespace Kiwi
     private:
         const sGuiSketcher  m_sketcher;
         wGuiView            m_view;
-    public:
-        
-        //! The controller constructor.
-        /** The function does nothing.
-         */
-        GuiController(sGuiSketcher sketcher) noexcept;
-        
-        //! The controller destructor.
-        /** The function does nothing.
-         */
-        virtual ~GuiController() noexcept;
-        
-    private:
         
         //! Sets the view of the controller.
         /** The function sets the view of the controller.
@@ -60,6 +47,17 @@ namespace Kiwi
         {
             m_view = view;
         }
+    public:
+        
+        //! The controller constructor.
+        /** The function does nothing.
+         */
+        inline GuiController(sGuiSketcher sketcher) noexcept : m_sketcher(sketcher) {}
+        
+        //! The controller destructor.
+        /** The function does nothing.
+         */
+        virtual inline ~GuiController() noexcept {};
         
     protected:
         

@@ -29,17 +29,6 @@ namespace Kiwi
     // ================================================================================ //
     //                                      GUI CONTROLLER                              //
     // ================================================================================ //
-	
-    GuiController::GuiController(sGuiSketcher sketcher) noexcept :
-    m_sketcher(sketcher)
-    {
-        ;
-    }
-    
-    GuiController::~GuiController() noexcept
-    {
-        ;
-    }
     
     void GuiController::redraw() noexcept
     {
