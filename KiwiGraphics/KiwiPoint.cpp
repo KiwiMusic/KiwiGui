@@ -252,8 +252,7 @@ namespace Kiwi
     ulong Point::solve(array<Point, 6>& W, double *t, const ulong depth)
     {
         ulong count = 0;
-        bool sign, old_sign;
-        sign = old_sign = W[0].y() < 0. ? true : false;
+        bool sign, old_sign = old_sign = W[0].y() < 0. ? true : false;
         for(ulong i = 1; i < 6; i++)
         {
             sign = W[i].y() < 0. ? true : false;

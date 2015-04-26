@@ -100,7 +100,7 @@ namespace Kiwi
                 const double deltab = (((_max - blue()) / 6 ) + (_delta / 2)) / _delta;
                 hue = (1. / 3.) + deltar - deltab;
             }
-            else if(blue() == _max)
+            else
             {
                 const double deltag = (((_max - green()) / 6 ) + (_delta / 2)) / _delta;
                 const double deltar = (((_max - red()) / 6 ) + (_delta / 2)) / _delta;
@@ -111,7 +111,7 @@ namespace Kiwi
             {
                 return hue + 1;
             }
-            else if (hue > 1.)
+            else if(hue > 1.)
             {
                 return hue - 1;
             }
