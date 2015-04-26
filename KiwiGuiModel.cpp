@@ -74,7 +74,15 @@ namespace Kiwi
         sGuiContext ctxt = getContext();
         if(ctxt)
         {
-            sGuiController ctrl = createController();
+            sGuiController ctrl;
+            try
+            {
+                ctrl = createController();
+            }
+            catch(exception& e)
+            {
+                return sGuiView();
+            }
             if(ctrl)
             {
                 sGuiView view;
@@ -115,6 +123,7 @@ namespace Kiwi
                             }
                         }
                     }
+                    viewCreated(view);
                 }
                 return view;
             }
@@ -128,7 +137,8 @@ namespace Kiwi
         {
             lock_guard<mutex> guard(m_views_mutex);
             m_views.erase(view);
-            removeListener(view);
+            removeListener(view, {Tags::position, Tags::size});
+            viewRemoved(view);
         }
     }
     
@@ -153,6 +163,31 @@ namespace Kiwi
         return views;
     }
     
+    sGuiView GuiSketcher::getFirstView() noexcept
+    {
+        lock_guard<mutex> guard(m_views_mutex);
+        auto it = m_views.begin();
+        while(it != m_views.end())
+        {
+            sGuiView view = (*it).lock();
+            if(view)
+            {
+                return view;
+            }
+            else
+            {
+                it = m_views.erase(it);
+            }
+        }
+        return sGuiView();
+    }
+    
+    bool GuiSketcher::hasView(sGuiView view) noexcept
+    {
+        lock_guard<mutex> guard(m_views_mutex);
+        return m_views.find(view) != m_views.end();
+    }
+    
     void GuiSketcher::redraw() noexcept
     {
         lock_guard<mutex> guard(m_views_mutex);
@@ -174,30 +209,16 @@ namespace Kiwi
     
     void GuiSketcher::grabFocus(sGuiView view) noexcept
     {
-        if(view)
+        if(view && hasView(view))
         {
-            lock_guard<mutex> guard(m_views_mutex);
-            if(m_views.find(view) != m_views.end())
-            {
-                view->grabFocus();
-            }
+            view->grabFocus();
         }
         else
         {
-            lock_guard<mutex> guard(m_views_mutex);
-            auto it = m_views.begin();
-            while(it != m_views.end())
+            view = getFirstView();
+            if(view)
             {
-                if((*it).expired())
-                {
-                    it = m_views.erase(it);
-                }
-                else
-                {
-                    sGuiView view = (*it).lock();
-                    view->grabFocus();
-                    return;
-                }
+                view->grabFocus();
             }
         }
     }

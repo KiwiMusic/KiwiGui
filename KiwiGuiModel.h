@@ -113,23 +113,24 @@ namespace Kiwi
          */
         Point getMousePosition() const noexcept;
         
-        //! Creates a view.
-        /** The function creates a view depending on the inheritance and the implemetation.
-         @return The view.
-         */
-        sGuiView createView() noexcept;
-        
-        //! Removes a view.
-        /** The function removes a view.
-         @param view The view.
-         */
-        void removeView(sGuiView view) noexcept;
-        
         //! Retrieves the views.
         /** The function retrieves the views.
-         @return The view.
+         @return The views.
          */
         vector<sGuiView> getViews() noexcept;
+        
+        //! Retrieves the first available view.
+        /** The function retrieves the first available view.
+         @return The view.
+         */
+        sGuiView getFirstView() noexcept;
+        
+        //! Retrieves if the sketcher has a view.
+        /** The function retrieves if the sketcher has a view.
+         @param view The view.
+         @return true if the sketcher has the view, otherwise false.
+         */
+        bool hasView(sGuiView view) noexcept;
 		
         //! Sets the bounds of the sketcher.
         /** The function sets the bounds of the sketcher.
@@ -150,6 +151,30 @@ namespace Kiwi
         void setSize(Size const& size) noexcept;
         
     protected:
+        
+        //! Creates a view.
+        /** The function creates a view depending on the inheritance and the implemetation.
+         @return The view.
+         */
+        sGuiView createView() noexcept;
+        
+        //! Removes a view.
+        /** The function removes a view.
+         @param view The view.
+         */
+        void removeView(sGuiView view) noexcept;
+        
+        //! Receives the notification that a view has been created.
+        /** The function notfies the sketcher that a view has been created.
+         @param view The view.
+         */
+        virtual void viewCreated(sGuiView view) noexcept {};
+        
+        //! Receives the notification that a view has been removed.
+        /** The function notfies the sketcher that a view has been removed.
+         @param view The view.
+         */
+        virtual void viewRemoved(sGuiView view) noexcept {};
         
         //! Adds a child sketcher to the sketcher.
         /** The function adds a child sketcher that will be displayed inside the sketcher.
