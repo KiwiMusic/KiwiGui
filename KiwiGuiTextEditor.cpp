@@ -76,9 +76,9 @@ namespace Kiwi
         m_formated      = false;
         m_line_space    = 1.;
         m_justification = Font::Justification::TopLeft;
-        m_begin         = 0;
         m_caret->setPosition(Point(0., 0.));
         m_caret->setSize(Size(2., m_font.getSize()));
+        m_selection = unique_ptr<Selection>(new Selection());
     }
     
     GuiTextEditor::~GuiTextEditor() noexcept
@@ -177,6 +177,8 @@ namespace Kiwi
     
     bool GuiTextEditor::receive(scGuiView view, KeyboardEvent const& event)
     {
+        cout << "receive :" << endl;
+        cout  << event.getKeyCode() << " " << event.getModifiers() << endl;
         if(event.isCharacter())
         {
             switch(event.getCharacter())
@@ -253,7 +255,7 @@ namespace Kiwi
                 }
                     break;
                 case KeyboardEvent::Key::Backspace:
-                    eraseSelection(event.hasAlt());
+                    
                     break;
                 case KeyboardEvent::Key::Delete:
                     cout << "delete" << endl;
@@ -266,7 +268,7 @@ namespace Kiwi
         }
         else
         {
-            moveCaret(event.getKeyCode(), event.hasAlt(), event.hasShift());
+            moveCaret(event);
         }
         return true;
     }
@@ -312,8 +314,33 @@ namespace Kiwi
         redraw();
     }
     
-    void GuiTextEditor::eraseSelection(const bool forward) noexcept
+    void GuiTextEditor::erase(const bool forward, const bool word) noexcept
     {
+        if(!m_text.empty())
+        {
+            /*
+            if(m_selection.isEmpty())            // No selection
+            {
+                if(!forward && !word)       // Backward/One character
+                {
+                    
+                }
+                else if(forward && !word)   // Forward/One character
+                {
+                    
+                }
+                else if(!forward && word)   // Backward/Word
+                {
+                    
+                }
+                else if(forward && word)    // Forward/Word
+                {
+                    
+                }
+            }
+            */
+        }
+        /*
         if(!m_text.empty())
         {
             if(forward && m_text.size() > m_begin)
@@ -362,14 +389,15 @@ namespace Kiwi
                 if(format()){redraw();}
             }
         }
-        
+        */
     }
     
     void GuiTextEditor::addCharacter(wchar_t character) noexcept
     {
+        
         m_formated = false;
-        m_text.insert(m_begin, 1ul, character);
-        m_begin++;
+        m_text.insert(m_selection->caret(), 1ul, character);
+        m_selection->moveToNextCharacter(m_text, false);
         getLineWidths();
         lock_guard<mutex> guard(m_lists_mutex);
         auto it = m_lists.begin();
@@ -461,14 +489,13 @@ namespace Kiwi
         wstring::size_type size = 0;
         for(vector<wstring>::size_type i = 0; i < m_lines.size(); i++)
         {
-            if(m_begin <= size + m_lines[i].size())
+            if(m_selection->caret() <= size + m_lines[i].size())
             {
                 sGuiContext ctxt = getContext();
                 if(ctxt)
                 {
-                    const double w = ctxt->getTextWidth(m_font, wstring(m_lines[i].c_str(), max(m_begin - size, 0ul)));
+                    const double w = ctxt->getTextWidth(m_font, wstring(m_lines[i].c_str(), max(m_selection->caret() - size, 0ul)));
                     m_caret->setPosition(Point(w, double(i) * m_line_space * m_font.getSize()));
-                    cout << max(m_begin - size, 0ul) << endl;
                     return;
                     
                 }
@@ -481,32 +508,46 @@ namespace Kiwi
         m_caret->setPosition(Point(0., 0.));
     }
     
-    void GuiTextEditor::moveCaret(int const direction, const bool alt, const bool shift) noexcept
+    void GuiTextEditor::moveCaret(KeyboardEvent const& event) noexcept
     {
-        if(!alt && !shift)
+        const int direction = event.getKeyCode();
+        const bool select   = event.hasShift();
+        if(direction == KeyboardEvent::Key::Left)
         {
-            if(direction == KeyboardEvent::Key::Left)
+            if(event.hasCmd())
             {
-                if(m_begin > 0ul)--m_begin;
-                computeCaretPosition();
+                m_selection->moveToStartLine(m_text, select);
             }
-            else if(direction == KeyboardEvent::Key::Right)
+            else
             {
-                if(m_begin < m_text.size() - 1ul) ++m_begin;
-                computeCaretPosition();
+                m_selection->moveToPreviousCharacter(m_text, select);
             }
-            else if(direction == KeyboardEvent::Key::Up)
+            computeCaretPosition();
+        }
+        else if(direction == KeyboardEvent::Key::Right)
+        {
+            if(event.hasCmd())
             {
-                ;
+                m_selection->moveToEndLine(m_text, select);
             }
-            else if(direction == KeyboardEvent::Key::Down)
+            else
             {
-                if(m_begin < m_text.size() - 1ul) ++m_begin;
-                computeCaretPosition();
+                m_selection->moveToNextCharacter(m_text, select);
             }
+            computeCaretPosition();
+        }
+        else if(direction == KeyboardEvent::Key::Up)
+        {
+            m_selection->moveToTopCharacter(m_text, select);
+            computeCaretPosition();
+        }
+        else if(direction == KeyboardEvent::Key::Down)
+        {
+            m_selection->moveToBottomCharacter(m_text, select);
+            computeCaretPosition();
         }
     }
-                    
+    
     void GuiTextEditor::addListener(sListener listener)
     {
         if(listener)
