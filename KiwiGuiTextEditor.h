@@ -292,6 +292,49 @@ namespace Kiwi
         void removeListener(sListener listener);
     };
     
+    //! The listener of the text editor.
+    /**
+     The listener...
+     */
+    class GuiTextEditor::Listener
+    {
+    public:
+        //! Destructor.
+        /** The function does nothing.
+         */
+        inline virtual ~Listener() {}
+        
+        //! Receives the notification that the text changed.
+        /** The function notifies the listener that the text changed.
+         @param editor The text editor that notifies.
+         */
+        virtual void textChanged(sGuiTextEditor editor) {}
+        
+        //! Receives the notification that the return key has been pressed.
+        /** The function notifies the listener that the return key has been pressed.
+         @param editor The text editor that notifies.
+         */
+        virtual void returnKeyPressed(sGuiTextEditor editor) {}
+        
+        //! Receives the notification that the tab key has been pressed.
+        /** The function notifies the listener that the tab key has been pressed.
+         @param editor The text editor that notifies.
+         */
+        virtual void tabKeyPressed(sGuiTextEditor editor) {}
+        
+        //! Receives the notification that the escape key has been pressed.
+        /** The function notifies the listener that the escape key has been pressed.
+         @param editor The text editor that notifies.
+         */
+        virtual void escapeKeyPressed(sGuiTextEditor editor) {}
+        
+        //! Receives the notification that the text editor lose the focus.
+        /** The function notifies the listener that the text editor lose the focus.
+         @param editor The text editor that notifies.
+         */
+        virtual void focusLost(sGuiTextEditor editor) {}
+    };
+    
     //! The caret of the text editor.
     /**
      The caret...
@@ -359,49 +402,6 @@ namespace Kiwi
         bool notify(sAttr attr) {m_status = true; return true;};
     };
     
-    //! The listener of the text editor.
-    /**
-     The listener...
-     */
-    class GuiTextEditor::Listener
-    {
-    public:
-        //! Destructor.
-        /** The function does nothing.
-         */
-        inline virtual ~Listener() {}
-        
-        //! Receives the notification that the text changed.
-        /** The function notifies the listener that the text changed.
-         @param editor The text editor that notifies.
-         */
-        virtual void textChanged(sGuiTextEditor editor) {}
-        
-        //! Receives the notification that the return key has been pressed.
-        /** The function notifies the listener that the return key has been pressed.
-         @param editor The text editor that notifies.
-         */
-        virtual void returnKeyPressed(sGuiTextEditor editor) {}
-        
-        //! Receives the notification that the tab key has been pressed.
-        /** The function notifies the listener that the tab key has been pressed.
-         @param editor The text editor that notifies.
-         */
-        virtual void tabKeyPressed(sGuiTextEditor editor) {}
-        
-        //! Receives the notification that the escape key has been pressed.
-        /** The function notifies the listener that the escape key has been pressed.
-         @param editor The text editor that notifies.
-         */
-        virtual void escapeKeyPressed(sGuiTextEditor editor) {}
-        
-        //! Receives the notification that the text editor lose the focus.
-        /** The function notifies the listener that the text editor lose the focus.
-         @param editor The text editor that notifies.
-         */
-        virtual void focusLost(sGuiTextEditor editor) {}
-    };
-    
     class GuiTextEditor::Selection
     {
     public:
@@ -411,20 +411,6 @@ namespace Kiwi
         size_type _caret;
         size_type _start;
         size_type _dist;
-        
-        //! Compute the distance from the start of the line.
-        /** The function retrieves the start position of the selection.
-         @return The start position.
-         */
-        inline void distanceFromStartLine(wstring const& text, const bool select) noexcept
-        {
-            if(_dist == npos)
-            {
-                const size_type f = select ? _caret : first();
-                const size_type s = f > 0ul ? text.find_last_of(L'\n', f - 1ul) + 1ul : 0ul;
-                _dist = (s == npos) ? f : f - s;
-            }
-        }
         
     public:
         //! Constructor.
@@ -507,12 +493,10 @@ namespace Kiwi
          */
         inline void moveToNextCharacter(wstring const& text, const bool select) noexcept
         {
-            if(!select)
-            {
+            if(!select) {
                 empty() ? (_start = _caret = min(_caret+1, text.size())) : _start = _caret = max(_caret, _start);
             }
-            else if(_caret != text.size())
-            {
+            else if(_caret != text.size()) {
                 ++_caret;
             }
             _dist  = npos;
@@ -525,12 +509,10 @@ namespace Kiwi
          */
         inline void moveToPreviousCharacter(wstring const& text, const bool select) noexcept
         {
-            if(!select)
-            {
+            if(!select) {
                 empty() ? _start = _caret = max(_caret, 1ul) - 1ul : _start = _caret = min(_caret, _start);
             }
-            else if(_caret != 0)
-            {
+            else if(_caret != 0) {
                 --_caret;
             }
             _dist  = npos;
@@ -544,9 +526,8 @@ namespace Kiwi
         inline void moveToStartLine(wstring const& text, const bool select) noexcept
         {
             const size_type line = (_caret != 0ul) ? text.find_last_of(L'\n', _caret-1) : 0ul;
-            (line == npos) ? _caret = 0ul : _caret = min(line + 1ul, text.size());
-            if(!select)
-            {
+            _caret = (line == npos) ? 0ul : min(line + 1ul, text.size());
+            if(!select) {
                 _start = _caret;
             }
             _dist  = npos;
@@ -559,10 +540,9 @@ namespace Kiwi
          */
         inline void moveToEndLine(wstring const& text, const bool select) noexcept
         {
-            const size_type line = text.find_first_of(L'\n', _caret+1);
-            (line == npos) ? _caret = text.size() : _caret = line;
-            if(!select)
-            {
+            const size_type line = text.find_first_of(L'\n', _caret);
+            _caret = (line == npos) ? text.size() : line;
+            if(!select) {
                 _start = _caret;
             }
             _dist  = npos;
@@ -575,28 +555,22 @@ namespace Kiwi
          */
         inline void moveToTopCharacter(wstring const& text, const bool select) noexcept
         {
-            distanceFromStartLine(text, select);
-            const size_type f = select ? _caret : first();
-            size_type line = f > 0ul ? text.find_last_of(L'\n', f - 1ul) : 0ul;
-            if(line == npos)
-            {
+            const size_type current = select ? _caret : first();
+            size_type line = (current > 0ul) ? text.find_last_of(L'\n', current -  1ul) + 1 : 0ul;
+            if(line == npos){
+                line = 0ul;
+            }
+            if(_dist == npos){
+                _dist = current - (line);
+            }
+            if(line == 0ul){
                 _caret = 0ul;
             }
-            else
-            {
-                if(line > 1ul)
-                {
-                    --line;
-                }
-                size_type begin = (line > 0ul) ? text.find_last_of(L'\n', line - 1) : 0ul;
-                if(begin == npos)
-                {
-                    begin = 0ul;
-                }
-                (_dist > line - begin) ? _caret = line : _caret = begin + _dist;
+            else{
+                const size_type pline = (line > 2ul) ? text.find_last_of(L'\n', max(line -  2ul, 0ul)) + 1 : 0ul;
+                _caret = min(pline + _dist, text.find_first_of(L'\n', pline));
             }
-            if(!select)
-            {
+            if(!select) {
                 _start = _caret;
             }
         }
@@ -608,22 +582,21 @@ namespace Kiwi
          */
         inline void moveToBottomCharacter(wstring const& text, const bool select) noexcept
         {
-            distanceFromStartLine(text, select);
-            cout << "dist : " << _dist << endl;
-            const size_type s = select ? _caret : second();
-            size_type line = text.find_first_of(L'\n', s);
-            if(line == npos)
-            {
+            const size_type current = select ? _caret : second();
+            size_type line = (current > 0ul) ? text.find_last_of(L'\n', current -  1ul) + 1 : 0ul;
+            if(line == npos){
+                line = 0ul;
+            }
+            if(_dist == npos){
+                _dist = current - (line);
+            }
+            const size_type nline = text.find_first_of(L'\n', current);
+            if(nline == npos){
                 _caret = text.size();
             }
             else
             {
-                size_type end = text.find_first_of(L'\n', line + 1);
-                if(end == npos)
-                {
-                    end = text.size();
-                }
-                (_dist > line - end) ? _caret = end : _caret = line + _dist + 1;
+                _caret = min(nline + 1 + _dist, text.find_first_of(L'\n', nline+1));
             }
             if(!select)
             {

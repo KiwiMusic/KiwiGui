@@ -177,8 +177,8 @@ namespace Kiwi
     
     bool GuiTextEditor::receive(scGuiView view, KeyboardEvent const& event)
     {
-        cout << "receive :" << endl;
-        cout  << event.getKeyCode() << " " << event.getModifiers() << endl;
+        //cout << "receive :" << endl;
+        //cout  << event.getKeyCode() << " " << event.getModifiers() << endl;
         if(event.isCharacter())
         {
             switch(event.getCharacter())
