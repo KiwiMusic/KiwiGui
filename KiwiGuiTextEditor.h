@@ -337,7 +337,7 @@ namespace Kiwi
     /**
      The caret...
      */
-    class GuiTextEditor::Caret : public GuiSketcher, public Clock
+    class GuiTextEditor::Caret : public GuiSketcher, public Attr::Listener, public Clock
     {
     public:
         typedef wstring::size_type size_type;
@@ -525,6 +525,13 @@ namespace Kiwi
          @return pass true to notify changes to listeners, false if you don't want them to be notified
          */
         bool notify(sAttr attr) {m_status = true; return true;};
+        
+        //! Receive the notification that an attribute has changed.
+        /** The function must be implement to receive notifications when an attribute is added or removed, or when its value, appearance or behavior changes.
+         @param manager     The attribute manager.
+         @param attr		The attribute that has been modified.
+         */
+        void attrChanged(Attr::sManager manager, sAttr attr) override;
     };
 }
 
