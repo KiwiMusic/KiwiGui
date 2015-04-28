@@ -229,7 +229,19 @@ namespace Kiwi
          @param path The path to draw.
          @param thickness The line thickness of the path.
          */
-        virtual void drawPath(const Path& path, double const thickness) const = 0;
+        virtual void drawPath(const Path& path, double const thickness) const
+        {
+            drawPath(path, thickness, Path::Joint::Mitered, Path::LineCap::Butt);
+        }
+        
+        //! Draw a path.
+        /** The function draws a path.
+         @param path        The path to draw.
+         @param thickness   The line thickness of the path.
+         @param joint       How must be drawn the joint between lines.
+         @param linecap     How must be drawn the ends of lines.
+         */
+        virtual void drawPath(const Path& path, double const thickness, const Path::Joint joint, const Path::LineCap linecap) const = 0;
         
         virtual void drawLine(double x1, double y1, double x2, double y2, double thickness) const
         {
