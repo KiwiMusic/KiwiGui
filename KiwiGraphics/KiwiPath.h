@@ -127,7 +127,7 @@ namespace Kiwi
         inline Path(Segment const& segment)
         {
             moveTo(segment.start());
-            addNode(Node(segment.end(),   Linear));
+            addNode(Node(segment.end(), Linear));
         }
         
         //! Quadratic constructor.

@@ -231,34 +231,73 @@ namespace Kiwi
          */
         virtual void drawPath(const Path& path, double const thickness) const = 0;
         
-        virtual void drawLine(double x1, double y1, double x2, double y2, double thickness) const = 0;
+        virtual void drawLine(double x1, double y1, double x2, double y2, double thickness) const
+        {
+            drawPath(Path::line(Point(x1, y2), Point(x2, y2)), thickness);
+        }
         
-        virtual void drawRectangle(double x, double y, double w, double h, double thickness, double rounded = 0.) const = 0;
+        virtual void drawRectangle(double x, double y, double w, double h, double thickness, double rounded = 0.) const
+        {
+            Path p;
+            if(rounded > 0.)
+            {
+                p.addRectangle(x, y, w, h, rounded, rounded, Rectangle::TopLeft | Rectangle::TopRight | Rectangle::BottomRight | Rectangle::BottomLeft);
+            }
+            else
+            {
+                p.addRectangle(Rectangle(x, y, w, h));
+            }
+            
+            drawPath(p, thickness);
+        }
         
         virtual void drawRectangle(Rectangle const& rect, double thickness, double rounded = 0.)
         {
             drawRectangle(rect.x(), rect.y(), rect.width(), rect.height(), thickness, rounded);
         }
         
-        virtual void fillRectangle(double x, double y, double w, double h, double rounded = 0.) const = 0;
+        virtual void fillRectangle(double x, double y, double w, double h, double rounded = 0.) const
+        {
+            Path p;
+            if(rounded > 0.)
+            {
+                p.addRectangle(x, y, w, h, rounded, rounded, Rectangle::TopLeft | Rectangle::TopRight | Rectangle::BottomRight | Rectangle::BottomLeft);
+            }
+            else
+            {
+                p.addRectangle(Rectangle(x, y, w, h));
+            }
+            
+            fillPath(p);
+        }
         
         virtual void fillRectangle(Rectangle const& rect, double rounded = 0.)
         {
             drawRectangle(rect.x(), rect.y(), rect.width(), rect.height(), rounded);
         }
         
-        virtual void drawEllipse(double x, double y, double width, double height, double thickness = 0.) const = 0;
-        
-        virtual void drawEllipse(Rectangle const& rect, double thickness = 0.) const
+        virtual void drawEllipse(double x, double y, double width, double height, double thickness = 1.) const
         {
-            drawEllipse(rect.x(), rect.y(), rect.width(), rect.height(), thickness);
+            drawEllipse(x, y, width, height, thickness);
         }
         
-        virtual void fillEllipse(double x, double y, double width, double height) const = 0;
+        virtual void drawEllipse(Rectangle const& rect, double thickness = 1.) const
+        {
+            Path p;
+            p.addEllipse(rect);
+            drawPath(p, thickness);
+        }
+        
+        virtual void fillEllipse(double x, double y, double width, double height) const
+        {
+            fillEllipse(x, y, width, height);
+        }
         
         virtual void fillEllipse(Rectangle const& rect) const
         {
-            fillEllipse(rect.x(), rect.y(), rect.width(), rect.height());
+            Path p;
+            p.addEllipse(rect);
+            fillPath(p);
         }
     };
     
