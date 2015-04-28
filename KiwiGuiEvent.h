@@ -225,9 +225,9 @@ namespace Kiwi
         virtual void fillPath(Path const& path) const = 0;
         
         //! Draw a path.
-        /** The function draws a patcher.
-         @param path The path.
-         @param thickness The thickness of the parth.
+        /** The function draws a path.
+         @param path The path to draw.
+         @param thickness The line thickness of the path.
          */
         virtual void drawPath(const Path& path, double const thickness) const = 0;
         

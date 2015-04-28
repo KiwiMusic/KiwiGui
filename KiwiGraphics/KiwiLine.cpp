@@ -110,4 +110,37 @@ namespace Kiwi
     {
         return curve.intersects(*this);
     }
+    
+    vector<Point> BezierCubic::fromArc(Point const& center, const Point& radius, double startAngle, double endAngle) noexcept
+    {
+        vector<Point> points;
+        
+        double range = wrap(endAngle - startAngle, 0., M_PI * 2.);
+        
+        points.push_back(Point(center.x() + radius.x() * cos(startAngle),
+                               center.y() - radius.y() * sin(startAngle)));
+        
+        while (range >= 0.)
+        {
+            const double r2 = ((range > M_PI_2) ? M_PI_2 : range) * 0.5;
+            const double b = sin(r2);
+            const double c = cos(r2);
+            const double x = (1. - c) * 4. / 3.;
+            const double y = b - x * c / (b != 0. ? b : 1.);
+            const double ss = sin(startAngle + r2);
+            const double cc = cos(startAngle + r2);
+            const Point coords[3] = {Point(c + x, y), Point(c + x, -y), Point(c, -b)};
+            
+            for(ulong i = 0; i < 3; i++)
+            {
+                points.push_back(Point(center.x() + radius.x() * (coords[i].x() * cc + coords[i].y() * ss),
+                                       center.y() + radius.y() * (-coords[i].x() * ss + coords[i].y() * cc)));
+            }
+            
+            range -= M_PI_2;
+            startAngle += M_PI_2;
+        }
+        
+        return points;
+    }
 }

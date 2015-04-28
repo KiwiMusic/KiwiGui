@@ -44,6 +44,24 @@ namespace Kiwi
         
     public:
         
+        //! Rectangle borders
+        enum Border
+        {
+            Top         = 1,
+            Right       = 2,
+            Bottom      = 4,
+            Left        = 8
+        };
+        
+        //! Rectangle corners
+        enum Corner
+        {
+            TopLeft     = 1,
+            TopRight    = 2,
+            BottomRight = 4,
+            BottomLeft  = 8
+        };
+        
         //! Constructor.
         /** The function initializes a rectangle.
          */
@@ -664,28 +682,37 @@ namespace Kiwi
          */
         bool overlaps(BezierCubic const& curve) const noexcept;
         
-        //! Retrieve the rectangle as a vector of atoms.
-        /** The function retrieves the attribute value as a vector of atoms.
-         @return The vector of atoms.
+        // ================================================================================ //
+        //                                      ATTR                                        //
+        // ================================================================================ //
+        
+        //! Retrieve the rectangle as an atom.
+        /** The function retrieves the rectangle as an atom.
+         @return The atom.
          */
-        inline Vector get() const noexcept
+        inline operator Atom() const noexcept
         {
-            return Vector({x(), y(), width(), height()});
+            return Atom({x(), y(), width(), height()});
         }
         
-        //! Set the rectangle values with a vector of atoms.
-        /** The function sets the rectangle values with a vector of atoms.
-         @param vector The vector of atoms.
+        //! Set the point with an atom.
+        /** The function sets the rectangle with an atom.
+         @param atom The atom.
          */
-        inline void set(Vector const& vector) noexcept
+        inline Rectangle operator=(Atom const& atom) noexcept
         {
-            if(vector.size() > 3 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber() && vector[3].isNumber())
+            if(atom.isVector())
             {
-                x(double(vector[0]));
-                y(double(vector[1]));
-                width(double(vector[2]));
-                height(double(vector[3]));
+                Vector vector = atom;
+                if(vector.size() > 3 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber() && vector[3].isNumber())
+                {
+                    x(double(vector[0]));
+                    y(double(vector[1]));
+                    width(double(vector[2]));
+                    height(double(vector[3]));
+                }
             }
+            return *this;
         }
     };
 }
