@@ -47,8 +47,6 @@ namespace Kiwi
         typedef shared_ptr<Listener>    sListener;
         typedef weak_ptr<Listener>      wListener;
         
-        class Selection;
-        
         enum DisplayMode
         {
             Trunc   = 0,
@@ -58,8 +56,8 @@ namespace Kiwi
         
         enum BehaviorMode //: bool
         {
-            UsedAsCharacter = 0,
-            Notify          = 1
+            UsedAsCharacter = false,
+            Notify          = true
         };
         
     private:
@@ -73,7 +71,7 @@ namespace Kiwi
         wstring                 m_text;
         vector<wstring>         m_lines;
         vector<double>          m_widths;
-        unique_ptr<Selection>   m_selection;
+        double                  m_empty_charw;
         
         bool                    m_notify_return;
         bool                    m_notify_tab;
@@ -341,17 +339,33 @@ namespace Kiwi
      */
     class GuiTextEditor::Caret : public GuiSketcher, public Clock
     {
+    public:
+        typedef wstring::size_type size_type;
+        static const size_type npos = -1;
     private:
         atomic_bool m_status;
         atomic_bool m_active;
         Color       m_color;
+        Font        m_font;
+        
+        size_type   m_caret;
+        size_type   m_start;
+        size_type   m_dist;
+        
+        void computeRendering(wstring const& text) noexcept;
     public:
         
         //! Constructor.
         /** The function does nothing.
          @param context The context.
          */
-        inline Caret(sGuiContext context) noexcept : GuiSketcher(context), m_color(Colors::black) {}
+        inline Caret(sGuiContext context) noexcept : GuiSketcher(context),
+        m_status(false),
+        m_active(false),
+        m_color(Colors::black),
+        m_caret(0ul),
+        m_start(0ul),
+        m_dist(0ul) {}
         
         //! Destructor.
         /** The function does nothing.
@@ -369,6 +383,117 @@ namespace Kiwi
          @return The color.
          */
         inline Color getColor() const noexcept {return m_color;}
+        
+        //! Retrieves if the selection is empty.
+        /** The function retrieves if the selection is empty.
+         @return true if the selection is empty, otherwise false.
+         */
+        inline bool empty() const noexcept {return m_caret == m_start;}
+        
+        //! Retrieves the size of the selection.
+        /** The function retrieves the size of the selection.
+         @return The size of the selection.
+         */
+        inline size_type size() const noexcept {return m_caret > m_start ? m_caret - m_start : m_start - m_caret;}
+        
+        //! Retrieves the first position of the selection.
+        /** The function retrieves the first position of the selection.
+         @return The first position of the selection.
+         */
+        inline size_type first() const noexcept {return m_caret > m_start ? m_start : m_caret;}
+        
+        //! Retrieves the second position of the selection.
+        /** The function retrieves the second position of the selection.
+         @return The second position of the selection.
+         */
+        inline size_type second() const noexcept {return m_caret > m_start ? m_caret : m_start;}
+        
+        //! Retrieves the caret position.
+        /** The function retrieves the caret position.
+         @return The caret position.
+         */
+        inline size_type caret() const noexcept {return m_caret;}
+        
+        //! Retrieves the start position of the selection.
+        /** The function retrieves the start position of the selection.
+         @return The start position.
+         */
+        inline size_type start() const noexcept {return m_start;}
+        
+        //! Selects all the text.
+        /** The function selects all the text.
+         @param text The text.
+         */
+        void selectAll(wstring const& text) noexcept;
+        
+        //! Moves to the begining of the text.
+        /** The function moves to the begining of the text (cmd + top).
+         @param select true if only the caret move (shift).
+         */
+        void moveToStart(const bool select) noexcept;
+        
+        //! Moves to the end of the text.
+        /** The function moves to the end of the text (cmd + bottom).
+         @param text The text.
+         @param select true if only the caret move (shift).
+         */
+        void moveToEnd(wstring const& text, const bool select) noexcept;
+        
+        //! Moves to the next character.
+        /** The function moves to the next character (right).
+         @param text The text.
+         @param select true if only the caret move (shift).
+         */
+        void moveToNextCharacter(wstring const& text, const bool select) noexcept;
+        
+        //! Moves to the previous character.
+        /** The function moves to the previous character (left).
+         @param text The text.
+         @param select true if only the caret move (shift).
+         */
+        void moveToPreviousCharacter(wstring const& text, const bool select) noexcept;
+        
+        //! Moves to the start of the line.
+        /** The function moves to the start of the line (cmd + left).
+         @param text The text.
+         @param select true if only the caret move (shift).
+         */
+        void moveToStartLine(wstring const& text, const bool select) noexcept;
+        
+        //! Moves to the start of the line.
+        /** The function moves to the start of the line (cmd + right).
+         @param text The text.
+         @param select true if only the caret move (shift).
+         */
+        void moveToEndLine(wstring const& text, const bool select) noexcept;
+        
+        //! Moves to the top character.
+        /** The function moves to the top character (up).
+         @param text The text.
+         @param select true if only the caret move (shift).
+         */
+        void moveToTopCharacter(wstring const& text, const bool select) noexcept;
+        
+        //! Moves to the bottom character.
+        /** The function moves to the bottom character (down).
+         @param text The text.
+         @param select true if only the caret move (shift).
+         */
+        void moveToBottomCharacter(wstring const& text, const bool select) noexcept;
+        
+        //! Moves to the next word.
+        /** The function moves to the next word (alt + right).
+         @param text The text.
+         @param select true if only the caret move (shift).
+         */
+        void moveToNextWord(wstring const& text, const bool select) noexcept;
+        
+        //! Moves to the previous word.
+        /** The function moves to the previous word (alt + left).
+         @param text The text.
+         @param select true if only the caret move (shift).
+         */
+        void moveToPreviousWord(wstring const& text, const bool select) noexcept;
         
         //! The draw method that should be override.
         /** The function shoulds draw some stuff in the sketch.
@@ -400,229 +525,6 @@ namespace Kiwi
          @return pass true to notify changes to listeners, false if you don't want them to be notified
          */
         bool notify(sAttr attr) {m_status = true; return true;};
-    };
-    
-    class GuiTextEditor::Selection
-    {
-    public:
-        typedef wstring::size_type size_type;
-        static const size_type npos = -1;
-    private:
-        size_type _caret;
-        size_type _start;
-        size_type _dist;
-        
-    public:
-        //! Constructor.
-        /** The function allocates a default empty selection.
-         */
-        constexpr inline Selection() noexcept : _caret(0ul), _start(0ul), _dist(npos) {}
-        
-        //! Retrieves if the selection is empty.
-        /** The function retrieves if the selection is empty.
-         @return true if the selection is empty, otherwise false.
-         */
-        inline bool empty() const noexcept {return _caret == _start;}
-        
-        //! Retrieves the size of the selection.
-        /** The function retrieves the size of the selection.
-         @return The size of the selection.
-         */
-        inline size_type size() const noexcept {return _caret > _start ? _caret - _start : _start - _caret;}
-        
-        //! Retrieves the first position of the selection.
-        /** The function retrieves the first position of the selection.
-         @return The first position of the selection.
-         */
-        inline size_type first() const noexcept {return _caret > _start ? _start : _caret;}
-        
-        //! Retrieves the second position of the selection.
-        /** The function retrieves the second position of the selection.
-         @return The second position of the selection.
-         */
-        inline size_type second() const noexcept {return _caret > _start ? _caret : _start;}
-        
-        //! Retrieves the caret position.
-        /** The function retrieves the caret position.
-         @return The caret position.
-         */
-        inline size_type caret() const noexcept {return _caret;}
-        
-        //! Retrieves the start position of the selection.
-        /** The function retrieves the start position of the selection.
-         @return The start position.
-         */
-        inline size_type start() const noexcept {return _start;}
-        
-        //! Selects all the text.
-        /** The function selects all the text.
-         @param text The text.
-         */
-        inline void selectAll(wstring const& text) noexcept
-        {
-            _start = 0ul;
-            _caret = text.size();
-            _dist  = npos;
-        }
-        
-        //! Moves to the begining of the text.
-        /** The function moves to the begining of the text (cmd + top).
-         @param select true if only the caret move (shift).
-         */
-        inline void moveToStart(const bool select) noexcept
-        {
-            select ? _caret = 0ul : _start = _caret = 0ul;
-            _dist  = npos;
-        }
-        
-        //! Moves to the end of the text.
-        /** The function moves to the end of the text (cmd + bottom).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        inline void moveToEnd(wstring const& text, const bool select) noexcept
-        {
-            select ? _caret = text.size() : _start = _caret = text.size();
-            _dist  = npos;
-        }
-        
-        //! Moves to the next character.
-        /** The function moves to the next character (right).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        inline void moveToNextCharacter(wstring const& text, const bool select) noexcept
-        {
-            if(!select) {
-                empty() ? (_start = _caret = min(_caret+1, text.size())) : _start = _caret = max(_caret, _start);
-            }
-            else if(_caret != text.size()) {
-                ++_caret;
-            }
-            _dist  = npos;
-        }
-        
-        //! Moves to the previous character.
-        /** The function moves to the previous character (left).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        inline void moveToPreviousCharacter(wstring const& text, const bool select) noexcept
-        {
-            if(!select) {
-                empty() ? _start = _caret = max(_caret, 1ul) - 1ul : _start = _caret = min(_caret, _start);
-            }
-            else if(_caret != 0) {
-                --_caret;
-            }
-            _dist  = npos;
-        }
-        
-        //! Moves to the start of the line.
-        /** The function moves to the start of the line (cmd + left).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        inline void moveToStartLine(wstring const& text, const bool select) noexcept
-        {
-            const size_type line = (_caret != 0ul) ? text.find_last_of(L'\n', _caret-1) : 0ul;
-            _caret = (line == npos) ? 0ul : min(line + 1ul, text.size());
-            if(!select) {
-                _start = _caret;
-            }
-            _dist  = npos;
-        }
-        
-        //! Moves to the start of the line.
-        /** The function moves to the start of the line (cmd + right).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        inline void moveToEndLine(wstring const& text, const bool select) noexcept
-        {
-            const size_type line = text.find_first_of(L'\n', _caret);
-            _caret = (line == npos) ? text.size() : line;
-            if(!select) {
-                _start = _caret;
-            }
-            _dist  = npos;
-        }
-        
-        //! Moves to the top character.
-        /** The function moves to the top character (up).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        inline void moveToTopCharacter(wstring const& text, const bool select) noexcept
-        {
-            const size_type current = select ? _caret : first();
-            size_type line = (current > 0ul) ? text.find_last_of(L'\n', current -  1ul) + 1 : 0ul;
-            if(line == npos){
-                line = 0ul;
-            }
-            if(_dist == npos){
-                _dist = current - (line);
-            }
-            if(line == 0ul){
-                _caret = 0ul;
-            }
-            else{
-                const size_type pline = (line > 2ul) ? text.find_last_of(L'\n', max(line -  2ul, 0ul)) + 1 : 0ul;
-                _caret = min(pline + _dist, text.find_first_of(L'\n', pline));
-            }
-            if(!select) {
-                _start = _caret;
-            }
-        }
-        
-        //! Moves to the bottom character.
-        /** The function moves to the bottom character (down).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        inline void moveToBottomCharacter(wstring const& text, const bool select) noexcept
-        {
-            const size_type current = select ? _caret : second();
-            size_type line = (current > 0ul) ? text.find_last_of(L'\n', current -  1ul) + 1 : 0ul;
-            if(line == npos){
-                line = 0ul;
-            }
-            if(_dist == npos){
-                _dist = current - (line);
-            }
-            const size_type nline = text.find_first_of(L'\n', current);
-            if(nline == npos){
-                _caret = text.size();
-            }
-            else
-            {
-                _caret = min(nline + 1 + _dist, text.find_first_of(L'\n', nline+1));
-            }
-            if(!select)
-            {
-                _start = _caret;
-            }
-        }
-        
-        
-        //! Moves to the next word.
-        /** The function moves to the next word.
-         @param text The text.
-         @param select true if only the caret move.
-         */
-        inline void moveToNextWord(wstring const& text, const bool select) noexcept
-        {
-            
-        }
-        
-        //! Moves to the previous word.
-        /** The function moves to the previous word.
-         @param text The text.
-         */
-        inline void moveToPreviousWord(wstring const& text) noexcept
-        {
-            ;
-        }
     };
 }
 

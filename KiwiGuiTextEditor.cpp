@@ -27,6 +27,213 @@
 namespace Kiwi
 {
     
+    // ================================================================================ //
+    //                                  TEXT EDITOR CARET                               //
+    // ================================================================================ //
+    
+    void GuiTextEditor::Caret::computeRendering(wstring const& text) noexcept
+    {
+        sGuiContext ctxt = getContext();
+        if(ctxt)
+        {
+            const size_type f = first();
+            ulong nlines    = 0;
+            size_type start = 0;
+            size_type index = 0;
+            while(index <= f)
+            {
+                if(text[index] == L'\n'){
+                    nlines++;
+                    start = index;
+                }
+                index++;
+            }
+            if(!empty())
+            {
+                const size_type s = second();
+                ulong snlines    = 0;
+                size_type sstart = 0;
+                while(index <= s)
+                {
+                    if(text[index] == L'\n'){
+                        snlines++;
+                        sstart = index;
+                    }
+                    index++;
+                }
+                setPosition(Point(0., 0.));
+                setSize(Size(2., 2));
+            }
+            else
+            {
+                setPosition(Point(0., 0.));
+                setSize(Size(2., m_font.getSize()));
+            }
+            redraw();
+            
+        }
+    }
+    
+    void GuiTextEditor::Caret::selectAll(wstring const& text) noexcept
+    {
+        m_start = 0ul;
+        m_caret = text.size();
+        m_dist  = npos;
+    }
+    
+    void GuiTextEditor::Caret::moveToStart(const bool select) noexcept
+    {
+        select ? m_caret = 0ul : m_start = m_caret = 0ul;
+        m_dist  = npos;
+    }
+    
+    void GuiTextEditor::Caret::moveToEnd(wstring const& text, const bool select) noexcept
+    {
+        select ? m_caret = text.size() : m_start = m_caret = text.size();
+        m_dist  = npos;
+    }
+    
+    void GuiTextEditor::Caret::moveToNextCharacter(wstring const& text, const bool select) noexcept
+    {
+        if(!select) {
+            empty() ? (m_start = m_caret = min(m_caret+1, text.size())) : m_start = m_caret = max(m_caret, m_start);
+        }
+        else if(m_caret != text.size()) {
+            ++m_caret;
+        }
+        m_dist  = npos;
+    }
+    
+    void GuiTextEditor::Caret::moveToPreviousCharacter(wstring const& text, const bool select) noexcept
+    {
+        if(!select) {
+            empty() ? m_start = m_caret = max(m_caret, 1ul) - 1ul : m_start = m_caret = min(m_caret, m_start);
+        }
+        else if(m_caret != 0) {
+            --m_caret;
+        }
+        m_dist  = npos;
+    }
+    
+    void GuiTextEditor::Caret::moveToStartLine(wstring const& text, const bool select) noexcept
+    {
+        const size_type line = (m_caret != 0ul) ? text.find_last_of(L'\n', m_caret-1) : 0ul;
+        m_caret = (line == npos) ? 0ul : min(line + 1ul, text.size());
+        if(!select) {
+            m_start = m_caret;
+        }
+        m_dist  = npos;
+    }
+    
+    void GuiTextEditor::Caret::moveToEndLine(wstring const& text, const bool select) noexcept
+    {
+        const size_type line = text.find_first_of(L'\n', m_caret);
+        m_caret = (line == npos) ? text.size() : line;
+        if(!select) {
+            m_start = m_caret;
+        }
+        m_dist  = npos;
+    }
+    
+    void GuiTextEditor::Caret::moveToTopCharacter(wstring const& text, const bool select) noexcept
+    {
+        const size_type current = select ? m_caret : first();
+        size_type line = (current > 0ul) ? text.find_last_of(L'\n', current -  1ul) + 1 : 0ul;
+        if(line == npos) {
+            line = 0ul;
+        }
+        if(m_dist == npos) {
+            m_dist = current - (line);
+        }
+        if(line == 0ul) {
+            m_caret = 0ul;
+        }
+        else{
+            const size_type pline = (line > 2ul) ? text.find_last_of(L'\n', max(line -  2ul, 0ul)) + 1 : 0ul;
+            m_caret = min(pline + m_dist, text.find_first_of(L'\n', pline));
+        }
+        if(!select) {
+            m_start = m_caret;
+        }
+    }
+    
+    void GuiTextEditor::Caret::moveToNextWord(wstring const& text, const bool select) noexcept
+    {
+        if(select) {
+            m_caret = second();
+        }
+        if(text[m_caret] == L' ' || text[m_caret] == L'\n' || text[m_caret] == L'\t') {
+            m_caret = text.find_first_not_of(L" \n\t", m_caret);
+        }
+        if(m_caret == npos) {
+            m_caret = text.size();
+        }
+        else {
+            m_caret = text.find_first_of(L" \n\t", m_caret);
+            if(m_caret == npos) {
+                m_caret = text.size();
+            }
+        }
+        if(!select) {
+            m_start = m_caret;
+        }
+        m_dist  = npos;
+    }
+    
+    void GuiTextEditor::Caret::moveToPreviousWord(wstring const& text, const bool select) noexcept
+    {
+        if(select) {
+            m_caret = second();
+        }
+        if(text[m_caret] == L' ' || text[m_caret] == L'\n' || text[m_caret] == L'\t') {
+            m_caret = text.find_last_not_of(L" \n\t", m_caret);
+        }
+        else if(m_caret){
+            m_caret = text.find_last_not_of(L" \n\t", m_caret - 1);
+        }
+        if(m_caret == npos) {
+            m_caret = 0ul;
+        }
+        else {
+            m_caret = text.find_last_of(L" \n\t", m_caret);
+            m_caret = (m_caret == npos) ? 0ul : m_caret + 1ul;
+        }
+        if(!select) {
+            m_start = m_caret;
+        }
+        m_dist  = npos;
+    }
+    
+    void GuiTextEditor::Caret::moveToBottomCharacter(wstring const& text, const bool select) noexcept
+    {
+        const size_type current = select ? m_caret : second();
+        size_type line = (current > 0ul) ? text.find_last_of(L'\n', current -  1ul) + 1 : 0ul;
+        if(line == npos) {
+            line = 0ul;
+        }
+        if(m_dist == npos) {
+            m_dist = current - (line);
+        }
+        const size_type nline = text.find_first_of(L'\n', current);
+        if(nline == npos) {
+            m_caret = text.size();
+        }
+        else {
+            const size_type nlineend = text.find_first_of(L'\n', nline + 1ul);
+            if(nlineend < nline + 1ul + m_dist){
+                cout << "line end" << endl;
+                m_caret = nlineend;
+            }
+            else{
+                cout << "line + dist" << endl;
+                m_caret = nline + m_dist;
+            }
+        }
+        if(!select) {
+            m_start = m_caret;
+        }
+    }
+    
     void GuiTextEditor::Caret::draw(scGuiView view, Sketch& sketch) const
     {
         if(m_status)
@@ -78,7 +285,14 @@ namespace Kiwi
         m_justification = Font::Justification::TopLeft;
         m_caret->setPosition(Point(0., 0.));
         m_caret->setSize(Size(2., m_font.getSize()));
-        m_selection = unique_ptr<Selection>(new Selection());
+        if(context)
+        {
+            m_empty_charw = context->getTextWidth(m_font, wstring(L" "));
+        }
+        else
+        {
+            m_empty_charw = 0.5 * m_font.getSize();
+        }
     }
     
     GuiTextEditor::~GuiTextEditor() noexcept
@@ -95,6 +309,11 @@ namespace Kiwi
             m_formated = false;
             m_font = font;
             m_caret->setSize(Size(1., m_font.getSize()));
+            sGuiContext ctxt = getContext();
+            if(ctxt)
+            {
+                m_empty_charw = ctxt->getTextWidth(m_font, wstring(L" "));
+            }
             getLineWidths();
             format();
             redraw();
@@ -319,7 +538,7 @@ namespace Kiwi
         if(!m_text.empty())
         {
             /*
-            if(m_selection.isEmpty())            // No selection
+            if(m_caret.isEmpty())            // No selection
             {
                 if(!forward && !word)       // Backward/One character
                 {
@@ -396,8 +615,8 @@ namespace Kiwi
     {
         
         m_formated = false;
-        m_text.insert(m_selection->caret(), 1ul, character);
-        m_selection->moveToNextCharacter(m_text, false);
+        m_text.insert(m_caret->caret(), 1ul, character);
+        m_caret->moveToNextCharacter(m_text, false);
         getLineWidths();
         lock_guard<mutex> guard(m_lists_mutex);
         auto it = m_lists.begin();
@@ -430,11 +649,11 @@ namespace Kiwi
             wistringstream stream(m_text);
             while(bool(getline(stream, line)))
             {
-                m_widths.push_back(ctxt->getTextWidth(m_font, line));
+                m_widths.push_back(ctxt->getTextWidth(m_font, line) + m_empty_charw);
             }
             if(m_text[m_text.size() - 1] == L'\n')
             {
-                m_widths.push_back(0.);
+                m_widths.push_back(m_empty_charw);
             }
         }
     }
@@ -489,12 +708,12 @@ namespace Kiwi
         wstring::size_type size = 0;
         for(vector<wstring>::size_type i = 0; i < m_lines.size(); i++)
         {
-            if(m_selection->caret() <= size + m_lines[i].size())
+            if(m_caret->caret() <= size + m_lines[i].size())
             {
                 sGuiContext ctxt = getContext();
                 if(ctxt)
                 {
-                    const double w = ctxt->getTextWidth(m_font, wstring(m_lines[i].c_str(), max(m_selection->caret() - size, 0ul)));
+                    const double w = ctxt->getTextWidth(m_font, wstring(m_lines[i].c_str(), max(m_caret->caret() - size, 0ul)));
                     m_caret->setPosition(Point(w, double(i) * m_line_space * m_font.getSize()));
                     return;
                     
@@ -511,39 +730,68 @@ namespace Kiwi
     void GuiTextEditor::moveCaret(KeyboardEvent const& event) noexcept
     {
         const int direction = event.getKeyCode();
-        const bool select   = event.hasShift();
         if(direction == KeyboardEvent::Key::Left)
         {
-            if(event.hasCmd())
+            if(event.hasNoModifier())
             {
-                m_selection->moveToStartLine(m_text, select);
+                m_caret->moveToPreviousCharacter(m_text, event.hasShift());
             }
-            else
+            else if(event.hasAlt())
             {
-                m_selection->moveToPreviousCharacter(m_text, select);
+                m_caret->moveToPreviousWord(m_text, event.hasShift());
+            }
+            else if(event.hasCmd())
+            {
+                m_caret->moveToStartLine(m_text, event.hasShift());
             }
             computeCaretPosition();
         }
         else if(direction == KeyboardEvent::Key::Right)
         {
-            if(event.hasCmd())
+            if(event.hasNoModifier())
             {
-                m_selection->moveToEndLine(m_text, select);
+                m_caret->moveToNextCharacter(m_text, event.hasShift());
             }
-            else
+            else if(event.hasAlt())
             {
-                m_selection->moveToNextCharacter(m_text, select);
+                m_caret->moveToNextWord(m_text, event.hasShift());
+            }
+            else if(event.hasCmd())
+            {
+                m_caret->moveToEndLine(m_text, event.hasShift());
             }
             computeCaretPosition();
         }
         else if(direction == KeyboardEvent::Key::Up)
         {
-            m_selection->moveToTopCharacter(m_text, select);
+            if(event.hasNoModifier())
+            {
+                m_caret->moveToTopCharacter(m_text, event.hasShift());
+            }
+            else if(event.hasAlt())
+            {
+                m_caret->moveToStartLine(m_text, event.hasShift());
+            }
+            else if(event.hasCmd())
+            {
+                m_caret->moveToStart(event.hasShift());
+            }
             computeCaretPosition();
         }
         else if(direction == KeyboardEvent::Key::Down)
         {
-            m_selection->moveToBottomCharacter(m_text, select);
+            if(event.hasNoModifier())
+            {
+                m_caret->moveToBottomCharacter(m_text, event.hasShift());
+            }
+            else if(event.hasAlt())
+            {
+                m_caret->moveToEndLine(m_text, event.hasShift());
+            }
+            else if(event.hasCmd())
+            {
+                m_caret->moveToEnd(m_text, event.hasShift());
+            }
             computeCaretPosition();
         }
     }
