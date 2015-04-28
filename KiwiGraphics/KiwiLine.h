@@ -172,18 +172,6 @@ namespace Kiwi
             m_end.y(y);
         }
         
-        //! Retrieve the line as a vector of atoms.
-        /** The function retrieves the line as a vector of atoms.
-         @return The vector of atoms.
-         */
-        virtual inline Vector get() const noexcept = 0;
-        
-        //! Set the attribute value with a vector of atoms.
-        /** The function sets the attribute value with a vector of atoms.
-         @param vector The vector of atoms.
-         */
-        virtual void set(Vector const& vector) noexcept = 0;
-        
         //! Apply a rotation from the origin.
         /** The function Applies a rotation from the origin.
          @param angle  The angle
@@ -329,26 +317,30 @@ namespace Kiwi
          */
         inline ~Segment() noexcept {}
         
-        //! Retrieve the segment as a vector of atoms.
-        /** The function retrieves the segment as a vector of atoms.
-         @return The vector of atoms.
+        //! Retrieve the segment as an atom.
+        /** The function retrieves the segment as an atom.
          */
-        inline Vector get() const noexcept override
+        inline operator Atom() const noexcept
         {
-            return Vector({m_start.x(), m_start.y(), m_end.x(), m_end.y()});
+            return Atom({m_start.x(), m_start.y(), m_end.x(), m_end.y()});
         }
         
-        //! Set the attribute value with a vector of atoms.
-        /** The function sets the attribute value with a vector of atoms.
-         @param vector The vector of atoms.
+        //! Set the segment with an atom.
+        /** The function sets the segment with an atom.
+         @param atom The atom.
          */
-        void set(Vector const& vector) noexcept override
+        inline Segment operator=(Atom const& atom) noexcept
         {
-            if(vector.size() > 3 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber() && vector[3].isNumber())
+            if(atom.isVector())
             {
-                m_start = Point(double(vector[0]), double(vector[1]));
-                m_end   = Point(double(vector[2]), double(vector[3]));
+                Vector vector = atom;
+                if(vector.size() > 3 && vector[0].isNumber() && vector[1].isNumber() && vector[2].isNumber() && vector[3].isNumber())
+                {
+                    m_start = Point(double(vector[0]), double(vector[1]));
+                    m_end   = Point(double(vector[2]), double(vector[3]));
+                }
             }
+            return *this;
         }
         
         //! Retrieve a point of the segment;
@@ -796,30 +788,34 @@ namespace Kiwi
          */
         inline ~BezierQuad() noexcept {}
         
-        //! Retrieve the quadratic curve as a vector of atoms.
-        /** The function retrieves the quadratic curve as a vector of atoms.
-         @return The vector of atoms.
+        //! Retrieve the quadratic curve as an atom.
+        /** The function retrieves the quadratic curve as an atom.
          */
-        inline Vector get() const noexcept override
+        inline operator Atom() const noexcept
         {
-            return Vector({m_start.x(), m_start.y(), m_ctrl.x(), m_ctrl.y(), m_end.x(), m_end.y()});
+            return Atom({m_start.x(), m_start.y(), m_ctrl.x(), m_ctrl.y(), m_end.x(), m_end.y()});
         }
         
-        //! Set the attribute value with a vector of atoms.
-        /** The function sets the attribute value with a vector of atoms.
-         @param vector The vector of atoms.
+        //! Set the quadratic curve with an atom.
+        /** The function sets the quadratic curve with an atom.
+         @param atom The atom.
          */
-        void set(Vector const& vector) noexcept override
+        inline BezierQuad operator=(Atom const& atom) noexcept
         {
-            if(vector.size() > 5 &&
-               vector[0].isNumber() && vector[1].isNumber() &&
-               vector[2].isNumber() && vector[3].isNumber() &&
-               vector[4].isNumber() && vector[5].isNumber())
+            if(atom.isVector())
             {
-                m_start = Point(double(vector[0]), double(vector[1]));
-                m_ctrl  = Point(double(vector[2]), double(vector[3]));
-                m_end   = Point(double(vector[4]), double(vector[5]));
+                Vector vector = atom;
+                if(vector.size() > 5 &&
+                   vector[0].isNumber() && vector[1].isNumber() &&
+                   vector[2].isNumber() && vector[3].isNumber() &&
+                   vector[4].isNumber() && vector[5].isNumber())
+                {
+                    m_start = Point(double(vector[0]), double(vector[1]));
+                    m_ctrl  = Point(double(vector[2]), double(vector[3]));
+                    m_end   = Point(double(vector[4]), double(vector[5]));
+                }
             }
+            return *this;
         }
         
         //! Retrieves the control point.
@@ -1206,37 +1202,51 @@ namespace Kiwi
             swap(m_end, end);
         }
         
+        //! Create an elliptical arc with a set of cubic bezier points.
+        /** The function create an elliptical arc with a set of cubic bezier points.
+         @param center      The center of the arc.
+         @param radius      The radius of the arc.
+         @param startAngle  The start angle.
+         @param endAngle    The end angle.
+         @return A vector of cubic bezier points (start, ctrl1, ctrl2, end, ctrl1, ctrl2, end, ...)
+         */
+        static vector<Point> fromArc(Point const& center, const Point& radius, double startAngle, double endAngle) noexcept;
+        
         //! Destructor.
         /** The function deletes the cubic curve.
          */
         inline ~BezierCubic() noexcept {}
         
-        //! Retrieve the cubic curve as a vector of atoms.
-        /** The function retrieves the cubic curve as a vector of atoms.
-         @return The vector of atoms.
+        //! Retrieve the cubic curve as an atoms.
+        /** The function retrieves the cubic curve as an atoms.
          */
-        inline Vector get() const noexcept override
+        inline operator Atom() const noexcept
         {
-            return Vector({m_start.x(), m_start.y(), m_ctrl1.x(), m_ctrl1.y(), m_ctrl2.x(), m_ctrl2.y(), m_end.x(), m_end.y()});
+            return Atom({m_start.x(), m_start.y(), m_ctrl1.x(), m_ctrl1.y(), m_ctrl2.x(), m_ctrl2.y(), m_end.x(), m_end.y()});
         }
         
-        //! Set the attribute value with a vector of atoms.
-        /** The function sets the attribute value with a vector of atoms.
-         @param vector The vector of atoms.
+        //! Set the cubic curve with an atoms.
+        /** The function sets the cubic curve with an atoms.
+         @param atom The atom.
          */
-        void set(Vector const& vector) noexcept override
+        inline BezierCubic operator=(Atom const& atom) noexcept
         {
-            if(vector.size() > 7 &&
-               vector[0].isNumber() && vector[1].isNumber() &&
-               vector[2].isNumber() && vector[3].isNumber() &&
-               vector[4].isNumber() && vector[5].isNumber() &&
-               vector[6].isNumber() && vector[7].isNumber())
+            if(atom.isVector())
             {
-                m_start = Point(double(vector[0]), double(vector[1]));
-                m_ctrl1 = Point(double(vector[2]), double(vector[3]));
-                m_ctrl2 = Point(double(vector[4]), double(vector[5]));
-                m_end   = Point(double(vector[6]), double(vector[7]));
+                Vector vector = atom;
+                if(vector.size() > 7 &&
+                   vector[0].isNumber() && vector[1].isNumber() &&
+                   vector[2].isNumber() && vector[3].isNumber() &&
+                   vector[4].isNumber() && vector[5].isNumber() &&
+                   vector[6].isNumber() && vector[7].isNumber())
+                {
+                    m_start = Point(double(vector[0]), double(vector[1]));
+                    m_ctrl1 = Point(double(vector[2]), double(vector[3]));
+                    m_ctrl2 = Point(double(vector[4]), double(vector[5]));
+                    m_end   = Point(double(vector[6]), double(vector[7]));
+                }
             }
+            return *this;
         }
         
         //! Retrieves the first control point.
