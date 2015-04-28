@@ -41,7 +41,9 @@ namespace Kiwi
      */
     class Path
     {
-    public:
+    private:
+        friend class Sketch;
+        
         //! @internal
         enum Mode
         {
@@ -72,22 +74,11 @@ namespace Kiwi
             inline Point point() const noexcept {return Point(data[0], data[1]);}
             inline Mode mode() const noexcept{return m;}
         };
-        
-    private:
+    
         vector<Node> m_nodes;
         Rectangle    m_bounds;
         
-        friend class Sketch;
     public:
-        
-        Node getNode(ulong index) const noexcept
-        {
-            if(m_nodes.size() > index)
-            {
-                return m_nodes[index];
-            }
-            return Node();
-        }
         
         //! Constructor.
         /** The function initializes an empty path.

@@ -117,6 +117,7 @@ namespace Kiwi
     
     void GuiTextEditor::Caret::moveToStartLine(wstring const& text, const bool select) noexcept
     {
+        int tosee;
         const size_type line = (m_caret != 0ul) ? text.find_last_of(L'\n', m_caret-1) : 0ul;
         m_caret = (line == npos) ? 0ul : min(line + 1ul, text.size());
         if(!select) {
@@ -206,6 +207,8 @@ namespace Kiwi
     
     void GuiTextEditor::Caret::moveToBottomCharacter(wstring const& text, const bool select) noexcept
     {
+        cout << "not available" << endl;
+        /*
         const size_type current = select ? m_caret : second();
         size_type line = (current > 0ul) ? text.find_last_of(L'\n', current -  1ul) + 1 : 0ul;
         if(line == npos) {
@@ -232,6 +235,7 @@ namespace Kiwi
         if(!select) {
             m_start = m_caret;
         }
+         */
     }
     
     void GuiTextEditor::Caret::draw(scGuiView view, Sketch& sketch) const
@@ -266,6 +270,14 @@ namespace Kiwi
             m_status = !m_status;
             redraw();
             delay(500.);
+        }
+    }
+
+    void GuiTextEditor::Caret::attrChanged(Attr::sManager manager, sAttr attr)
+    {
+        if(attr->getName() == Tags::Font)
+        {
+            ;
         }
     }
     

@@ -299,6 +299,21 @@ namespace Kiwi
             p.addEllipse(rect);
             fillPath(p);
         }
+        
+    protected:
+        
+        typedef Path::Node Node;
+        typedef enum Path::Mode Mode;
+        
+        //! Retrieve a constant reference of the nodes of a path.
+        /** The function a constant reference of the nodes of a path.
+         @param path The path.
+         @return The vector of nodes.
+         */
+        inline vector<Node> const& getNodes(Path const& path) const noexcept
+        {
+            return path.m_nodes;
+        }
     };
     
     // ================================================================================ //
