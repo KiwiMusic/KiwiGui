@@ -36,12 +36,9 @@ namespace Kiwi
     /**
      The text editor...
      */
-    class GuiTextEditor : public GuiSketcher, public GuiMouser, public GuiKeyboarder
+    class GuiTextEditor : public GuiSketcher, public GuiKeyboarder
     {
     public:
-        class Caret;
-        typedef shared_ptr<Caret>       sCaret;
-        typedef weak_ptr<Caret>         wCaret;
         
         class Listener;
         typedef shared_ptr<Listener>    sListener;
@@ -60,8 +57,18 @@ namespace Kiwi
             Notify          = true
         };
         
+        typedef wstring::size_type size_type;
+        static const size_type npos = -1;
+        
     private:
-        const sCaret            m_caret;
+        class Caret;
+        typedef shared_ptr<Caret>       sCaret;
+        typedef weak_ptr<Caret>         wCaret;
+        
+        class Controller;
+        typedef shared_ptr<Controller>  sController;
+        typedef weak_ptr<Controller>    wController;
+        
         Font                    m_font;
         Font::Justification     m_justification;
         double                  m_line_space;
@@ -69,37 +76,33 @@ namespace Kiwi
         Color                   m_color;
         
         wstring                 m_text;
-        vector<wstring>         m_lines;
         vector<double>          m_widths;
         double                  m_empty_charw;
+        double                  m_trail_width;
+        atomic_bool             m_redraw;
         
         bool                    m_notify_return;
         bool                    m_notify_tab;
-        bool                    m_formated;
 
         set<wListener,
         owner_less<wListener>> m_lists;
         mutex                  m_lists_mutex;
         
         //@internal
-
-        void addCharacter(wchar_t character) noexcept;
-        void erase(const bool forward, const bool word) noexcept;
-        void getLineWidths() noexcept;
-        bool format() noexcept;
-        void computeCaretPosition() noexcept;
-        
-        void moveCaret(KeyboardEvent const& event) noexcept;
+        void erase(sCaret caret);
+        void addCharacter(sCaret caret, wchar_t character) noexcept;
+        void computeLinesWidth() noexcept;
         
     public:
+        
         //! Constructor.
-        /** The function does nothing.
+        /** The function initializes the text editor.
          @param context The context.
          */
         GuiTextEditor(sGuiContext context) noexcept;
         
         //! Destructor.
-        /** The function does nothing.
+        /** The function frees the text editor.
          */
         virtual ~GuiTextEditor() noexcept;
         
@@ -231,10 +234,11 @@ namespace Kiwi
         }
         
         //! Retrieves the size of the text.
-        /** The function retrieves the size of the text.
+        /** The function retrieves the size of the text. If the width limit is superior to zero, the function computes the size of the text like if the lines were wrapped.
+         @param limit The width limit.
          @return The size of the text.
          */
-        Size getTextSize() const noexcept;
+        Size getTextSize(const double limit = 0.) const noexcept;
 
         //! The draw method that should be override.
         /** The function shoulds draw some stuff in the sketch.
@@ -245,37 +249,15 @@ namespace Kiwi
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
-         @param event    A mouser event.
-         @param ctrl     The controller gives the event.
-         @return true if the class has done something with the event otherwise false
-         */
-        bool receive(scGuiView view, MouseEvent const& event) override;
-        
-        //! The receive method that should be override.
-        /** The function shoulds perform some stuff.
          @param event    A keyboard event.
          @return true if the class has done something with the event otherwise false
          */
         bool receive(scGuiView view, KeyboardEvent const& event) override;
         
-        //! The receive method that should be override.
-        /** The function shoulds perform some stuff.
-         @param event    A focus event.
-         @return true if the class has done something with the event otherwise false
-         */
-        bool receive(scGuiView view, KeyboardFocus const event) override;
-        
         //! Notify the text editor that it should grab the keayboard focus.
         /** The function notifies the text editor that it should grab the keayboard focus.
          */
         inline void grabFocus() {GuiSketcher::grabFocus();}
-        
-        //! Notify the manager that the values of an attribute has changed.
-        /** The function notifies the manager that the values of an attribute has changed.
-         @param attr An attribute.
-         @return pass true to notify changes to listeners, false if you don't want them to be notified
-         */
-        bool notify(sAttr attr) override;
         
         //! Add an instance listener in the binding list of the text editor.
         /** The function adds an instance listener in the binding list of the text editor.
@@ -288,6 +270,36 @@ namespace Kiwi
          @param listener  The listener.
          */
         void removeListener(sListener listener);
+        
+    private:
+        
+        //! Create the controller.
+        /** The function creates a controller depending on the inheritance.
+         @return The controller.
+         */
+        sGuiController createController() override;
+        
+        //! Gets the listeners.
+        /** The functions gets the liteners from the attribute and removes the deprecated listeners.
+         @return The listeners.
+         */
+        inline vector<sListener> getListeners() noexcept
+        {
+            vector<sListener> lists;
+            for(auto it = m_lists.begin(); it != m_lists.end();)
+            {
+                sListener l = (*it).lock();
+                if(l)
+                {
+                    lists.push_back(l); ++it;
+                }
+                else
+                {
+                    it = m_lists.erase(it);
+                }
+            }
+            return lists;
+        }
     };
     
     //! The listener of the text editor.
@@ -337,29 +349,30 @@ namespace Kiwi
     /**
      The caret...
      */
-    class GuiTextEditor::Caret : public GuiSketcher, public Attr::Listener, public Clock
+    class GuiTextEditor::Caret : public GuiSketcher, public Listener, public Attr::Listener, public Clock
     {
     public:
         typedef wstring::size_type size_type;
         static const size_type npos = -1;
     private:
-        atomic_bool m_status;
-        atomic_bool m_active;
-        Color       m_color;
-        Font        m_font;
+        const wGuiTextEditor    m_editor;
+        atomic_bool             m_status;
+        atomic_bool             m_active;
+        Color                   m_color;
         
-        size_type   m_caret;
-        size_type   m_start;
-        size_type   m_dist;
+        size_type               m_caret;
+        size_type               m_start;
+        size_type               m_dist;
         
         void computeRendering(wstring const& text) noexcept;
     public:
         
         //! Constructor.
-        /** The function does nothing.
+        /** The function initialize a default caret for the text editor.
          @param context The context.
          */
-        inline Caret(sGuiContext context) noexcept : GuiSketcher(context),
+        inline Caret(sGuiTextEditor editor) noexcept : GuiSketcher(editor->getContext()),
+        m_editor(editor),
         m_status(false),
         m_active(false),
         m_color(Colors::black),
@@ -372,13 +385,19 @@ namespace Kiwi
          */
         inline  ~Caret() noexcept {}
         
+        //! Retrieves the text editor that owns the caret.
+        /** The function the text editor that owns the caret.
+         @return The text editor.
+         */
+        inline sGuiTextEditor getEditor() const noexcept {return m_editor.lock();}
+        
         //! Sets the color of the caret.
         /** The function sets the color of the caret.
          @param color   The new color.
          */
         inline void setColor(Color const& color) noexcept {m_color = color;}
         
-        //! Retrievs the color of the caret.
+        //! Retrieves the color of the caret.
         /** The function retrieves the color of the caret.
          @return The color.
          */
@@ -532,6 +551,81 @@ namespace Kiwi
          @param attr		The attribute that has been modified.
          */
         void attrChanged(Attr::sManager manager, sAttr attr) override;
+        
+        //! Receives the notification that the text changed.
+        /** The function notifies the listener that the text changed.
+         @param editor The text editor that notifies.
+         */
+        void textChanged(sGuiTextEditor editor) override;
+    };
+    
+    
+    // ================================================================================ //
+    //                              TEXT EDITOR CONTROLLER                              //
+    // ================================================================================ //
+    
+    //! The controller of the text editor.
+    /**
+     The controller...
+     */
+    class GuiTextEditor::Controller : public GuiController
+    {
+    private:
+        const sGuiTextEditor        m_editor;
+        const GuiTextEditor::sCaret m_caret;
+    public:
+        
+        //! The controller constructor.
+        /** The function initializes the controller of the text editor.
+         @param editor The text editor.
+         */
+        Controller(sGuiTextEditor editor) noexcept;
+        
+        //! The controller destructor.
+        /** The function deletes the text editor.
+         */
+        ~Controller() noexcept;
+        
+        //! Receives if the controller wants the mouse.
+        /** This function retrieves if the controller wants the mouse.
+         @return true if the controller wants the mouse, othrewise false.
+         */
+        inline bool wantMouse() const noexcept override {return true;}
+        
+        //! Receives if the controller wants the keyboard.
+        /** This function retrieves if the controller wants the keyboard.
+         @return true if the controller wants the keyboard, othrewise false.
+         */
+        inline bool wantKeyboard() const noexcept override {return true;}
+        
+        //! Receives if the controller wants actions.
+        /** This function retrieves if the controller wants the actions.
+         @return true if the controller wants the actions, othrewise false.
+         */
+        inline bool wantActions() const noexcept override {return false;}
+        
+        //! The mouse receive method.
+        /** The function pass the mouse event to the sketcher if it inherits from mouser.
+         @param event    A mouser event.
+         @return true if the class has done something with the event otherwise false
+         */
+        bool receive(MouseEvent const& event) override;
+        
+        //! The keyboard receive method.
+        /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
+         @param event    A keyboard event.
+         @return true if the class has done something with the event otherwise false
+         */
+        bool receive(KeyboardEvent const& event) override;
+        
+        //! The keyboard focus receive method.
+        /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
+         @param event    A focus event.
+         @return true if the class has done something with the event otherwise false
+         */
+        bool receive(KeyboardFocus const event)  override;
+        
+        
     };
 }
 
