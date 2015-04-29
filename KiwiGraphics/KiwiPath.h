@@ -26,7 +26,7 @@
 
 #include "KiwiRectangle.h"
 
-// Have to finish (later)
+// Todo (AffineMatrix, dashed line support)
 namespace Kiwi
 {
     // ================================================================================ //
@@ -47,10 +47,11 @@ namespace Kiwi
         //! @internal
         enum Mode
         {
-            Move        = 0,
-            Linear      = 1,
-            Quadratic   = 2,
-            Cubic       = 3
+            Close       = 0,
+            Move        = 1,
+            Linear      = 2,
+            Quadratic   = 3,
+            Cubic       = 4
         };
         
         //! @internal
@@ -80,6 +81,26 @@ namespace Kiwi
         
     public:
         
+        /** The graphic behavior of the joint between lines.
+         @see EndCapMode
+         */
+        enum Joint
+        {
+            Mitered,    ///< mitered corners.
+            Curved,     ///< rounded corners.
+            Beveled     ///< beveled corners.
+        };
+        
+        /** The graphic behavior of the ends of lines.
+         @see JointMode
+         */
+        enum LineCap
+        {
+            Butt,       ///< flat and stopped to end point.
+            Square,     ///< flat but exeeding the end point for half the line thickness.
+            Round       ///< round ends of lines.
+        };
+        
         //! Constructor.
         /** The function initializes an empty path.
          */
@@ -89,15 +110,13 @@ namespace Kiwi
         /** The function initializes a path with another.
          @param path The other path.
          */
-        inline Path(Path const& path) noexcept :
-        m_nodes(path.m_nodes), m_bounds(path.m_bounds) {}
+        inline Path(Path const& path) noexcept : m_nodes(path.m_nodes), m_bounds(path.m_bounds) {}
         
         //! Constructor.
         /** The function initializes a path with another.
          @param path The other path.
          */
-        inline Path(Path&& path) noexcept
-        {m_nodes.swap(path.m_nodes); swap(m_bounds, path.m_bounds);}
+        inline Path(Path&& path) noexcept {m_nodes.swap(path.m_nodes); swap(m_bounds, path.m_bounds);}
         
         //! Constructor.
         /** The function initializes a path with an origin.
@@ -118,7 +137,7 @@ namespace Kiwi
         inline Path(Segment const& segment)
         {
             moveTo(segment.start());
-            addNode(Node(segment.end(),   Linear));
+            addNode(Node(segment.end(), Linear));
         }
         
         //! Quadratic constructor.
@@ -448,6 +467,19 @@ namespace Kiwi
             addNodes(il, Cubic);
         }
         
+        //! Add another path to the path.
+        /** The function adds another path to the path.
+         @param rect The rectangle.
+         */
+        inline void addPath(Path const& path) noexcept
+        {
+            path.size();
+            for(Node node : path.m_nodes)
+            {
+                addNode(node);
+            }
+        }
+        
         //! Add rectangle to the path.
         /** The function adds rectangle to the path.
          @param rect The rectangle.
@@ -530,7 +562,12 @@ namespace Kiwi
         {
             if(!empty())
             {
-                addNode(Node(lastMovePoint(), Linear));
+                const Point lastMove = lastMovePoint();
+                if(m_nodes[size() - 1] != lastMove)
+                {
+                    addNode(Node(lastMove, Linear));
+                }
+                addNode(Node(lastMove, Close));
             }
         }
         

@@ -137,6 +137,7 @@ namespace Kiwi
             addNode(Node(points[i], Cubic));
         }
         lineTo(center);
+        close();
     }
     
     double Path::distance(Point const& pt) const noexcept
