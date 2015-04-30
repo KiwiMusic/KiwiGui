@@ -39,23 +39,13 @@ namespace Kiwi
     class AffineMatrix
     {
     private:
-        double m_xx, m_xy, m_x0;
-        double m_yx, m_yy, m_y0;
+        double m_matrix[6];
         
     public:
         //! Constructor.
         /** The function initializes an identity matrix.
          */
-        constexpr inline AffineMatrix() noexcept :
-            m_xx(1.), m_xy(0.), m_x0(0.),
-            m_yx(0.), m_yy(1.), m_y0(0.) {}
-        
-        //! Constructor.
-        /** The function initializes an affine matrix with another.
-         */
-        constexpr inline AffineMatrix(AffineMatrix const& other) noexcept :
-            m_xx(other.m_xx), m_xy(other.m_xy), m_x0(other.m_x0),
-            m_yx(other.m_yx), m_yy(other.m_yy), m_y0(other.m_y0) {}
+        constexpr inline AffineMatrix() noexcept : m_matrix{1., 0., 0., 0., 1., 0.} {}
         
         //! Constructor.
         /** The function initializes an affine matrix.
@@ -68,8 +58,21 @@ namespace Kiwi
          */
         constexpr inline AffineMatrix(const double xx, const double xy, const double x0,
                                       const double yx, const double yy, const double y0) noexcept :
-            m_xx(xx), m_xy(xy), m_x0(x0),
-            m_yx(yx), m_yy(yy), m_y0(y0) {}
+            m_matrix{xx, xy, x0, yx, yy, y0} {}
+        
+        //! Constructor.
+        /** The function initializes an affine matrix with another.
+         @param other The other matrix.
+         */
+        constexpr inline AffineMatrix(AffineMatrix const& other) noexcept :
+            m_matrix{other.m_matrix[0], other.m_matrix[1], other.m_matrix[2],
+                other.m_matrix[3], other.m_matrix[4], other.m_matrix[5]} {}
+        
+        //! Constructor.
+        /** The function initializes an affine matrix with another.
+         @param other The other matrix.
+         */
+        inline AffineMatrix(AffineMatrix&& other) noexcept {swap(m_matrix, other.m_matrix);}
         
         //! Reset the affine matrix to an identity matrix.
         /** The function reset the affine matrix to an identity matrix.
@@ -81,8 +84,8 @@ namespace Kiwi
         
         bool isIdentity() const noexcept
         {
-            return (m_xx == 1. && m_xy == 0. && m_x0 == 0 &&
-                    m_yx == 0. && m_yy == 1. && m_y0 == 0.);
+            return (m_matrix[0] == 1. && m_matrix[1] == 0. && m_matrix[2] == 0 &&
+                    m_matrix[3] == 0. && m_matrix[4] == 1. && m_matrix[5] == 0.);
         }
         
         //! Apply this affine transformation matrix to a point.
@@ -91,8 +94,8 @@ namespace Kiwi
         void applyTo(double& x, double& y) const noexcept
         {
             const double old_x = x;
-            x = m_xx * old_x + m_xy * y + m_x0;
-            y = m_yx * old_x + m_yy * y + m_y0;
+            x = m_matrix[0] * old_x + m_matrix[1] * y + m_matrix[2];
+            y = m_matrix[3] * old_x + m_matrix[4] * y + m_matrix[5];
         }
         
         //! Apply this affine transformation matrix to a point.
@@ -101,8 +104,8 @@ namespace Kiwi
         template <typename PointType> void applyTo(PointType& pt) const noexcept
         {
             const double old_x = pt.x();
-            pt.x(m_xx * old_x + m_xy * pt.y() + m_x0);
-            pt.y(m_yx * old_x + m_yy * pt.y() + m_y0);
+            pt.x(m_matrix[0] * old_x + m_matrix[1] * pt.y() + m_matrix[2]);
+            pt.y(m_matrix[3] * old_x + m_matrix[4] * pt.y() + m_matrix[5]);
         }
         
         //! Apply this affine transformation matrix to a vector of points.
@@ -113,8 +116,8 @@ namespace Kiwi
             for(auto pt : points)
             {
                 const double old_x = pt.x();
-                pt.x(m_xx * old_x + m_xy * pt.y() + m_x0);
-                pt.y(m_yx * old_x + m_yy * pt.y() + m_y0);
+                pt.x(m_matrix[0] * old_x + m_matrix[1] * pt.y() + m_matrix[2]);
+                pt.y(m_matrix[3] * old_x + m_matrix[4] * pt.y() + m_matrix[5]);
             }
         }
         
@@ -125,8 +128,19 @@ namespace Kiwi
          */
         inline AffineMatrix& operator=(AffineMatrix const& other) noexcept
         {
-            m_xx = other.m_xx; m_xy = other.m_xy; m_x0 = other.m_x0;
-            m_yx = other.m_yx; m_yy = other.m_yy; m_y0 = other.m_y0;
+            m_matrix[0] = other.m_matrix[0]; m_matrix[1] = other.m_matrix[1]; m_matrix[2] = other.m_matrix[2];
+            m_matrix[3] = other.m_matrix[3]; m_matrix[4] = other.m_matrix[4]; m_matrix[5] = other.m_matrix[5];
+            return *this;
+        }
+        
+        //! Sets the matrix with another.
+        /** The function sets the matrix with another.
+         @param other The other matrix.
+         @return The affine matrix.
+         */
+        inline AffineMatrix& operator=(AffineMatrix&& other) noexcept
+        {
+            swap(m_matrix, other.m_matrix);
             return *this;
         }
         
@@ -137,8 +151,8 @@ namespace Kiwi
          */
         bool operator==(AffineMatrix const& other) const noexcept
         {
-            return (m_xx == other.m_xx && m_xy == other.m_xy && m_x0 == other.m_x0 &&
-                    m_yx == other.m_yx && m_yy == other.m_yy && m_y0 == other.m_y0);
+            return (m_matrix[0] == other.m_matrix[0] && m_matrix[1] == other.m_matrix[1] && m_matrix[2] == other.m_matrix[2] &&
+                    m_matrix[3] == other.m_matrix[3] && m_matrix[4] == other.m_matrix[4] && m_matrix[5] == other.m_matrix[5]);
         }
         
         //! Return true if this affine matrix is not equal to another.
@@ -171,8 +185,8 @@ namespace Kiwi
          */
         inline AffineMatrix translated(const double x, const double y) const noexcept
         {
-            return AffineMatrix(m_xx, m_xy, m_x0 + x,
-                                m_yx, m_yy, m_y0 + y);
+            return AffineMatrix(m_matrix[0], m_matrix[1], m_matrix[2] + x,
+                                m_matrix[3], m_matrix[4], m_matrix[5] + y);
         }
         
         //! Return a new affine matrix that is the same as this one but with new translation values.
@@ -183,8 +197,8 @@ namespace Kiwi
          */
         inline AffineMatrix withTranslation(const double x, const double y) const noexcept
         {
-            return AffineMatrix(m_xx, m_xy, x,
-                                m_yx, m_yy, y);
+            return AffineMatrix(m_matrix[0], m_matrix[1], x,
+                                m_matrix[3], m_matrix[4], y);
         }
         
         //! Return an affine matrix that represent a scale transformation.
@@ -207,8 +221,8 @@ namespace Kiwi
          */
         inline AffineMatrix scaled(const double x, const double y) const noexcept
         {
-            return AffineMatrix(m_xx * x, m_xy, m_x0,
-                                m_yx, m_yy * y, m_y0);
+            return AffineMatrix(m_matrix[0] * x, m_matrix[1], m_matrix[2],
+                                m_matrix[3], m_matrix[4] * y, m_matrix[5]);
         }
         
         //! Return an affine matrix that represent a rotation transformation.
@@ -235,8 +249,12 @@ namespace Kiwi
             const double cosRad = cos(radian);
             const double sinRad = sin(radian);
             
-            return AffineMatrix(m_xx * cosRad - m_yx * sinRad, m_xy * cosRad - m_yy * sinRad, m_x0 * cosRad - m_y0 * sinRad,
-                                m_xx * sinRad + m_yx * cosRad, m_xy * sinRad + m_yy * cosRad, m_x0 * sinRad + m_y0 * cosRad);
+            return AffineMatrix(m_matrix[0] * cosRad - m_matrix[3] * sinRad,
+                                m_matrix[1] * cosRad - m_matrix[4] * sinRad,
+                                m_matrix[2] * cosRad - m_matrix[5] * sinRad,
+                                m_matrix[0] * sinRad + m_matrix[3] * cosRad,
+                                m_matrix[1] * sinRad + m_matrix[4] * cosRad,
+                                m_matrix[2] * sinRad + m_matrix[5] * cosRad);
         }
         
         //! Return an affine matrix that represent a shear transformation.
@@ -259,8 +277,8 @@ namespace Kiwi
          */
         inline AffineMatrix sheared(const double x, const double y) const noexcept
         {
-            return AffineMatrix(m_xx + x * m_yx, m_xy + x * m_yy, m_x0 + x * m_y0,
-                                m_yx + y * m_xx, m_yy + y * m_xy, m_y0 + y * m_x0);
+            return AffineMatrix(m_matrix[0] + x * m_matrix[3], m_matrix[1] + x * m_matrix[4], m_matrix[2] + x * m_matrix[5],
+                                m_matrix[3] + y * m_matrix[0], m_matrix[4] + y * m_matrix[1], m_matrix[5] + y * m_matrix[2]);
         }
         
         //! Return an affine matrix that represent a pixel to cartesian coordinate system transformation.
