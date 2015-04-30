@@ -25,6 +25,22 @@
 
 namespace Kiwi
 {
+    void Path::transform(AffineMatrix const& matrix) noexcept
+    {
+        for(auto&& node : m_nodes)
+        {
+            node.transform(matrix);
+        }
+        //m_bounds update
+    }
+    
+    Path Path::transformed(AffineMatrix const& matrix) const noexcept
+    {
+        Path p = *this;
+        p.transform(matrix);
+        return p;
+    }
+    
     void Path::addRectangle(Rectangle const& rect, const double r) noexcept
     {
         addRectangle(rect.x(), rect.y(), rect.width(), rect.height(), r, r,

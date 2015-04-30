@@ -110,6 +110,15 @@ namespace Kiwi
      */
     class Sketch
     {
+    private:
+        AffineMatrix m_matrix;
+        
+    protected:
+        virtual void applyMatrix(Path& path, AffineMatrix const& matrix) const noexcept
+        {
+            path.transform(matrix);
+        }
+        
     public:
         //! Constructor.
         /** The function does nothing.
@@ -120,6 +129,18 @@ namespace Kiwi
         /** The function does nothing.
          */
         inline virtual ~Sketch() noexcept {}
+        
+        //! Set the transformation matrix.
+        /** The function sets the transformation matrix.
+         @param matrix The transformation matrix.
+         */
+        inline void setMatrix(AffineMatrix const& matrix) noexcept {m_matrix = matrix;}
+        
+        //! Retrieve the transformation matrix.
+        /** The function retrieves the transformation matrix.
+         @param matrix The transformation matrix.
+         */
+        inline AffineMatrix getMatrix() const noexcept {return m_matrix;}
         
         //! Retrieve the position.
         /** The function retrieves the position.
@@ -222,17 +243,7 @@ namespace Kiwi
         /** The function fills a path.
          @param path The path.
          */
-        virtual void fillPath(Path const& path) const = 0;
-        
-        //! Draw a path.
-        /** The function draws a path.
-         @param path The path to draw.
-         @param thickness The line thickness of the path.
-         */
-        virtual void drawPath(const Path& path, double const thickness) const
-        {
-            drawPath(path, thickness, Path::Joint::Mitered, Path::LineCap::Butt);
-        }
+        virtual void fillPath(Path const& path, AffineMatrix const& matrix = AffineMatrix()) const = 0;
         
         //! Draw a path.
         /** The function draws a path.
@@ -241,11 +252,19 @@ namespace Kiwi
          @param joint       How must be drawn the joint between lines.
          @param linecap     How must be drawn the ends of lines.
          */
-        virtual void drawPath(const Path& path, double const thickness, const Path::Joint joint, const Path::LineCap linecap) const = 0;
+        virtual void drawPath(Path const& path, double const thickness,
+                              const Path::Joint joint = Path::Joint::Mitered,
+                              const Path::LineCap linecap = Path::LineCap::Butt,
+                              AffineMatrix const& matrix = AffineMatrix()) const = 0;
         
-        virtual void drawLine(double x1, double y1, double x2, double y2, double thickness) const
+        virtual void drawLine(Segment const& segment, double thickness = 1.) const
         {
-            drawPath(Path::line(Point(x1, y2), Point(x2, y2)), thickness);
+            drawPath(Path(segment), thickness);
+        }
+        
+        virtual void drawLine(double x1, double y1, double x2, double y2, double thickness = 1.) const
+        {
+            drawPath(Path::line(Point(x1, y1), Point(x2, y2)), thickness);
         }
         
         virtual void drawRectangle(double x, double y, double w, double h, double thickness, double rounded = 0.) const
@@ -285,7 +304,7 @@ namespace Kiwi
         
         virtual void fillRectangle(Rectangle const& rect, double rounded = 0.)
         {
-            drawRectangle(rect.x(), rect.y(), rect.width(), rect.height(), rounded);
+            fillRectangle(rect.x(), rect.y(), rect.width(), rect.height(), rounded);
         }
         
         virtual void drawEllipse(double x, double y, double width, double height, double thickness = 1.) const
@@ -297,7 +316,7 @@ namespace Kiwi
         {
             Path p;
             p.addEllipse(rect);
-            drawPath(p, thickness);
+            drawPath(p, thickness, Path::Joint::Mitered, Path::LineCap::Butt);
         }
         
         virtual void fillEllipse(double x, double y, double width, double height) const
