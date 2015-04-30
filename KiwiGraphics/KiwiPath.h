@@ -74,6 +74,7 @@ namespace Kiwi
             inline bool operator!=(Point const& other) const noexcept {return (data[0] != other.x() && data[1] != other.y());}
             inline Point point() const noexcept {return Point(data[0], data[1]);}
             inline Mode mode() const noexcept{return m;}
+            inline void transform(AffineMatrix const& matrix) noexcept {matrix.applyTo(data[0], data[1]);}
         };
     
         vector<Node> m_nodes;
@@ -339,6 +340,18 @@ namespace Kiwi
          @return The bounds of the path.
          */
         inline Rectangle bounds() const noexcept {return m_bounds;};
+        
+        //! Apply a 2D affine transformation to the path.
+        /** The function applies a 2D affine transformation to the path.
+         @param matrix The affine matrix to apply to.
+         */
+        void transform(AffineMatrix const& matrix) noexcept;
+        
+        //! Apply a 2D affine transformation to the path.
+        /** The function applies a 2D affine transformation to the path.
+         @param matrix The affine matrix to apply to.
+         */
+        Path transformed(AffineMatrix const& matrix) const noexcept;
         
         //! Adds a new point to the path not linked with the previous one.
         /** The function adds a new point to the path that won't be linked to the previous node.
