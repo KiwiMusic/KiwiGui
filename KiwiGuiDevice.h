@@ -71,25 +71,47 @@ namespace Kiwi
          */
         virtual Rectangle getScreenBounds(Point const& pt) const noexcept = 0;
         
-        //! Retrieves the width of a text.
-        /** The function the width of a text depending on a font.
+        //! Retrieves the width of a line.
+        /** The function retreives the width of a line depending on a font.
          @param font The font.
-         @param text The text.
-         @return The width of the text.
+         @param line The line.
+         @return The width of the line.
          */
-        virtual double getTextWidth(Font const& font, string const& text) const noexcept
+        virtual double getLineWidth(Font const& font, string const& line) const noexcept
         {
             wstring_convert<codecvt_utf8_utf16<wchar_t>,wchar_t> cv;
-            return getTextWidth(font, cv.from_bytes(text));
+            return getLineWidth(font, cv.from_bytes(line));
+        }
+        
+        //! Retrieves the width of a line.
+        /** The function retreives the width of a line depending on a font.
+         @param font The font.
+         @param line The line.
+         @return The width of the line.
+         */
+        virtual double getLineWidth(Font const& font, wstring const& line) const noexcept = 0;
+        
+        //! Retrieves the size of a text.
+        /** The function the size of a text depending on a font.
+         @param font The font.
+         @param text The text.
+         @param width The width limit of the text, zero means no limits.
+         @return The width of the text.
+         */
+        virtual Size getTextSize(Font const& font, string const& text, const double width = 0.) const noexcept
+        {
+            wstring_convert<codecvt_utf8_utf16<wchar_t>,wchar_t> cv;
+            return getTextSize(font, cv.from_bytes(text));
         }
         
         //! Retrieves the size of a text.
         /** The function the width of a text depending on a font.
          @param font The font.
          @param text The text.
+         @param width The width limit of the text, zero means no limits.
          @return The width of the text.
          */
-        virtual double getTextWidth(Font const& font, wstring const& text) const noexcept = 0;
+        virtual Size getTextSize(Font const& font, wstring const& text, const double width_limit = 0.) const noexcept = 0;
         
     private:
         

@@ -27,280 +27,6 @@
 namespace Kiwi
 {
     // ================================================================================ //
-    //                                      TEXT                                        //
-    // ================================================================================ //
-    
-    GuiText::GuiText(sGuiContext ctxt) noexcept : GuiSketcher(ctxt),
-    m_font(),
-    m_justification(Font::Justification::TopLeft),
-    m_line_space(1.),
-    m_display_mode(Wrapped),
-    m_text()
-    {
-        if(ctxt)
-        {
-            m_empty_width = ctxt->getTextWidth(m_font, wstring(L" "));
-            m_trail_width = ctxt->getTextWidth(m_font, wstring(L"..."));
-        }
-        else
-        {
-            m_empty_width = m_font.getSize() * 0.5;
-            m_trail_width = m_empty_width * 3.;
-        }
-        computeLinesWidth();
-    }
-    
-    GuiText::~GuiText() noexcept
-    {
-        m_text.clear();
-    }
-    
-    void GuiText::setFont(Font const& font) noexcept
-    {
-        if(font != m_font)
-        {
-            m_font      = font;
-            sGuiContext ctxt = getContext();
-            if(ctxt)
-            {
-                m_empty_width = ctxt->getTextWidth(m_font, wstring(L" "));
-                m_trail_width = ctxt->getTextWidth(m_font, wstring(L"..."));
-            }
-            computeLinesWidth();
-            redraw();
-            m_redraw = false;
-        }
-    }
-    
-    void GuiText::setJustification(const Font::Justification justification) noexcept
-    {
-        if(m_justification != justification)
-        {
-            m_justification = justification;
-            redraw();
-        }
-    }
-    
-    void GuiText::setLineSpacing(const double factor) noexcept
-    {
-        if(factor != m_line_space)
-        {
-            m_line_space = factor;
-            computeLinesWidth();
-            redraw();
-        }
-    }
-    
-    void GuiText::setDisplayMode(const DisplayMode mode) noexcept
-    {
-        if(mode != m_display_mode)
-        {
-            m_display_mode = mode;
-            redraw();
-        }
-    }
-    
-    void GuiText::setColor(Color const& color) noexcept
-    {
-        if(m_color != color)
-        {
-            m_color = color;
-            redraw();
-        }
-    }
-    
-    void GuiText::setString(wstring const& text) noexcept
-    {
-        m_text = text;
-    }
-    
-    void GuiText::setString(wstring&& text) noexcept
-    {
-        swap(m_text, text);
-    }
-    
-    void GuiText::clearString() noexcept
-    {
-        m_text.clear();
-    }
-    
-    void GuiText::computeLinesWidth() noexcept
-    {
-        sGuiContext ctxt = getContext();
-        if(ctxt)
-        {
-            m_widths.clear();
-            size_type last = 0ul;
-            size_type pos = m_text.find(L'\n', 0ul);
-            while(pos != npos)
-            {
-                m_widths.push_back(ctxt->getTextWidth(m_font, wstring(m_text, last, pos - last)) + m_empty_width);
-                last = pos+1ul;
-                pos = m_text.find(L'\n', last);
-            }
-            m_widths.push_back(ctxt->getTextWidth(m_font, wstring(m_text, last, npos)) + m_empty_width);
-        }
-    }
-    
-    void GuiText::drawTruncated(scGuiView view, Sketch& sketch) const
-    {
-        ulong i = 0ul;
-        size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
-        const Rectangle bounds = sketch.getBounds();
-        const double height = m_font.getSize() * m_line_space;
-        while(pos != npos)
-        {
-            const double h = i++ * height;
-            if(h > bounds.y())
-            {
-                sketch.drawText(wstring(m_text, last, pos - last), 0., h, bounds.width(), height, m_justification);
-            }
-            last = pos+1ul;
-            pos = m_text.find(L'\n', last);
-        }
-        const double h = i++ * height;
-        if(h > bounds.y())
-        {
-            sketch.drawText(wstring(m_text, last, npos), 0., h, bounds.width(), height, m_justification);
-        }
-    }
-    
-    void GuiText::drawTrailPoint(scGuiView view, Sketch& sketch) const
-    {
-        sGuiContext ctxt = getContext();
-        if(ctxt)
-        {
-            const Size size = getSize();
-            ulong i = 0ul;
-            size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
-            const Rectangle bounds = sketch.getBounds();
-            const double height = m_font.getSize() * m_line_space;
-            while(pos != npos)
-            {
-                if(m_widths[i] <= size.width())
-                {
-                    sketch.drawText(wstring(m_text, last, pos - last), 0., i++ * height, size.width(), height, m_justification);
-                }
-                else
-                {
-                    wstring line(m_text, last, pos - last - 1ul);
-                    line.append(3ul, L'.');
-                    while(ctxt->getTextWidth(m_font, line) > size.width() && line.size() > 3ul)
-                    {
-                        line.erase(line.size() - 4ul, 1ul);
-                    }
-                    sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
-                }
-                
-                last = pos+1ul;
-                pos = m_text.find(L'\n', last);
-            }
-            if(m_widths[i] <= size.width())
-            {
-                sketch.drawText(wstring(m_text,  last, npos), 0., i * height, size.width(), height, m_justification);
-            }
-            else
-            {
-                wstring line(m_text, last, m_text.size() - 1ul);
-                line.append(3ul, L'.');
-                while(ctxt->getTextWidth(m_font, line) > size.width() && line.size() > 3ul)
-                {
-                    line.erase(line.size() - 4ul, 1ul);
-                }
-                sketch.drawText(line, 0., i * height, size.width(), height, m_justification);
-            }
-        }
-    }
-    
-    void GuiText::drawWrapped(scGuiView view, Sketch& sketch) const
-    {
-        sGuiContext ctxt = getContext();
-        if(ctxt)
-        {
-            const Size size = getSize();
-            ulong i = 0ul, lindex = 0ul;
-            size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
-            const Rectangle bounds = sketch.getBounds();
-            const double height = m_font.getSize() * m_line_space;
-            while(pos != npos)
-            {
-                if(m_widths[lindex] <= size.width())
-                {
-                    sketch.drawText(wstring(m_text, last, pos - last), 0., i++ * height, size.width(), height, m_justification);
-                }
-                else
-                {
-                    wstring next, line(m_text, last, pos - last);
-                    size_type width = m_widths[lindex];
-                    while(width > size.width() && line.size())
-                    {
-                        next.insert(0ul, 1ul, line[line.size() - 1ul]);
-                        line.pop_back();
-                        width = ctxt->getTextWidth(m_font, line);
-                        if(width <= size.width())
-                        {
-                            sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
-                            line.clear();
-                            swap(line, next);
-                            width = ctxt->getTextWidth(m_font, line);
-                        }
-                    }
-                    sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
-                }
-                lindex++;
-                last = pos+1ul;
-                pos = m_text.find(L'\n', last);
-            }
-            if(m_widths[lindex] <= size.width())
-            {
-                sketch.drawText(wstring(m_text, last, pos - last), 0., i * height, size.width(), height, m_justification);
-            }
-            else
-            {
-                wstring next, line(m_text, last, npos);
-                size_type width = m_widths[lindex];
-                while(width > size.width() && line.size())
-                {
-                    next.insert(0ul, 1ul, line[line.size() - 1ul]);
-                    line.pop_back();
-                    width = ctxt->getTextWidth(m_font, line);
-                    if(width <= size.width())
-                    {
-                        sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
-                        line.clear();
-                        swap(line, next);
-                        width = ctxt->getTextWidth(m_font, line);
-                    }
-                }
-                sketch.drawText(line, 0., i * height, size.width(), height, m_justification);
-                
-            }
-        }
-    }
-    
-    void GuiText::draw(scGuiView view, Sketch& sketch) const
-    {
-        if(!m_text.empty())
-        {
-            const Size size = getSize();
-            sketch.setColor(m_color);
-            sketch.setFont(m_font);
-            if(m_display_mode == Truncated)
-            {
-                drawTruncated(view, sketch);
-            }
-            else if(m_display_mode == TrailPoint)
-            {
-                drawTrailPoint(view, sketch);
-            }
-            else
-            {
-                drawWrapped(view, sketch);
-            }
-        }
-    }
-    
-    // ================================================================================ //
     //                                     TEXT EDITOR                                  //
     // ================================================================================ //
     
@@ -314,11 +40,11 @@ namespace Kiwi
         m_justification = Font::Justification::TopLeft;
         if(context)
         {
-            m_empty_width = context->getTextWidth(m_font, wstring(L" "));
+            m_empty_width = context->getLineWidth(m_font, wstring(L" "));
         }
         else
         {
-            m_empty_width = 0.5 * m_font.getSize();
+            m_empty_width = 0.5 * m_font.getHeight();
         }
     }
     
@@ -340,7 +66,7 @@ namespace Kiwi
             sGuiContext ctxt = getContext();
             if(ctxt)
             {
-                m_empty_width = ctxt->getTextWidth(m_font, wstring(L" "));
+                m_empty_width = ctxt->getLineWidth(m_font, wstring(L" "));
             }
             redraw();
             m_redraw = false;
@@ -428,6 +154,7 @@ namespace Kiwi
             }
             else
             {
+                /*
                 sGuiContext ctxt = getContext();
                 if(ctxt)
                 {
@@ -492,7 +219,7 @@ namespace Kiwi
                         }
                         sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
                     }
-                }
+                }*/
             }
         }
     }
@@ -672,94 +399,11 @@ namespace Kiwi
         lock_guard<mutex> guard(m_text_mutex);
         if(ctxt && !m_text.empty())
         {
-            if(limit > m_empty_width)
-            {
-                const double lineheight = getLineHeight();
-                Size size(limit - m_empty_width, 0.);
-                size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
-                while(pos != npos)
-                {
-                    wstring line(m_text, last, pos - last);
-                    double width = ctxt->getTextWidth(m_font, line);
-                    if(width <= size.width())
-                    {
-                        size.height(size.height() + lineheight);
-                    }
-                    else
-                    {
-                        wstring next;
-                        while(width > size.width() && line.size())
-                        {
-                            next.insert(0ul, 1ul, line[line.size() - 1ul]);
-                            line.pop_back();
-                            width = ctxt->getTextWidth(m_font, line);
-                            if(width <= size.width())
-                            {
-                                size.height(size.height() + lineheight);
-                                line.clear();
-                                swap(line, next);
-                                width = ctxt->getTextWidth(m_font, line);
-                            }
-                        }
-                        if(!line.empty())
-                        {
-                            size.height(size.height() + lineheight);
-                        }
-                        
-                    }
-                    last = ++pos;
-                    pos = m_text.find(L'\n', last);
-                }
-                wstring line(m_text, last, npos);
-                double width = ctxt->getTextWidth(m_font, line);
-                if(width <= size.width())
-                {
-                    size.height(size.height() + lineheight);
-                }
-                else
-                {
-                    wstring next;
-                    while(width > size.width() && line.size())
-                    {
-                        next.insert(0ul, 1ul, line[line.size() - 1ul]);
-                        line.pop_back();
-                        width = ctxt->getTextWidth(m_font, line);
-                        if(width <= size.width())
-                        {
-                            size.height(size.height() + lineheight);
-                            line.clear();
-                            swap(line, next);
-                            width = ctxt->getTextWidth(m_font, line);
-                        }
-                    }
-                    if(!line.empty())
-                    {
-                        wcout << line << endl;
-                        size.height(size.height() + lineheight);
-                    }
-                        }
-                return size;
-            }
-            else
-            {
-                Size size;
-                const double lineheight = getLineHeight();
-                size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
-                while(pos != npos)
-                {
-                    size.width(max(ctxt->getTextWidth(m_font, wstring(m_text, last, pos - last)) + m_empty_width, size.width()));
-                    size.height(size.height() + lineheight);
-                    last = ++pos;
-                    pos = m_text.find(L'\n', last);
-                }
-                size.width(max(ctxt->getTextWidth(m_font, wstring(m_text, last, npos)) + m_empty_width + m_empty_width, size.width()));
-                size.height(size.height() + m_font.getSize());
-                return size;
-            }
+            ;
         }
         else
         {
-            return Size(m_empty_width, m_font.getSize());
+            return Size(m_empty_width, m_font.getHeight());
         }
     }
     

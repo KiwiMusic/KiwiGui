@@ -174,20 +174,20 @@ namespace Kiwi
             return m_name;
         }
 		
-        //! Sets the font size.
-        /** The function sets the size of the font.
-         @param size The size of the font.
+        //! Sets the font height.
+        /** The function sets the height of the font.
+         @param size The height of the font.
          */
-        inline void setSize(const double size)
+        inline void setHeight(const double size)
         {
             m_size = clip(size, 0.1, 10000.);
         }
         
-        //! Retrieves the font size.
-        /** The function retrieves the size of the font.
-         @return The size of the font.
+        //! Retrieves the font height.
+        /** The function retrieves the height of the font.
+         @return The height of the font.
          */
-        inline double getSize() const noexcept
+        inline double getHeight() const noexcept
         {
             return m_size;
         }
@@ -307,7 +307,7 @@ namespace Kiwi
          */
         inline bool operator!=(Font const& other) const noexcept
         {
-            return getName() != other.getName() || getStyle() != other.getStyle() ||  getSize() != other.getSize();
+            return getName() != other.getName() || getStyle() != other.getStyle() ||  getHeight() != other.getHeight();
         }
         
         //! Compare the font with another.
@@ -317,7 +317,7 @@ namespace Kiwi
          */
         inline bool operator==(Font const& other) const noexcept
         {
-            return getName() == other.getName() && getStyle() == other.getStyle() && getSize() == other.getSize();
+            return getName() == other.getName() && getStyle() == other.getStyle() && getHeight() == other.getHeight();
         }
         
         //! Retrieve the font as a vector of atoms.
@@ -340,7 +340,7 @@ namespace Kiwi
                 setName(sTag(vector[0])->getName());
                 if(vector.size() > 1 && vector[1].isNumber())
                 {
-                    setSize(double(vector[1]));
+                    setHeight(double(vector[1]));
                 }
                 if(vector.size() > 2 && vector[2].isTag())
                 {
