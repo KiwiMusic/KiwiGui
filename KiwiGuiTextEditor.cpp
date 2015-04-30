@@ -27,6 +27,280 @@
 namespace Kiwi
 {
     // ================================================================================ //
+    //                                      TEXT                                        //
+    // ================================================================================ //
+    
+    GuiText::GuiText(sGuiContext ctxt) noexcept : GuiSketcher(ctxt),
+    m_font(),
+    m_justification(Font::Justification::TopLeft),
+    m_line_space(1.),
+    m_display_mode(Wrapped),
+    m_text()
+    {
+        if(ctxt)
+        {
+            m_empty_width = ctxt->getTextWidth(m_font, wstring(L" "));
+            m_trail_width = ctxt->getTextWidth(m_font, wstring(L"..."));
+        }
+        else
+        {
+            m_empty_width = m_font.getSize() * 0.5;
+            m_trail_width = m_empty_width * 3.;
+        }
+        computeLinesWidth();
+    }
+    
+    GuiText::~GuiText() noexcept
+    {
+        m_text.clear();
+    }
+    
+    void GuiText::setFont(Font const& font) noexcept
+    {
+        if(font != m_font)
+        {
+            m_font      = font;
+            sGuiContext ctxt = getContext();
+            if(ctxt)
+            {
+                m_empty_width = ctxt->getTextWidth(m_font, wstring(L" "));
+                m_trail_width = ctxt->getTextWidth(m_font, wstring(L"..."));
+            }
+            computeLinesWidth();
+            redraw();
+            m_redraw = false;
+        }
+    }
+    
+    void GuiText::setJustification(const Font::Justification justification) noexcept
+    {
+        if(m_justification != justification)
+        {
+            m_justification = justification;
+            redraw();
+        }
+    }
+    
+    void GuiText::setLineSpacing(const double factor) noexcept
+    {
+        if(factor != m_line_space)
+        {
+            m_line_space = factor;
+            computeLinesWidth();
+            redraw();
+        }
+    }
+    
+    void GuiText::setDisplayMode(const DisplayMode mode) noexcept
+    {
+        if(mode != m_display_mode)
+        {
+            m_display_mode = mode;
+            redraw();
+        }
+    }
+    
+    void GuiText::setColor(Color const& color) noexcept
+    {
+        if(m_color != color)
+        {
+            m_color = color;
+            redraw();
+        }
+    }
+    
+    void GuiText::setString(wstring const& text) noexcept
+    {
+        m_text = text;
+    }
+    
+    void GuiText::setString(wstring&& text) noexcept
+    {
+        swap(m_text, text);
+    }
+    
+    void GuiText::clearString() noexcept
+    {
+        m_text.clear();
+    }
+    
+    void GuiText::computeLinesWidth() noexcept
+    {
+        sGuiContext ctxt = getContext();
+        if(ctxt)
+        {
+            m_widths.clear();
+            size_type last = 0ul;
+            size_type pos = m_text.find(L'\n', 0ul);
+            while(pos != npos)
+            {
+                m_widths.push_back(ctxt->getTextWidth(m_font, wstring(m_text, last, pos - last)) + m_empty_width);
+                last = pos+1ul;
+                pos = m_text.find(L'\n', last);
+            }
+            m_widths.push_back(ctxt->getTextWidth(m_font, wstring(m_text, last, npos)) + m_empty_width);
+        }
+    }
+    
+    void GuiText::drawTruncated(scGuiView view, Sketch& sketch) const
+    {
+        ulong i = 0ul;
+        size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
+        const Rectangle bounds = sketch.getBounds();
+        const double height = m_font.getSize() * m_line_space;
+        while(pos != npos)
+        {
+            const double h = i++ * height;
+            if(h > bounds.y())
+            {
+                sketch.drawText(wstring(m_text, last, pos - last), 0., h, bounds.width(), height, m_justification);
+            }
+            last = pos+1ul;
+            pos = m_text.find(L'\n', last);
+        }
+        const double h = i++ * height;
+        if(h > bounds.y())
+        {
+            sketch.drawText(wstring(m_text, last, npos), 0., h, bounds.width(), height, m_justification);
+        }
+    }
+    
+    void GuiText::drawTrailPoint(scGuiView view, Sketch& sketch) const
+    {
+        sGuiContext ctxt = getContext();
+        if(ctxt)
+        {
+            const Size size = getSize();
+            ulong i = 0ul;
+            size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
+            const Rectangle bounds = sketch.getBounds();
+            const double height = m_font.getSize() * m_line_space;
+            while(pos != npos)
+            {
+                if(m_widths[i] <= size.width())
+                {
+                    sketch.drawText(wstring(m_text, last, pos - last), 0., i++ * height, size.width(), height, m_justification);
+                }
+                else
+                {
+                    wstring line(m_text, last, pos - last - 1ul);
+                    line.append(3ul, L'.');
+                    while(ctxt->getTextWidth(m_font, line) > size.width() && line.size() > 3ul)
+                    {
+                        line.erase(line.size() - 4ul, 1ul);
+                    }
+                    sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
+                }
+                
+                last = pos+1ul;
+                pos = m_text.find(L'\n', last);
+            }
+            if(m_widths[i] <= size.width())
+            {
+                sketch.drawText(wstring(m_text,  last, npos), 0., i * height, size.width(), height, m_justification);
+            }
+            else
+            {
+                wstring line(m_text, last, m_text.size() - 1ul);
+                line.append(3ul, L'.');
+                while(ctxt->getTextWidth(m_font, line) > size.width() && line.size() > 3ul)
+                {
+                    line.erase(line.size() - 4ul, 1ul);
+                }
+                sketch.drawText(line, 0., i * height, size.width(), height, m_justification);
+            }
+        }
+    }
+    
+    void GuiText::drawWrapped(scGuiView view, Sketch& sketch) const
+    {
+        sGuiContext ctxt = getContext();
+        if(ctxt)
+        {
+            const Size size = getSize();
+            ulong i = 0ul, lindex = 0ul;
+            size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
+            const Rectangle bounds = sketch.getBounds();
+            const double height = m_font.getSize() * m_line_space;
+            while(pos != npos)
+            {
+                if(m_widths[lindex] <= size.width())
+                {
+                    sketch.drawText(wstring(m_text, last, pos - last), 0., i++ * height, size.width(), height, m_justification);
+                }
+                else
+                {
+                    wstring next, line(m_text, last, pos - last);
+                    size_type width = m_widths[lindex];
+                    while(width > size.width() && line.size())
+                    {
+                        next.insert(0ul, 1ul, line[line.size() - 1ul]);
+                        line.pop_back();
+                        width = ctxt->getTextWidth(m_font, line);
+                        if(width <= size.width())
+                        {
+                            sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
+                            line.clear();
+                            swap(line, next);
+                            width = ctxt->getTextWidth(m_font, line);
+                        }
+                    }
+                    sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
+                }
+                lindex++;
+                last = pos+1ul;
+                pos = m_text.find(L'\n', last);
+            }
+            if(m_widths[lindex] <= size.width())
+            {
+                sketch.drawText(wstring(m_text, last, pos - last), 0., i * height, size.width(), height, m_justification);
+            }
+            else
+            {
+                wstring next, line(m_text, last, npos);
+                size_type width = m_widths[lindex];
+                while(width > size.width() && line.size())
+                {
+                    next.insert(0ul, 1ul, line[line.size() - 1ul]);
+                    line.pop_back();
+                    width = ctxt->getTextWidth(m_font, line);
+                    if(width <= size.width())
+                    {
+                        sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
+                        line.clear();
+                        swap(line, next);
+                        width = ctxt->getTextWidth(m_font, line);
+                    }
+                }
+                sketch.drawText(line, 0., i * height, size.width(), height, m_justification);
+                
+            }
+        }
+    }
+    
+    void GuiText::draw(scGuiView view, Sketch& sketch) const
+    {
+        if(!m_text.empty())
+        {
+            const Size size = getSize();
+            sketch.setColor(m_color);
+            sketch.setFont(m_font);
+            if(m_display_mode == Truncated)
+            {
+                drawTruncated(view, sketch);
+            }
+            else if(m_display_mode == TrailPoint)
+            {
+                drawTrailPoint(view, sketch);
+            }
+            else
+            {
+                drawWrapped(view, sketch);
+            }
+        }
+    }
+    
+    // ================================================================================ //
     //                                     TEXT EDITOR                                  //
     // ================================================================================ //
     
@@ -40,21 +314,22 @@ namespace Kiwi
         m_justification = Font::Justification::TopLeft;
         if(context)
         {
-            m_empty_charw = context->getTextWidth(m_font, wstring(L" "));
-            m_trail_width = context->getTextWidth(m_font, wstring(L"..."));
+            m_empty_width = context->getTextWidth(m_font, wstring(L" "));
         }
         else
         {
-            m_empty_charw = 0.5 * m_font.getSize();
-            m_trail_width = m_empty_charw * 3.;
+            m_empty_width = 0.5 * m_font.getSize();
         }
     }
     
     GuiTextEditor::~GuiTextEditor() noexcept
     {
-        m_text.clear();
-        lock_guard<mutex> guard(m_lists_mutex);
-        m_lists.clear();
+        {lock_guard<mutex> guard(m_text_mutex);
+            m_text.clear();}
+        {lock_guard<mutex> guard(m_lists_mutex);
+            m_lists.clear();}
+        {lock_guard<mutex> guard(m_carets_mutex);
+            m_carets.clear();}
     }
     
     void GuiTextEditor::setFont(Font const& font) noexcept
@@ -65,10 +340,8 @@ namespace Kiwi
             sGuiContext ctxt = getContext();
             if(ctxt)
             {
-                m_empty_charw = ctxt->getTextWidth(m_font, wstring(L" "));
-                m_trail_width = ctxt->getTextWidth(m_font, wstring(L"..."));
+                m_empty_width = ctxt->getTextWidth(m_font, wstring(L" "));
             }
-            computeLinesWidth();
             redraw();
             m_redraw = false;
         }
@@ -102,11 +375,11 @@ namespace Kiwi
         }
     }
     
-    void GuiTextEditor::setDisplayMode(const DisplayMode mode) noexcept
+    void GuiTextEditor::setWrapped(const bool wrap) noexcept
     {
-        if(mode != m_mode)
+        if(wrap != m_wrapped)
         {
-            m_mode = mode;
+            m_wrapped = wrap;
             redraw();
             m_redraw = false;
         }
@@ -130,136 +403,101 @@ namespace Kiwi
             redraw();
         }
     }
-    
+
     void GuiTextEditor::draw(scGuiView view, Sketch& sketch) const
     {
+        lock_guard<mutex> guard(m_text_mutex);
         if(!m_text.empty())
         {
-            const Size size = getSize();
             sketch.setColor(m_color);
             sketch.setFont(m_font);
-            const double height = m_font.getSize() * m_line_space;
-            
-            size_type last = 0ul;
-            size_type pos = m_text.find(L'\n', 0ul);
-            if(m_mode == Trunc)
+            if(!m_wrapped)
             {
-                ulong i = 0ul;
+                const Rectangle bounds  = sketch.getBounds();
+                const double lineheight = getLineHeight();
+                double text_y = 0.;
+                size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
                 while(pos != npos)
                 {
-                    sketch.drawText(wstring(m_text, last, pos - last), 0., i++ * height, size.width(), height, m_justification);
-                    last = pos+1ul;
+                    sketch.drawText(wstring(m_text, last, pos - last), 0., text_y, bounds.width(), lineheight, m_justification);
+                    last = ++pos;
                     pos = m_text.find(L'\n', last);
+                    text_y += lineheight;
                 }
-                sketch.drawText(wstring(m_text, last, npos), 0., i * height, size.width(), height, m_justification);
-            }
-            else if(m_mode == Trail)
-            {
-                sGuiContext ctxt = getContext();
-                if(ctxt)
-                {
-                    ulong i = 0ul;
-                    while(pos != npos)
-                    {
-                        if(m_widths[i] <= size.width())
-                        {
-                            sketch.drawText(wstring(m_text, last, pos - last), 0., i++ * height, size.width(), height, m_justification);
-                        }
-                        else
-                        {
-                            wstring line(m_text, last, pos - last - 1ul);
-                            line.append(3ul, L'.');
-                            while(ctxt->getTextWidth(m_font, line) > size.width() && line.size() > 3ul)
-                            {
-                                line.erase(line.size() - 4ul, 1ul);
-                            }
-                            sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
-                        }
-                        
-                        last = pos+1ul;
-                        pos = m_text.find(L'\n', last);
-                    }
-                    if(m_widths[i] <= size.width())
-                    {
-                        sketch.drawText(wstring(m_text,  last, npos), 0., i * height, size.width(), height, m_justification);
-                    }
-                    else
-                    {
-                        wstring line(m_text, last, m_text.size() - 1ul);
-                        line.append(3ul, L'.');
-                        while(ctxt->getTextWidth(m_font, line) > size.width() && line.size() > 3ul)
-                        {
-                            line.erase(line.size() - 4ul, 1ul);
-                        }
-                        sketch.drawText(line, 0., i * height, size.width(), height, m_justification);
-                    }
-                }
+                sketch.drawText(wstring(m_text, last, npos), 0., text_y, bounds.width(), lineheight, m_justification);
             }
             else
             {
                 sGuiContext ctxt = getContext();
                 if(ctxt)
                 {
-                    ulong i = 0ul, lindex = 0ul;
+                    const Rectangle bounds  = sketch.getBounds();
+                    const double lineheight = getLineHeight();
+                    double text_y = 0.;
+                    size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
                     while(pos != npos)
                     {
-                        if(m_widths[lindex] <= size.width())
+                        wstring line(m_text, last, pos - last);
+                        double width = ctxt->getTextWidth(m_font, line);
+                        if(width <= bounds.width() - m_empty_width)
                         {
-                            sketch.drawText(wstring(m_text, last, pos - last), 0., i++ * height, size.width(), height, m_justification);
+                            sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
+                            text_y += lineheight;
                         }
                         else
                         {
-                            wstring next, line(m_text, last, pos - last);
-                            size_type width = m_widths[lindex];
-                            while(width > size.width() && line.size())
+                            wstring next;
+                            while(width > bounds.width() - m_empty_width && line.size())
                             {
                                 next.insert(0ul, 1ul, line[line.size() - 1ul]);
                                 line.pop_back();
                                 width = ctxt->getTextWidth(m_font, line);
-                                if(width <= size.width())
+                                if(width <= bounds.width() - m_empty_width)
                                 {
-                                    sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
+                                    sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
+                                    text_y += lineheight;
                                     line.clear();
                                     swap(line, next);
                                     width = ctxt->getTextWidth(m_font, line);
                                 }
                             }
-                            sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
+                            sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
+                            text_y += lineheight;
                         }
-                        lindex++;
-                        last = pos+1ul;
+                        last = ++pos;
                         pos = m_text.find(L'\n', last);
                     }
-                    if(m_widths[lindex] <= size.width())
+                    wstring line(m_text, last, npos);
+                    double width = ctxt->getTextWidth(m_font, line);
+                    if(width <= bounds.width() - m_empty_width)
                     {
-                        sketch.drawText(wstring(m_text, last, pos - last), 0., i * height, size.width(), height, m_justification);
+                        sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
                     }
                     else
                     {
-                        wstring next, line(m_text, last, npos);
-                        size_type width = m_widths[lindex];
-                        while(width > size.width() && line.size())
+                        wstring next;
+                        while(width > bounds.width() - m_empty_width && line.size())
                         {
                             next.insert(0ul, 1ul, line[line.size() - 1ul]);
                             line.pop_back();
                             width = ctxt->getTextWidth(m_font, line);
-                            if(width <= size.width())
+                            if(width <= bounds.width() - m_empty_width)
                             {
-                                sketch.drawText(line, 0., i++ * height, size.width(), height, m_justification);
+                                sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
+                                text_y += lineheight;
                                 line.clear();
                                 swap(line, next);
                                 width = ctxt->getTextWidth(m_font, line);
                             }
                         }
-                        sketch.drawText(line, 0., i * height, size.width(), height, m_justification);
-                        
+                        sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
                     }
                 }
-            }            
+            }
         }
     }
     
-    bool GuiTextEditor::receive(scGuiView view, KeyboardEvent const& event)
+    bool GuiTextEditor::receive(const sCaret caret, KeyboardEvent const& event)
     {
         const int code = event.getKeyCode();
         if(code == KeyboardEvent::Key::Escape)
@@ -289,6 +527,137 @@ namespace Kiwi
             }
             return true;
         }
+        else if(event.getKeyCode() == KeyboardEvent::Key::Delete)
+        {
+            if(caret->empty())
+            {
+                if(event.hasAlt())
+                {
+                    moveCaretToNextWord(caret, true);
+                }
+                if(event.hasCmd())
+                {
+                    moveCaretToEndLine(caret, true);
+                }
+                else
+                {
+                    moveCaretToNextCharacter(caret, true);
+                }
+            }
+            eraseAtCaret(caret);
+            return true;
+        }
+        else if(event.getKeyCode() == KeyboardEvent::Key::Backspace)
+        {
+            if(caret->empty())
+            {
+                if(event.hasAlt())
+                {
+                    moveCaretToPreviousWord(caret, true);
+                }
+                else if(event.hasCmd())
+                {
+                    moveCaretToStartLine(caret, true);
+                }
+                else
+                {
+                    moveCaretToPreviousCharacter(caret, true);
+                }
+            }
+            eraseAtCaret(caret);
+            return true;
+        }
+        else if(event.getKeyCode() == KeyboardEvent::Key::Return)
+        {
+            insertAtCaret(caret, wstring(1ul, L'\n'));
+            return true;
+        }
+        else if(event.getKeyCode() == KeyboardEvent::Key::Tab)
+        {
+            insertAtCaret(caret, wstring(1ul, L'\t'));
+            return true;
+        }
+        else if(event.isCharacter())
+        {
+            insertAtCaret(caret, wstring(1ul, event.getCharacter()));
+            return true;
+        }
+        else
+        {
+            const int direction = event.getKeyCode();
+            if(direction == KeyboardEvent::Key::Left)
+            {
+                if(event.hasNoModifier())
+                {
+                    moveCaretToPreviousCharacter(caret, event.hasShift());
+                    return true;
+                }
+                else if(event.hasAlt())
+                {
+                    moveCaretToPreviousWord(caret, event.hasShift());
+                    return true;
+                }
+                else if(event.hasCmd())
+                {
+                    moveCaretToStartLine(caret, event.hasShift());
+                    return true;
+                }
+            }
+            else if(direction == KeyboardEvent::Key::Right)
+            {
+                if(event.hasNoModifier())
+                {
+                    moveCaretToNextCharacter(caret, event.hasShift());
+                    return true;
+                }
+                else if(event.hasAlt())
+                {
+                    moveCaretToNextWord(caret, event.hasShift());
+                    return true;
+                }
+                else if(event.hasCmd())
+                {
+                    moveCaretToEndLine(caret, event.hasShift());
+                    return true;
+                }
+            }
+            else if(direction == KeyboardEvent::Key::Up)
+            {
+                if(event.hasNoModifier())
+                {
+                    moveCaretToTopCharacter(caret, event.hasShift());
+                    return true;
+                }
+                else if(event.hasAlt())
+                {
+                    moveCaretToStartLine(caret, event.hasShift());
+                    return true;
+                }
+                else if(event.hasCmd())
+                {
+                    moveCaretToStart(caret, event.hasShift());
+                    return true;
+                }
+            }
+            else if(direction == KeyboardEvent::Key::Down)
+            {
+                if(event.hasNoModifier())
+                {
+                    moveCaretToBottomCharacter(caret, event.hasShift());
+                    return true;
+                }
+                else if(event.hasAlt())
+                {
+                    moveCaretToEndLine(caret, event.hasShift());
+                    return true;
+                }
+                else if(event.hasCmd())
+                {
+                    moveCaretToEnd(caret, event.hasShift());
+                    return true;
+                }
+            }
+        }
         return false;
     }
     
@@ -299,25 +668,98 @@ namespace Kiwi
     
     Size GuiTextEditor::getTextSize(const double limit) const noexcept
     {
-        if(!m_widths.empty())
+        sGuiContext ctxt = getContext();
+        lock_guard<mutex> guard(m_text_mutex);
+        if(ctxt && !m_text.empty())
         {
-            if(limit > 0.)
+            if(limit > m_empty_width)
             {
-                double height = 0;
-                for(vector<double>::size_type i = 0; i < m_widths.size(); i++)
+                const double lineheight = getLineHeight();
+                Size size(limit - m_empty_width, 0.);
+                size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
+                while(pos != npos)
                 {
-                    height += ceil(m_widths[i] / limit) * m_line_space * m_font.getSize();
+                    wstring line(m_text, last, pos - last);
+                    double width = ctxt->getTextWidth(m_font, line);
+                    if(width <= size.width())
+                    {
+                        size.height(size.height() + lineheight);
+                    }
+                    else
+                    {
+                        wstring next;
+                        while(width > size.width() && line.size())
+                        {
+                            next.insert(0ul, 1ul, line[line.size() - 1ul]);
+                            line.pop_back();
+                            width = ctxt->getTextWidth(m_font, line);
+                            if(width <= size.width())
+                            {
+                                size.height(size.height() + lineheight);
+                                line.clear();
+                                swap(line, next);
+                                width = ctxt->getTextWidth(m_font, line);
+                            }
+                        }
+                        if(!line.empty())
+                        {
+                            size.height(size.height() + lineheight);
+                        }
+                        
+                    }
+                    last = ++pos;
+                    pos = m_text.find(L'\n', last);
                 }
-                return Size(limit, height - m_line_space * m_font.getSize() + m_font.getSize());
+                wstring line(m_text, last, npos);
+                double width = ctxt->getTextWidth(m_font, line);
+                if(width <= size.width())
+                {
+                    size.height(size.height() + lineheight);
+                }
+                else
+                {
+                    wstring next;
+                    while(width > size.width() && line.size())
+                    {
+                        next.insert(0ul, 1ul, line[line.size() - 1ul]);
+                        line.pop_back();
+                        width = ctxt->getTextWidth(m_font, line);
+                        if(width <= size.width())
+                        {
+                            size.height(size.height() + lineheight);
+                            line.clear();
+                            swap(line, next);
+                            width = ctxt->getTextWidth(m_font, line);
+                        }
+                    }
+                    if(!line.empty())
+                    {
+                        wcout << line << endl;
+                        size.height(size.height() + lineheight);
+                    }
+                        }
+                return size;
             }
             else
             {
-                return Size(*max_element(m_widths.begin(), m_widths.end()), (m_widths.size() - 1) * m_line_space * m_font.getSize() + m_font.getSize());
+                Size size;
+                const double lineheight = getLineHeight();
+                size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
+                while(pos != npos)
+                {
+                    size.width(max(ctxt->getTextWidth(m_font, wstring(m_text, last, pos - last)) + m_empty_width, size.width()));
+                    size.height(size.height() + lineheight);
+                    last = ++pos;
+                    pos = m_text.find(L'\n', last);
+                }
+                size.width(max(ctxt->getTextWidth(m_font, wstring(m_text, last, npos)) + m_empty_width + m_empty_width, size.width()));
+                size.height(size.height() + m_font.getSize());
+                return size;
             }
         }
         else
         {
-            return Size(0., m_font.getSize());
+            return Size(m_empty_width, m_font.getSize());
         }
     }
     
@@ -325,7 +767,6 @@ namespace Kiwi
     {
         m_redraw = true;
         m_text.clear();
-        computeLinesWidth();
         lock_guard<mutex> guard(m_lists_mutex);
         auto it = m_lists.begin();
         while(it != m_lists.end())
@@ -347,82 +788,23 @@ namespace Kiwi
         }
     }
     
-    void GuiTextEditor::erase(sCaret caret)
+    void GuiTextEditor::addCaret(sCaret caret)
     {
-        if(!caret->empty())
+        if(caret)
         {
-            m_redraw = true;
-            m_text.erase(caret->first(), caret->second());
-            caret->moveToNextCharacter(m_text, false);
-            computeLinesWidth();
-            lock_guard<mutex> guard(m_lists_mutex);
-            auto it = m_lists.begin();
-            while(it != m_lists.end())
-            {
-                sListener listener = (*it).lock();
-                if(listener)
-                {
-                    listener->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
-                    ++it;
-                }
-                else
-                {
-                    it = m_lists.erase(it);
-                }
-            }
-            if(m_redraw)
-            {
-                redraw();
-            }
+            lock_guard<mutex> guard(m_carets_mutex);
+            m_carets.insert(caret);
+            //addChild(caret);
         }
     }
     
-    void GuiTextEditor::addCharacter(sCaret caret, wchar_t character) noexcept
+    void GuiTextEditor::removeCaret(sCaret caret)
     {
-        m_redraw = true;
-        if(!caret->empty())
+        if(caret)
         {
-            m_text.erase(caret->first(), caret->second());
-        }
-        m_text.insert(caret->caret(), 1ul, character);
-        caret->moveToNextCharacter(m_text, false);
-        computeLinesWidth();
-        lock_guard<mutex> guard(m_lists_mutex);
-        auto it = m_lists.begin();
-        while(it != m_lists.end())
-        {
-            sListener listener = (*it).lock();
-            if(listener)
-            {
-                listener->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
-                ++it;
-            }
-            else
-            {
-                it = m_lists.erase(it);
-            }
-        }
-        if(m_redraw)
-        {
-            redraw();
-        }
-    }
-    
-    void GuiTextEditor::computeLinesWidth() noexcept
-    {
-        sGuiContext ctxt = getContext();
-        if(ctxt)
-        {
-            m_widths.clear();
-            size_type last = 0ul;
-            size_type pos = m_text.find(L'\n', 0ul);
-            while(pos != npos)
-            {
-                m_widths.push_back(ctxt->getTextWidth(m_font, wstring(m_text, last, pos - last)) + m_empty_charw);
-                last = pos+1ul;
-                pos = m_text.find(L'\n', last);
-            }
-            m_widths.push_back(ctxt->getTextWidth(m_font, wstring(m_text, last, npos)) + m_empty_charw);
+            lock_guard<mutex> guard(m_carets_mutex);
+            m_carets.erase(caret);
+            //removeChild(caret);
         }
     }
     
@@ -448,6 +830,215 @@ namespace Kiwi
     {
         return make_shared<Controller>(static_pointer_cast<GuiTextEditor>(shared_from_this()));
     }
+                
+    void GuiTextEditor::eraseAtCaret(sCaret caret)
+    {
+        if(!caret->empty())
+        {
+            m_redraw = true;
+            {
+                lock_guard<mutex> guard(m_text_mutex);
+                m_text.erase(caret->first(), caret->second());
+            }
+            moveCaretToPreviousCharacter(caret, false);
+            vector<sListener> listeners(getListeners());
+            for(auto it : listeners)
+            {
+                it->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+            }
+            vector<sCaret> carets(getCarets());
+            for(auto it : carets)
+            {
+                //it->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+            }
+            if(m_redraw)
+            {
+                redraw();
+            }
+        }
+    }
+    
+    void GuiTextEditor::insertAtCaret(sCaret caret, wstring const& text) noexcept
+    {
+        if(!text.empty())
+        {
+            m_redraw = true;
+            {
+                lock_guard<mutex> guard(m_text_mutex);
+                if(!caret->empty())
+                {
+                    m_text.erase(caret->first(), caret->second());
+                    if(!select) {
+                        caret->empty() ? caret->start = caret->caret = max(caret->caret, 1ul) - 1ul : caret->start = caret->caret = min(caret->caret, caret->start);
+                    }
+                    else if(caret->caret != 0) {
+                        --caret->caret;
+                    }
+                    caret->dist  = npos;
+                }
+                m_text.insert(caret->caret, text);
+            }
+            moveCaretToNextCharacter(caret, false);
+            vector<sListener> listeners(getListeners());
+            for(auto it : listeners)
+            {
+                it->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+            }
+            vector<sCaret> carets(getCarets());
+            for(auto it : carets)
+            {
+                //it->textChanged(static_pointer_cast<GuiTextEditor>(shared_from_this()));
+            }
+            if(m_redraw)
+            {
+                redraw();
+            }
+        }
+    }
+    
+    void GuiTextEditor::moveCaretToStart(const sCaret caret, const bool select) noexcept
+    {
+        caret->caret = 0ul;
+        if(!select) {
+            caret->start = caret->caret;
+        }
+        caret->dist = npos;
+    }
+    
+    void GuiTextEditor::moveCaretToEnd(const sCaret caret, const bool select) noexcept
+    {
+        lock_guard<mutex> guard(m_text_mutex);
+        caret->caret = m_text.size();
+        if(select) {
+            caret->start = caret->caret;
+        }
+        caret->dist = npos;
+    }
+    
+    void GuiTextEditor::moveCaretToNextCharacter(const sCaret caret, const bool select) noexcept
+    {
+        lock_guard<mutex> guard(m_text_mutex);
+        if(!select) {
+            caret->empty() ? (caret->start = caret->caret = min(caret->caret+1, m_text.size())) : caret->start = caret->caret = max(caret->caret, caret->start);
+        }
+        else if(caret->caret != m_text.size()) {
+            ++caret->caret;
+        }
+        caret->dist = npos;
+    }
+    
+    void GuiTextEditor::moveCaretToPreviousCharacter(const sCaret caret, const bool select) noexcept
+    {
+        lock_guard<mutex> guard(m_text_mutex);
+        if(!select) {
+            caret->empty() ? caret->start = caret->caret = max(caret->caret, 1ul) - 1ul : caret->start = caret->caret = min(caret->caret, caret->start);
+        }
+        else if(caret->caret != 0) {
+            --caret->caret;
+        }
+        caret->dist  = npos;
+    }
+    
+    void GuiTextEditor::moveCaretToStartLine(const sCaret caret, const bool select) noexcept
+    {
+        int tosee;
+        lock_guard<mutex> guard(m_text_mutex);
+        const size_type line = (caret->caret != 0ul) ? m_text.find_last_of(L'\n', caret->caret - 1ul) : 0ul;
+        caret->caret = (line == npos) ? 0ul : min(line + 1ul, m_text.size());
+        if(!select) {
+            caret->start = caret->caret;
+        }
+        caret->dist  = npos;
+    }
+    
+    void GuiTextEditor::moveCaretToEndLine(const sCaret caret, const bool select) noexcept
+    {
+        lock_guard<mutex> guard(m_text_mutex);
+        const size_type line = m_text.find_first_of(L'\n', caret->caret);
+        caret->caret = (line == npos) ? m_text.size() : line;
+        if(!select) {
+            caret->start = caret->caret;
+        }
+        caret->dist  = npos;
+    }
+    
+    void GuiTextEditor::moveCaretToTopCharacter(const sCaret caret, const bool select) noexcept
+    {
+        lock_guard<mutex> guard(m_text_mutex);
+        const size_type current = select ? caret->caret : caret->first();
+        size_type line = (current > 0ul) ? m_text.find_last_of(L'\n', current -  1ul) + 1 : 0ul;
+        if(line == npos) {
+            line = 0ul;
+        }
+        if(caret->dist == npos) {
+            caret->dist = current - (line);
+        }
+        if(line == 0ul) {
+            caret->caret = 0ul;
+        }
+        else{
+            const size_type pline = (line > 2ul) ? m_text.find_last_of(L'\n', max(line -  2ul, 0ul)) + 1 : 0ul;
+            caret->caret = min(pline + caret->dist, m_text.find_first_of(L'\n', pline));
+        }
+        if(!select) {
+            caret->start = caret->caret;
+        }
+    }
+    
+    void GuiTextEditor::moveCaretToBottomCharacter(const sCaret caret, const bool select) noexcept
+    {
+        lock_guard<mutex> guard(m_text_mutex);
+        int todo;
+    }
+    
+    void GuiTextEditor::moveCaretToNextWord(const sCaret caret, const bool select) noexcept
+    {
+        lock_guard<mutex> guard(m_text_mutex);
+        if(select) {
+            caret->caret = caret->second();
+        }
+        if(m_text[caret->caret] == L' ' || m_text[caret->caret] == L'\n' || m_text[caret->caret] == L'\t') {
+            caret->caret = m_text.find_first_not_of(L" \n\t", caret->caret);
+        }
+        if(caret->caret == npos) {
+            caret->caret = m_text.size();
+        }
+        else {
+            caret->caret = m_text.find_first_of(L" \n\t", caret->caret);
+            if(caret->caret == npos) {
+                caret->caret = m_text.size();
+            }
+        }
+        if(!select) {
+            caret->start = caret->caret;
+        }
+        caret->dist  = npos;
+    }
+    
+    void GuiTextEditor::moveCaretToPreviousWord(const sCaret caret, const bool select) noexcept
+    {
+        lock_guard<mutex> guard(m_text_mutex);
+        if(select) {
+            caret->caret = caret->second();
+        }
+        if(m_text[caret->caret] == L' ' || m_text[caret->caret] == L'\n' || m_text[caret->caret] == L'\t') {
+            caret->caret = m_text.find_last_not_of(L" \n\t", caret->caret);
+        }
+        else if(caret->caret){
+            caret->caret = m_text.find_last_not_of(L" \n\t", caret->caret - 1ul);
+        }
+        if(caret->caret == npos) {
+            caret->caret = 0ul;
+        }
+        else {
+            caret->caret = m_text.find_last_of(L" \n\t", caret->caret);
+            caret->caret = (caret->caret == npos) ? 0ul : caret->caret + 1ul;
+        }
+        if(!select) {
+            caret->start = caret->caret;
+        }
+        caret->dist  = npos;
+    }
 
     // ================================================================================ //
     //                              TEXT EDITOR CONTROLLER                              //
@@ -456,14 +1047,12 @@ namespace Kiwi
     GuiTextEditor::Controller::Controller(sGuiTextEditor editor) noexcept : GuiController(editor), m_editor(editor),
         m_caret(make_shared<GuiTextEditor::Caret>(editor))
     {
-        m_editor->addListener(m_caret);
-        m_editor->addChild(m_caret);
+        m_editor->addCaret(m_caret);
     }
         
     GuiTextEditor::Controller::~Controller() noexcept
     {
-        m_editor->removeListener(m_caret);
-        m_editor->removeChild(m_caret);
+        m_editor->removeCaret(m_caret);
     }
         
     bool GuiTextEditor::Controller::receive(MouseEvent const& event)
@@ -473,142 +1062,7 @@ namespace Kiwi
     
     bool GuiTextEditor::Controller::receive(KeyboardEvent const& event)
     {
-        if(!m_editor->receive(getView(), event));
-        {
-            if(event.getKeyCode() == KeyboardEvent::Key::Delete)
-            {
-                if(m_caret->empty())
-                {
-                    if(event.hasAlt())
-                    {
-                        m_caret->moveToNextWord(m_editor->getText(), true);
-                    }
-                    if(event.hasCmd())
-                    {
-                        m_caret->moveToEndLine(m_editor->getText(), true);
-                    }
-                    else
-                    {
-                        m_caret->moveToNextCharacter(m_editor->getText(), true);
-                    }
-                }
-                m_editor->erase(m_caret);
-                return true;
-            }
-            else if(event.getKeyCode() == KeyboardEvent::Key::Backspace)
-            {
-                if(m_caret->empty())
-                {
-                    if(event.hasAlt())
-                    {
-                        m_caret->moveToPreviousWord(m_editor->getText(), true);
-                    }
-                    else if(event.hasCmd())
-                    {
-                        m_caret->moveToStartLine(m_editor->getText(), true);
-                    }
-                    else
-                    {
-                        m_caret->moveToPreviousCharacter(m_editor->getText(), true);
-                    }
-                }
-                m_editor->erase(m_caret);
-                return true;
-            }
-            else if(event.getKeyCode() == KeyboardEvent::Key::Return)
-            {
-                m_editor->addCharacter(m_caret, L'\n');
-                return true;
-            }
-            else if(event.getKeyCode() == KeyboardEvent::Key::Tab)
-            {
-                m_editor->addCharacter(m_caret, L'\t');
-                return true;
-            }
-            else if(event.isCharacter())
-            {
-                m_editor->addCharacter(m_caret, event.getCharacter());
-                return true;
-            }
-            else
-            {
-                const int direction = event.getKeyCode();
-                if(direction == KeyboardEvent::Key::Left)
-                {
-                    if(event.hasNoModifier())
-                    {
-                        m_caret->moveToPreviousCharacter(m_editor->getText(), event.hasShift());
-                        return true;
-                    }
-                    else if(event.hasAlt())
-                    {
-                        m_caret->moveToPreviousWord(m_editor->getText(), event.hasShift());
-                        return true;
-                    }
-                    else if(event.hasCmd())
-                    {
-                        m_caret->moveToStartLine(m_editor->getText(), event.hasShift());
-                        return true;
-                    }
-                }
-                else if(direction == KeyboardEvent::Key::Right)
-                {
-                    if(event.hasNoModifier())
-                    {
-                        m_caret->moveToNextCharacter(m_editor->getText(), event.hasShift());
-                        return true;
-                    }
-                    else if(event.hasAlt())
-                    {
-                        m_caret->moveToNextWord(m_editor->getText(), event.hasShift());
-                        return true;
-                    }
-                    else if(event.hasCmd())
-                    {
-                        m_caret->moveToEndLine(m_editor->getText(), event.hasShift());
-                        return true;
-                    }
-                }
-                else if(direction == KeyboardEvent::Key::Up)
-                {
-                    if(event.hasNoModifier())
-                    {
-                        m_caret->moveToTopCharacter(m_editor->getText(), event.hasShift());
-                        return true;
-                    }
-                    else if(event.hasAlt())
-                    {
-                        m_caret->moveToStartLine(m_editor->getText(), event.hasShift());
-                        return true;
-                    }
-                    else if(event.hasCmd())
-                    {
-                        m_caret->moveToStart(event.hasShift());
-                        return true;
-                    }
-                }
-                else if(direction == KeyboardEvent::Key::Down)
-                {
-                    if(event.hasNoModifier())
-                    {
-                        m_caret->moveToBottomCharacter(m_editor->getText(), event.hasShift());
-                        return true;
-                    }
-                    else if(event.hasAlt())
-                    {
-                        m_caret->moveToEndLine(m_editor->getText(), event.hasShift());
-                        return true;
-                    }
-                    else if(event.hasCmd())
-                    {
-                        m_caret->moveToEnd(m_editor->getText(), event.hasShift());
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        return true;
+        return m_editor->receive(m_caret, event);
     }
     
     bool GuiTextEditor::Controller::receive(KeyboardFocus const event)
@@ -631,220 +1085,18 @@ namespace Kiwi
     //                                  TEXT EDITOR CARET                               //
     // ================================================================================ //
     
-    void GuiTextEditor::Caret::computeRendering(wstring const& text) noexcept
-    {
-        sGuiTextEditor editor = getEditor();
-        sGuiContext ctxt = getContext();
-        if(ctxt && editor)
-        {
-            const size_type f = first();
-            ulong nlines    = 0;
-            size_type start = 0;
-            size_type index = 0;
-            while(index <= f)
-            {
-                if(text[index] == L'\n'){
-                    nlines++;
-                    start = index;
-                }
-                index++;
-            }
-            if(!empty())
-            {
-                const size_type s = second();
-                ulong snlines    = 0;
-                size_type sstart = 0;
-                while(index <= s)
-                {
-                    if(text[index] == L'\n'){
-                        snlines++;
-                        sstart = index;
-                    }
-                    index++;
-                }
-                setPosition(Point(0., 0.));
-                setSize(Size(2., 2));
-            }
-            else
-            {
-                setPosition(Point(0., 0.));
-                setSize(Size(2., editor->m_font.getSize()));
-            }
-            redraw();
-            
-        }
-    }
-    
-    void GuiTextEditor::Caret::selectAll(wstring const& text) noexcept
-    {
-        m_start = 0ul;
-        m_caret = text.size();
-        m_dist  = npos;
-    }
-    
-    void GuiTextEditor::Caret::moveToStart(const bool select) noexcept
-    {
-        select ? m_caret = 0ul : m_start = m_caret = 0ul;
-        m_dist  = npos;
-    }
-    
-    void GuiTextEditor::Caret::moveToEnd(wstring const& text, const bool select) noexcept
-    {
-        select ? m_caret = text.size() : m_start = m_caret = text.size();
-        m_dist  = npos;
-    }
-    
-    void GuiTextEditor::Caret::moveToNextCharacter(wstring const& text, const bool select) noexcept
-    {
-        if(!select) {
-            empty() ? (m_start = m_caret = min(m_caret+1, text.size())) : m_start = m_caret = max(m_caret, m_start);
-        }
-        else if(m_caret != text.size()) {
-            ++m_caret;
-        }
-        m_dist  = npos;
-    }
-    
-    void GuiTextEditor::Caret::moveToPreviousCharacter(wstring const& text, const bool select) noexcept
-    {
-        if(!select) {
-            empty() ? m_start = m_caret = max(m_caret, 1ul) - 1ul : m_start = m_caret = min(m_caret, m_start);
-        }
-        else if(m_caret != 0) {
-            --m_caret;
-        }
-        m_dist  = npos;
-    }
-    
-    void GuiTextEditor::Caret::moveToStartLine(wstring const& text, const bool select) noexcept
-    {
-        int tosee;
-        const size_type line = (m_caret != 0ul) ? text.find_last_of(L'\n', m_caret-1) : 0ul;
-        m_caret = (line == npos) ? 0ul : min(line + 1ul, text.size());
-        if(!select) {
-            m_start = m_caret;
-        }
-        m_dist  = npos;
-    }
-    
-    void GuiTextEditor::Caret::moveToEndLine(wstring const& text, const bool select) noexcept
-    {
-        const size_type line = text.find_first_of(L'\n', m_caret);
-        m_caret = (line == npos) ? text.size() : line;
-        if(!select) {
-            m_start = m_caret;
-        }
-        m_dist  = npos;
-    }
-    
-    void GuiTextEditor::Caret::moveToTopCharacter(wstring const& text, const bool select) noexcept
-    {
-        const size_type current = select ? m_caret : first();
-        size_type line = (current > 0ul) ? text.find_last_of(L'\n', current -  1ul) + 1 : 0ul;
-        if(line == npos) {
-            line = 0ul;
-        }
-        if(m_dist == npos) {
-            m_dist = current - (line);
-        }
-        if(line == 0ul) {
-            m_caret = 0ul;
-        }
-        else{
-            const size_type pline = (line > 2ul) ? text.find_last_of(L'\n', max(line -  2ul, 0ul)) + 1 : 0ul;
-            m_caret = min(pline + m_dist, text.find_first_of(L'\n', pline));
-        }
-        if(!select) {
-            m_start = m_caret;
-        }
-    }
-    
-    void GuiTextEditor::Caret::moveToNextWord(wstring const& text, const bool select) noexcept
-    {
-        if(select) {
-            m_caret = second();
-        }
-        if(text[m_caret] == L' ' || text[m_caret] == L'\n' || text[m_caret] == L'\t') {
-            m_caret = text.find_first_not_of(L" \n\t", m_caret);
-        }
-        if(m_caret == npos) {
-            m_caret = text.size();
-        }
-        else {
-            m_caret = text.find_first_of(L" \n\t", m_caret);
-            if(m_caret == npos) {
-                m_caret = text.size();
-            }
-        }
-        if(!select) {
-            m_start = m_caret;
-        }
-        m_dist  = npos;
-    }
-    
-    void GuiTextEditor::Caret::moveToPreviousWord(wstring const& text, const bool select) noexcept
-    {
-        if(select) {
-            m_caret = second();
-        }
-        if(text[m_caret] == L' ' || text[m_caret] == L'\n' || text[m_caret] == L'\t') {
-            m_caret = text.find_last_not_of(L" \n\t", m_caret);
-        }
-        else if(m_caret){
-            m_caret = text.find_last_not_of(L" \n\t", m_caret - 1);
-        }
-        if(m_caret == npos) {
-            m_caret = 0ul;
-        }
-        else {
-            m_caret = text.find_last_of(L" \n\t", m_caret);
-            m_caret = (m_caret == npos) ? 0ul : m_caret + 1ul;
-        }
-        if(!select) {
-            m_start = m_caret;
-        }
-        m_dist  = npos;
-    }
-    
-    void GuiTextEditor::Caret::moveToBottomCharacter(wstring const& text, const bool select) noexcept
-    {
-        //cout << "not available" << endl;
-        /*
-         const size_type current = select ? m_caret : second();
-         size_type line = (current > 0ul) ? text.find_last_of(L'\n', current -  1ul) + 1 : 0ul;
-         if(line == npos) {
-         line = 0ul;
-         }
-         if(m_dist == npos) {
-         m_dist = current - (line);
-         }
-         const size_type nline = text.find_first_of(L'\n', current);
-         if(nline == npos) {
-         m_caret = text.size();
-         }
-         else {
-         const size_type nlineend = text.find_first_of(L'\n', nline + 1ul);
-         if(nlineend < nline + 1ul + m_dist){
-         cout << "line end" << endl;
-         m_caret = nlineend;
-         }
-         else{
-         cout << "line + dist" << endl;
-         m_caret = nline + m_dist;
-         }
-         }
-         if(!select) {
-         m_start = m_caret;
-         }
-         */
-    }
-    
     void GuiTextEditor::Caret::draw(scGuiView view, Sketch& sketch) const
     {
+        if(!empty())
+        {
+            
+        }
         if(m_status)
         {
+            /*
             sketch.setColor(m_color);
             sketch.drawLine(0., 0., 0., getSize().height(), 2.);
+             */
         }
     }
     
@@ -873,20 +1125,6 @@ namespace Kiwi
             delay(500.);
         }
     }
-    
-    void GuiTextEditor::Caret::attrChanged(Attr::sManager manager, sAttr attr)
-    {
-        if(attr->getName() == Tags::Font)
-        {
-            ;
-        }
-    }
-    
-    void GuiTextEditor::Caret::textChanged(sGuiTextEditor editor)
-    {
-        ;
-    }
-
 }
 
 
