@@ -165,6 +165,21 @@ namespace Kiwi
             return ! operator== (other);
         }
         
+        //! Return a new affine matrix that is the same as this one multiplicated with another.
+        /** The function returns a new affine matrix that is the same as this one multiplicated with another.
+         @param other The other matrix.
+         @return An affine matrix.
+         */
+        AffineMatrix composedWith(AffineMatrix const& other) const noexcept
+        {
+            return AffineMatrix(other.m_matrix[0] * m_matrix[0] + other.m_matrix[1] * m_matrix[3],
+                                other.m_matrix[0] * m_matrix[1] + other.m_matrix[1] * m_matrix[4],
+                                other.m_matrix[0] * m_matrix[2] + other.m_matrix[1] * m_matrix[5] + other.m_matrix[2],
+                                other.m_matrix[3] * m_matrix[0] + other.m_matrix[4] * m_matrix[3],
+                                other.m_matrix[3] * m_matrix[1] + other.m_matrix[4] * m_matrix[4],
+                                other.m_matrix[3] * m_matrix[2] + other.m_matrix[4] * m_matrix[5] + other.m_matrix[5]);
+        }
+        
         //! Return an affine matrix that represent a translation.
         /** The function returns an affine matrix that represent a translation.
          @param x The abscissa translation value.
@@ -281,31 +296,34 @@ namespace Kiwi
                                 m_matrix[3] + y * m_matrix[0], m_matrix[4] + y * m_matrix[1], m_matrix[5] + y * m_matrix[2]);
         }
         
-        //! Return an affine matrix that represent a pixel to cartesian coordinate system transformation.
-        /** The function returns an affine matrix that represent a pixel to cartesian coordinate system transformation.
-         The resulting matrix can be used to tranform points from a top-left (0,0) origin system with a downward y direction
-         to a centered cartesian system with upward y direction.
-         @param width The width value.
-         @param height The height value.
+        //! Return an affine matrix that represent a reflection about origin transformation.
+        /** The function returns an affine matrix that represent a reflection about origin transformation.
          @return An affine matrix.
          */
-        static inline AffineMatrix pixelToCartesian(const double width, const double height) noexcept
+        static inline AffineMatrix reflection() noexcept
         {
-            return AffineMatrix(1., 0.,  width * 0.5,
-                                0., -1., height * 0.5);
+            return AffineMatrix(1., 0.,  0,
+                                0., -1., 0);
         }
         
-        //! Return an affine matrix that represent a cartesian to pixel coordinate system transformation.
-        /** The function returns an affine matrix that represent a cartesian to pixel coordinate system transformation.
-         The resulting matrix can be used to tranform points from a centered origin cartesian coordinate system with upward y direction
-         to a top-left origin system with a downward y direction.
-         @param width The width value.
-         @param height The height value.
+        //! Return an affine matrix that represent a reflection about x-axis transformation.
+        /** The function returns an affine matrix that represent a reflection about x-axis transformation.
          @return An affine matrix.
          */
-        static inline AffineMatrix cartesianToPixel(const double width, const double height) noexcept
+        static inline AffineMatrix reflectionX() noexcept
         {
-            return AffineMatrix();
+            return AffineMatrix(1., 0.,  0,
+                                0., -1., 0);
+        }
+        
+        //! Return an affine matrix that represent a reflection about y-axis transformation.
+        /** The function returns an affine matrix that represent a reflection about y-axis transformation.
+         @return An affine matrix.
+         */
+        static inline AffineMatrix reflectionY() noexcept
+        {
+            return AffineMatrix(-1., 0.,  0,
+                                0., 1., 0);
         }
     };
 }
