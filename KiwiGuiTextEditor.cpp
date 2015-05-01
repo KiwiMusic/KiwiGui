@@ -844,7 +844,8 @@ namespace Kiwi
         if(m_status)
         {
             sketch.setColor(m_color);
-            sketch.drawLine(0., 0., 0., getSize().height(), 2.);
+            sketch.setLineWidth(2.);
+            sketch.drawLine(0., 0., 0., getSize().height());
         }
     }
     
