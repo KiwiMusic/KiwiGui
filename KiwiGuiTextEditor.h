@@ -29,6 +29,164 @@
 namespace Kiwi
 {
     // ================================================================================ //
+    //                                      TEXT                                        //
+    // ================================================================================ //
+    
+    class GuiText : public GuiSketcher
+    {
+    public:
+        enum DisplayMode
+        {
+            Truncated   = 0,
+            TrailPoint  = 1,
+            Wrapped     = 2
+        };
+        
+        typedef wstring::size_type size_type;
+        static const size_type npos = -1;
+        
+    private:
+        Font                    m_font;
+        Font::Justification     m_justification;
+        double                  m_line_space;
+        DisplayMode             m_display_mode;
+        Color                   m_color;
+        
+        wstring                 m_text;
+        vector<double>          m_widths;
+        double                  m_empty_width;
+        double                  m_trail_width;
+        atomic_bool             m_redraw;
+        
+        //@internal
+        void computeLinesWidth() noexcept;
+        void drawTruncated(scGuiView view, Sketch& sketch) const;
+        void drawTrailPoint(scGuiView view, Sketch& sketch) const;
+        void drawWrapped(scGuiView view, Sketch& sketch) const;
+    public:
+        
+        //! Constructor.
+        /** The function initializes the text.
+         @param context The context.
+         */
+        GuiText(sGuiContext context) noexcept;
+        
+        //! Destructor.
+        /** The function frees the text.
+         */
+        virtual ~GuiText() noexcept;
+        
+        //! Sets the font of the text.
+        /** The function sets the font of the text. The size of the text can changed so you should retrieve the it and resize the text if needed.
+         @param font The new font.
+         */
+        void setFont(Font const& font) noexcept;
+        
+        //! Sets the justification of the text.
+        /** The function sets the justification of the text.
+         @param justification The new justification.
+         */
+        void setJustification(const Font::Justification justification) noexcept;
+        
+        //! Sets the line spacing of the text.
+        /** The function sets the line spacing of the text. The line spacing is a factor that multiplies the font height and defines the space between lines. The height of the text can change so you should retrieve it and resize the text if needed.
+         @param factor The line space.
+         */
+        void setLineSpacing(const double factor) noexcept;
+        
+        //! Sets the display mode.
+        /** The function sets the display mode of the text. The display mode defines if the text should be truncated at the end of the lines or if it should be replaced with trailling points or if should be wrapped to a new line. The height of the text can change so you should retrieve the size and resize the text if needed.
+         @param mode The display mode.
+         */
+        void setDisplayMode(const DisplayMode mode) noexcept;
+        
+        //! Sets the color of the text.
+        /** The function sets the color of the text.
+         @param color The new color.
+         */
+        void setColor(Color const& color) noexcept;
+        
+        //! Sets the string of the text.
+        /** The function sets the string of the text.
+         @param text The string.
+         */
+        void setString(wstring const& text) noexcept;
+        
+        //! Sets the string of the text.
+        /** The function sets the string of the text.
+         @param text The string.
+         */
+        void setString(wstring&& text) noexcept;
+        
+        //! Clears the string of the text.
+        /** The function clears the string of the text.
+         */
+        void clearString() noexcept;
+        
+        //! Retrieves the font of the text.
+        /** The function retrieves the font of the text.
+         @return The font.
+         */
+        inline Font getFont() const noexcept
+        {
+            return m_font;
+        }
+        
+        //! Retrieves the justification of the text.
+        /** The function retrieves the justification of the text.
+         @return The justification.
+         */
+        inline Font::Justification getJustification() const noexcept
+        {
+            return m_justification;
+        }
+        
+        //! Retrieves the line spacing of the text.
+        /** The function retrieves the line spacing of the text.
+         @return The line spacing.
+         */
+        inline double getLineSpacing() const noexcept
+        {
+            return m_line_space;
+        }
+        
+        //! Retrieves the display mode of the text.
+        /** The function retrieves the display mode of the text.
+         @return The display mode.
+         */
+        inline DisplayMode getDisplayMode() const noexcept
+        {
+            return m_display_mode;
+        }
+        
+        //! Retrieves the color of the text.
+        /** The function retrieves the color of the text.
+         @return The color.
+         */
+        inline Color getColor() const noexcept
+        {
+            return m_color;
+        }
+        
+        //! Retrieves the string of the text.
+        /** The function retrieves the string of the text.
+         @return The string.
+         */
+        inline wstring getString() const noexcept
+        {
+            return m_text;
+        }
+        
+        //! The draw method that should be override.
+        /** The function shoulds draw some stuff in the sketch.
+         @param ctrl    The controller that ask the draw.
+         @param sketch  A sketch to draw.
+         */
+        void draw(scGuiView view, Sketch& sketch) const override;
+        
+    };
+    
+    // ================================================================================ //
     //                                     TEXT EDITOR                                  //
     // ================================================================================ //
     
@@ -36,20 +194,13 @@ namespace Kiwi
     /**
      The text editor...
      */
-    class GuiTextEditor : public GuiSketcher, public GuiKeyboarder
+    class GuiTextEditor : public GuiSketcher
     {
     public:
         
         class Listener;
         typedef shared_ptr<Listener>    sListener;
         typedef weak_ptr<Listener>      wListener;
-        
-        enum DisplayMode
-        {
-            Trunc   = 0,
-            Trail   = 1,
-            Wrap    = 2
-        };
         
         enum BehaviorMode //: bool
         {
@@ -72,27 +223,24 @@ namespace Kiwi
         Font                    m_font;
         Font::Justification     m_justification;
         double                  m_line_space;
-        DisplayMode             m_mode;
+        bool                    m_wrapped;
         Color                   m_color;
         
         wstring                 m_text;
-        vector<double>          m_widths;
-        double                  m_empty_charw;
-        double                  m_trail_width;
+        mutable mutex           m_text_mutex;
+        double                  m_empty_width;
         atomic_bool             m_redraw;
         
         bool                    m_notify_return;
         bool                    m_notify_tab;
 
         set<wListener,
-        owner_less<wListener>> m_lists;
-        mutex                  m_lists_mutex;
+        owner_less<wListener>>  m_lists;
+        mutex                   m_lists_mutex;
         
-        //@internal
-        void erase(sCaret caret);
-        void addCharacter(sCaret caret, wchar_t character) noexcept;
-        void computeLinesWidth() noexcept;
-        
+        set<wCaret,
+        owner_less<wCaret>>     m_carets;
+        mutex                   m_carets_mutex;        
     public:
         
         //! Constructor.
@@ -124,11 +272,11 @@ namespace Kiwi
          */
         void setLineSpacing(const double factor) noexcept;
         
-        //! Sets the display mode.
-        /** The function sets the display mode of the editor. The display mode defines if when the text width exceeds the width of the editor the text should be truncated, the end of the lines should be replaced with trailling points or if the text should be wrapped to a new line. The size of the text can changed so you should retrieve the it and resize the text editor if needed.
-         @param mode The display mode.
+        //! Sets if the text should be wrapped.
+        /** The function sets if the text should be wrapped.
+         @param wrap True if the text should be wrapped, otherwise false.
          */
-        void setDisplayMode(const DisplayMode mode) noexcept;
+        void setWrapped(const bool wrap) noexcept;
         
         //! Sets the behavior of the return and tab keys of the editor.
         /** The function sets if the return key or the tab key notify the listeners or if the keys should be consider as new characters.
@@ -197,13 +345,22 @@ namespace Kiwi
             return m_line_space;
         }
         
-        //! Retrieves the display mode of the editor.
-        /** The function retrieves the ldisplay mode of the editor.
-         @return The display mode.
+        //! Retrieves the height of a line.
+        /** The function retrieves the height of a line.
+         @return The height.
          */
-        inline DisplayMode getDisplayMode() const noexcept
+        inline double getLineHeight() const noexcept
         {
-            return m_mode;
+            return m_line_space * m_font.getSize();
+        }
+        
+        //! Retrieves if the text is wrapped within the limits of the text editor.
+        /** The function retrieves if the text is wrapped within the limits of the text editor.
+         @return True if the text is wrapped, otherwise false.
+         */
+        inline bool isTextWrapped() const noexcept
+        {
+            return m_wrapped;
         }
         
         //! Retrieves if the return key is used as a character or if it notifies the listeners.
@@ -247,31 +404,126 @@ namespace Kiwi
          */
         void draw(scGuiView view, Sketch& sketch) const override;
         
-        //! The receive method that should be override.
-        /** The function shoulds perform some stuff.
-         @param event    A keyboard event.
-         @return true if the class has done something with the event otherwise false
-         */
-        bool receive(scGuiView view, KeyboardEvent const& event) override;
-        
         //! Notify the text editor that it should grab the keayboard focus.
         /** The function notifies the text editor that it should grab the keayboard focus.
          */
         inline void grabFocus() {GuiSketcher::grabFocus();}
         
-        //! Add an instance listener in the binding list of the text editor.
-        /** The function adds an instance listener in the binding list of the text editor.
+        //! Adds a listener in the binding list of the text editor.
+        /** The function adds a listener in the binding list of the text editor.
          @param listener  The listener.
          */
         void addListener(sListener listener);
         
-        //! Remove an instance listener from the binding list of the text editor.
-        /** The function removes an instance listener from the binding list of the text editor.
+        //! Removes a listener from the binding list of the text editor.
+        /** The function removes a listener from the binding list of the text editor.
          @param listener  The listener.
          */
         void removeListener(sListener listener);
         
     private:
+        
+        //! Adds a caret in the binding list of the text editor.
+        /** The function adds the caret in the binding list of the text editor.
+         @param caret  The caret.
+         */
+        void addCaret(sCaret caret);
+        
+        //! Removes a caret from the binding list of the text editor.
+        /** The function removes the caret from the binding list of the text editor.
+         @param caret  The caret.
+         */
+        void removeCaret(sCaret caret);
+        
+        //! The text editor keybaord receive method.
+        /** The function adds character on move the caret.
+         @param caret The caret.
+         @return true if the class has done something with the event otherwise false
+         */
+        bool receive(const sCaret caret, KeyboardEvent const& event);
+        
+        //! Erases the text at the caret.
+        /** The function erases the caret's selection and notifies the other carets.
+         @param caret  The caret.
+         */
+        void eraseAtCaret(sCaret caret);
+        
+        //! Insert text at the caret.
+        /** The function inserts text at the caret's selection and notifies the other carets.
+         @param caret  The caret.
+         @param text   The text.
+         */
+        void insertAtCaret(sCaret caret, wstring const& text) noexcept;
+        
+        //! Moves the caret to the begining of the text.
+        /** The function moves the caret to the begining of the text (cmd + top).
+         @param caret The caret.
+         @param select true if only the caret move (shift).
+         */
+        void moveCaretToStart(const sCaret caret, const bool select) noexcept;
+        
+        //! Moves the caret the caret to the end of the text.
+        /** The function moves the caret to the end of the text (cmd + bottom).
+         @param caret The caret.
+         @param select true if only the caret move (shift).
+         */
+        void moveCaretToEnd(const sCaret caret, const bool select) noexcept;
+        
+        //! Moves the caret to the next character.
+        /** The function moves the caret to the next character (right).
+         @param caret The caret.
+         @param select true if only the caret move (shift).
+         */
+        void moveCaretToNextCharacter(const sCaret caret, const bool select) noexcept;
+        
+        //! Moves the caret to the previous character.
+        /** The function moves the caret to the previous character (left).
+         @param caret The caret.
+         @param select true if only the caret move (shift).
+         */
+        void moveCaretToPreviousCharacter(const sCaret caret, const bool select) noexcept;
+        
+        //! Moves the caret to the start of the line.
+        /** The function moves the caret to the start of the line (cmd + left).
+         @param caret The caret.
+         @param select true if only the caret move (shift).
+         */
+        void moveCaretToStartLine(const sCaret caret, const bool select) noexcept;
+        
+        //! Moves the caret to the start of the line.
+        /** The function moves the caret to the start of the line (cmd + right).
+         @param caret The caret.
+         @param select true if only the caret move (shift).
+         */
+        void moveCaretToEndLine(const sCaret caret, const bool select) noexcept;
+        
+        //! Moves the caret to the top character.
+        /** The function moves the caret to the top character (up).
+         @param caret The caret.
+         @param select true if only the caret move (shift).
+         */
+        void moveCaretToTopCharacter(const sCaret caret, const bool select) noexcept;
+        
+        //! Moves the caret to the bottom character.
+        /** The function moves the caret to the bottom character (down).
+         @param caret The caret.
+         @param select true if only the caret move (shift).
+         */
+        void moveCaretToBottomCharacter(const sCaret caret, const bool select) noexcept;
+        
+        //! Moves the caret to the next word.
+        /** The function moves the caret to the next word (alt + right).
+         @param caret The caret.
+         @param select true if only the caret move (shift).
+         */
+        void moveCaretToNextWord(const sCaret caret, const bool select) noexcept;
+        
+        //! Moves the caret to the previous word.
+        /** The function moves the caret to the previous word (alt + left).
+         @param caret The caret.
+         @param select true if only the caret move (shift).
+         */
+        void moveCaretToPreviousWord(const sCaret caret, const bool select) noexcept;
         
         //! Create the controller.
         /** The function creates a controller depending on the inheritance.
@@ -280,12 +532,13 @@ namespace Kiwi
         sGuiController createController() override;
         
         //! Gets the listeners.
-        /** The functions gets the liteners from the attribute and removes the deprecated listeners.
+        /** The functions gets the liteners and removes the deprecated ones.
          @return The listeners.
          */
         inline vector<sListener> getListeners() noexcept
         {
             vector<sListener> lists;
+            lock_guard<mutex> guard(m_lists_mutex);
             for(auto it = m_lists.begin(); it != m_lists.end();)
             {
                 sListener l = (*it).lock();
@@ -299,6 +552,29 @@ namespace Kiwi
                 }
             }
             return lists;
+        }
+        
+        //! Gets the carets.
+        /** The functions gets the carets removes the deprecated ones.
+         @return The carets.
+         */
+        inline vector<sCaret> getCarets() noexcept
+        {
+            vector<sCaret> carets;
+            lock_guard<mutex> guard(m_carets_mutex);
+            for(auto it = m_carets.begin(); it != m_carets.end();)
+            {
+                sCaret l = (*it).lock();
+                if(l)
+                {
+                    carets.push_back(l); ++it;
+                }
+                else
+                {
+                    it = m_carets.erase(it);
+                }
+            }
+            return carets;
         }
     };
     
@@ -349,22 +625,21 @@ namespace Kiwi
     /**
      The caret...
      */
-    class GuiTextEditor::Caret : public GuiSketcher, public Listener, public Attr::Listener, public Clock
+    class GuiTextEditor::Caret : public GuiSketcher, public Clock
     {
     public:
         typedef wstring::size_type size_type;
         static const size_type npos = -1;
     private:
-        const wGuiTextEditor    m_editor;
+        friend class GuiTextEditor;
+        
         atomic_bool             m_status;
         atomic_bool             m_active;
         Color                   m_color;
         
-        size_type               m_caret;
-        size_type               m_start;
-        size_type               m_dist;
-        
-        void computeRendering(wstring const& text) noexcept;
+        size_type               caret;
+        size_type               start;
+        size_type               dist;
     public:
         
         //! Constructor.
@@ -372,24 +647,17 @@ namespace Kiwi
          @param context The context.
          */
         inline Caret(sGuiTextEditor editor) noexcept : GuiSketcher(editor->getContext()),
-        m_editor(editor),
         m_status(false),
         m_active(false),
         m_color(Colors::black),
-        m_caret(0ul),
-        m_start(0ul),
-        m_dist(0ul) {}
+        caret(0ul),
+        start(0ul),
+        dist(0ul) {}
         
         //! Destructor.
         /** The function does nothing.
          */
         inline  ~Caret() noexcept {}
-        
-        //! Retrieves the text editor that owns the caret.
-        /** The function the text editor that owns the caret.
-         @return The text editor.
-         */
-        inline sGuiTextEditor getEditor() const noexcept {return m_editor.lock();}
         
         //! Sets the color of the caret.
         /** The function sets the color of the caret.
@@ -407,112 +675,25 @@ namespace Kiwi
         /** The function retrieves if the selection is empty.
          @return true if the selection is empty, otherwise false.
          */
-        inline bool empty() const noexcept {return m_caret == m_start;}
+        inline bool empty() const noexcept {return caret == start;}
         
         //! Retrieves the size of the selection.
         /** The function retrieves the size of the selection.
          @return The size of the selection.
          */
-        inline size_type size() const noexcept {return m_caret > m_start ? m_caret - m_start : m_start - m_caret;}
+        inline size_type size() const noexcept {return caret > start ? caret - start : start - caret;}
         
         //! Retrieves the first position of the selection.
         /** The function retrieves the first position of the selection.
          @return The first position of the selection.
          */
-        inline size_type first() const noexcept {return m_caret > m_start ? m_start : m_caret;}
+        inline size_type first() const noexcept {return caret > start ? start : caret;}
         
         //! Retrieves the second position of the selection.
         /** The function retrieves the second position of the selection.
          @return The second position of the selection.
          */
-        inline size_type second() const noexcept {return m_caret > m_start ? m_caret : m_start;}
-        
-        //! Retrieves the caret position.
-        /** The function retrieves the caret position.
-         @return The caret position.
-         */
-        inline size_type caret() const noexcept {return m_caret;}
-        
-        //! Retrieves the start position of the selection.
-        /** The function retrieves the start position of the selection.
-         @return The start position.
-         */
-        inline size_type start() const noexcept {return m_start;}
-        
-        //! Selects all the text.
-        /** The function selects all the text.
-         @param text The text.
-         */
-        void selectAll(wstring const& text) noexcept;
-        
-        //! Moves to the begining of the text.
-        /** The function moves to the begining of the text (cmd + top).
-         @param select true if only the caret move (shift).
-         */
-        void moveToStart(const bool select) noexcept;
-        
-        //! Moves to the end of the text.
-        /** The function moves to the end of the text (cmd + bottom).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        void moveToEnd(wstring const& text, const bool select) noexcept;
-        
-        //! Moves to the next character.
-        /** The function moves to the next character (right).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        void moveToNextCharacter(wstring const& text, const bool select) noexcept;
-        
-        //! Moves to the previous character.
-        /** The function moves to the previous character (left).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        void moveToPreviousCharacter(wstring const& text, const bool select) noexcept;
-        
-        //! Moves to the start of the line.
-        /** The function moves to the start of the line (cmd + left).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        void moveToStartLine(wstring const& text, const bool select) noexcept;
-        
-        //! Moves to the start of the line.
-        /** The function moves to the start of the line (cmd + right).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        void moveToEndLine(wstring const& text, const bool select) noexcept;
-        
-        //! Moves to the top character.
-        /** The function moves to the top character (up).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        void moveToTopCharacter(wstring const& text, const bool select) noexcept;
-        
-        //! Moves to the bottom character.
-        /** The function moves to the bottom character (down).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        void moveToBottomCharacter(wstring const& text, const bool select) noexcept;
-        
-        //! Moves to the next word.
-        /** The function moves to the next word (alt + right).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        void moveToNextWord(wstring const& text, const bool select) noexcept;
-        
-        //! Moves to the previous word.
-        /** The function moves to the previous word (alt + left).
-         @param text The text.
-         @param select true if only the caret move (shift).
-         */
-        void moveToPreviousWord(wstring const& text, const bool select) noexcept;
+        inline size_type second() const noexcept {return caret > start ? caret : start;}
         
         //! The draw method that should be override.
         /** The function shoulds draw some stuff in the sketch.
@@ -544,19 +725,6 @@ namespace Kiwi
          @return pass true to notify changes to listeners, false if you don't want them to be notified
          */
         bool notify(sAttr attr) {m_status = true; return true;};
-        
-        //! Receive the notification that an attribute has changed.
-        /** The function must be implement to receive notifications when an attribute is added or removed, or when its value, appearance or behavior changes.
-         @param manager     The attribute manager.
-         @param attr		The attribute that has been modified.
-         */
-        void attrChanged(Attr::sManager manager, sAttr attr) override;
-        
-        //! Receives the notification that the text changed.
-        /** The function notifies the listener that the text changed.
-         @param editor The text editor that notifies.
-         */
-        void textChanged(sGuiTextEditor editor) override;
     };
     
     
