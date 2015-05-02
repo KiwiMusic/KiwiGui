@@ -29,7 +29,7 @@
 namespace Kiwi
 {
     class GuiDeviceManager;
-    
+
     // ================================================================================ //
     //                                      FONT                                        //
     // ================================================================================ //
@@ -108,8 +108,8 @@ namespace Kiwi
             /** The function retrieves the name of the font.
              @return The name of the font.
              */
-            virtual inline shared_ptr<Intern> getNewReference() const noexcept {
-                return make_shared<Intern>(getName(), getHeight(), Style(getStyle()));
+            virtual inline unique_ptr<Intern> getNewReference() const noexcept {
+                return unique_ptr<Intern>(new Intern(getName(), getHeight(), Style(getStyle())));
             }
             
             //! Retrieves the font name.
@@ -187,59 +187,40 @@ namespace Kiwi
             virtual Size getTextSize(wstring const& text, const double width = 0.) const noexcept;
             
         };
-        typedef shared_ptr<Intern>  sIntern;
-        typedef weak_ptr<Intern>    wIntern;
         
-    private:
-        friend class GuiDeviceManager;
-        static vector<Font> m_fonts;
-        
-        sIntern         m_intern;
-        
-        inline static void setAvailableFonts(vector<Font> const& fonts) noexcept
-        {
-             m_fonts = fonts;
-        }
-        
-        inline static void setAvailableFonts(vector<Font>&& fonts) noexcept
-        {
-            m_fonts.swap(fonts);
-        }
-        
-    public:
-        
-        //! Retrieves the available font names in the system.
-        /** The function the available font names in the system.
-         @return The available font names .
-         */
-        static vector<string> getAvailableFamilies() noexcept;
-        
+        unique_ptr<Intern> m_intern;
     public:
         
         //! Font constructor.
         /** Initializes a default Arial font with a normal plain style and a font size of 12.
          */
-        inline Font() noexcept {}
+        Font() noexcept;
         
         //! Font constructor.
         /** Initializes a font with a name, size and style.
          @param name    The name of the font.
          @param height  The height of the font.
          @param style   The style of the font.
-		 */
-        inline Font(string const& name, double height = 12., Style style = Regular) noexcept {}
+         */
+        Font(string const& name, double height = 12., Style style = Regular) noexcept;
+        
+        //! Font constructor.
+        /** Initializes a font with an internal font.
+         @param internal the internal font.
+         */
+        inline Font(unique_ptr<Intern> internal) noexcept : m_intern(move(internal)) {}
         
         //! Font constructor.
         /** Initializes a with another font.
          @param font The other font.
          */
-        inline Font(Font const& font) {}
+        inline Font(Font const& font) : m_intern(font.m_intern->getNewReference()) {}
         
         //! Font constructor.
         /** Initializes a with another font.
          @param font The other font.
          */
-        inline Font(Font&& font) : m_intern(move(font.m_intern)) {font.m_intern = sIntern();}
+        inline Font(Font&& font) : m_intern(move(font.m_intern)) {}
         
         //! Font equal oeprator.
         /** Initializes the font with another font.
@@ -258,7 +239,6 @@ namespace Kiwi
         inline Font& operator=(Font&& other) noexcept
         {
             m_intern = move(other.m_intern);
-            other.m_intern = sIntern();
             return *this;
         }
         
@@ -271,99 +251,49 @@ namespace Kiwi
         /** The function retrieves if the font is available.
          @return true if the font is available, otherwise false.
          */
-        inline bool isValid() const noexcept
-        {
-            return m_intern->isValid();
-        }
+        inline bool isValid() const noexcept {return m_intern->isValid();}
         
         //! Retrieves the font name.
         /** The function retrieves the name of the font.
          @return The name of the font.
          */
-        inline string getName() const noexcept
-        {
-            return m_intern->getName();
-        }
+        inline string getName() const noexcept {return m_intern->getName();}
         
         //! Retrieves the font height.
         /** The function retrieves the height of the font.
          @return The height of the font.
          */
-        inline double getHeight() const noexcept
-        {
-            return m_intern->getHeight();
-        }
+        inline double getHeight() const noexcept {return m_intern->getHeight();}
         
         //! Retrieves the font style.
         /** The function retrieves the style of the font.
          @return The style of the font.
          */
-        inline unsigned getStyle() const noexcept
-        {
-            return m_intern->getStyle();
-        }
+        inline unsigned getStyle() const noexcept {return m_intern->getStyle();}
         
         //! Retrieves a font name as a string.
         /** The function retrieves a font name as a string.
          @return A font name as a string.
          */
-        inline string getStyleName() const noexcept
-        {
-            switch(getStyle())
-            {
-                case Regular:
-                    return string("Regular");
-                    break;
-                case Bold:
-                    return string("Bold");
-                    break;
-                case Italic:
-                    return string("Italic");
-                    break;
-                case Underlined:
-                    return string("Underlined");
-                    break;
-                case BoldItalic:
-                    return string("Bold Italic");
-                    break;
-                case BoldUnderlined:
-                    return string("Bold Underlined");
-                    break;
-                case ItalicUnderlined:
-                    return string("Italic Underlined");
-                    break;
-                default:
-                    return string("Bold Italic Underlined");
-                    break;
-            }
-        }
+        string getStyleName() const noexcept;
         
         //! Retrieve if the font is boldened.
         /** The function retrieves if a font is boldened.
          @return True if boldened, false otherwise.
          */
-        inline bool isBold() const noexcept
-        {
-            return getStyle() & Bold;
-        }
+        inline bool isBold() const noexcept {return getStyle() & Bold;}
         
         //! Retrieve if the font is italicised.
         /** The function retrieves if a font is italicised.
          @return True if italicised, false otherwise.
          */
-        inline bool isItalic() const noexcept
-        {
-            return getStyle() & Italic;
-        }
+        inline bool isItalic() const noexcept {return getStyle() & Italic;}
         
         //! Retrieve if the font is underlined.
         /** The function retrieves if a font is underlined.
          @return True if underlined, false otherwise.
          */
-        inline bool isUnderlined() const noexcept
-        {
-            return getStyle() & Underlined;
-        }
+        inline bool isUnderlined() const noexcept {return getStyle() & Underlined;}
         
         //! Sets the font name.
         /** The function sets the name of the font.
@@ -371,7 +301,7 @@ namespace Kiwi
          */
         inline void setName(const string& name)
         {
-            ;
+            int todo;
         }
 		
         //! Sets the font height.
@@ -380,10 +310,8 @@ namespace Kiwi
          */
         inline void setHeight(const double height)
         {
-            if(height != getHeight())
-            {
-                m_intern->setHeight(height);
-            }
+            if(height != getHeight()) {
+                m_intern->setHeight(height);}
         }
         
         //! Sets the font style.
@@ -392,51 +320,15 @@ namespace Kiwi
          */
         inline void setStyle(const Style style)
         {
-            if(style != getStyle())
-            {
-                m_intern->setStyle(style);
-            }
+            if(style != getStyle()) {
+                m_intern->setStyle(style);}
         }
         
         //! Sets the font style.
         /** The function sets the style of the font.
          @param styleFlags The style of the font as a set flags.
          */
-        inline void setStyle(string const& style)
-        {
-            if(style == string("Regular"))
-            {
-                setStyle(Regular);
-            }
-            else if(style == string("Bold"))
-            {
-                setStyle(Bold);
-            }
-            else if(style == string("Italic"))
-            {
-                setStyle(Italic);
-            }
-            else if(style == string("Underlined"))
-            {
-                setStyle(Underlined);
-            }
-            else if(style == string("Bold Italic"))
-            {
-                setStyle(BoldItalic);
-            }
-            else if(style == string("Bold Underlined"))
-            {
-                setStyle(BoldUnderlined);
-            }
-            else if(style == string("Italic Underlined"))
-            {
-                setStyle(ItalicUnderlined);
-            }
-            else if(style == string("Bold Italic Underlined"))
-            {
-                setStyle(BoldItalicUnderlined);
-            }
-        }
+        void setStyle(string const& style);
         
         //! Make the font bold or non-bold
         /** The function makes the font bold or non-bold
@@ -580,6 +472,77 @@ namespace Kiwi
                     setStyle(sTag(vector[2])->getName());
                 }
             }
+        }
+        
+    private:
+        friend class GuiDeviceManager;
+        
+        inline static void setAvailableFonts(vector<Font> const& fonts) noexcept
+        {
+            map<string, Font>& m_fonts = getAvailableFonts();
+            for(auto it : fonts)
+            {
+                m_fonts[(it).getName()] = (it);
+            }
+        }
+        
+        inline static void setDefaultFont(Font const& fonts) noexcept
+        {
+            Font& m_default = getDefaultFont();
+            m_default = fonts;
+        }
+        
+        inline static map<string, Font>& getAvailableFonts() noexcept
+        {
+            static map<string, Font> m_fonts;
+            return m_fonts;
+        }
+        
+        inline static Font& getDefaultFont() noexcept
+        {
+            static Font m_default(unique_ptr<Intern>(new Intern("Helvetica", 12., Regular)));
+            return m_default;
+        }
+        
+    public:
+        
+        //! Retrieves the available fonts in the system.
+        /** The function the available fonts in the system.
+         @return The available fonts.
+         */
+        inline static map<string, Font> getSystemFontsByName() noexcept
+        {
+            return getAvailableFonts();
+        }
+        
+        //! Retrieves the available fonts in the system.
+        /** The function the available fonts in the system.
+         @return The available fonts.
+         */
+        inline static vector<Font> getSystemFonts() noexcept
+        {
+            map<string, Font>& m_fonts = getAvailableFonts();
+            vector<Font> fonts;
+            for(auto it : m_fonts)
+            {
+                fonts.push_back(it.second);
+            }
+            return fonts;
+        }
+        
+        //! Retrieves the available font names in the system.
+        /** The function the available font names in the system.
+         @return The available font names .
+         */
+        inline static vector<string> getSystemFontNames() noexcept
+        {
+            map<string, Font>& m_fonts = getAvailableFonts();
+            vector<string> fonts;
+            for(auto it : m_fonts)
+            {
+                fonts.push_back(it.first);
+            }
+            return fonts;
         }
     };
 }

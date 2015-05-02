@@ -38,14 +38,7 @@ namespace Kiwi
         m_redraw        = false;
         m_line_space    = 1.;
         m_justification = Font::Justification::TopLeft;
-        if(context)
-        {
-            m_empty_width = context->getLineWidth(m_font, wstring(L" "));
-        }
-        else
-        {
-            m_empty_width = 0.5 * m_font.getHeight();
-        }
+        m_empty_width   = m_font.getCharacterWidth(L' ');
     }
     
     GuiTextEditor::~GuiTextEditor() noexcept
@@ -62,12 +55,8 @@ namespace Kiwi
     {
         if(font != m_font)
         {
-            m_font      = font;
-            sGuiContext ctxt = getContext();
-            if(ctxt)
-            {
-                m_empty_width = ctxt->getLineWidth(m_font, wstring(L" "));
-            }
+            m_font        = font;
+            m_empty_width = m_font.getCharacterWidth(L' ');
             redraw();
             m_redraw = false;
         }

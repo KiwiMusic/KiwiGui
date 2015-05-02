@@ -25,8 +25,6 @@
 
 namespace Kiwi
 {
-    vector<Font> Font::m_fonts;
-    
     double Font::Intern::getCharacterWidth(char const& c) const noexcept
     {
         return 0.;
@@ -55,6 +53,91 @@ namespace Kiwi
     Size Font::Intern::getTextSize(wstring const& text, const double width) const noexcept
     {
         return Size(0., 0.);
+    }
+    
+    Font::Font() noexcept
+    {
+        m_intern = getDefaultFont().m_intern->getNewReference();
+    }
+    
+    Font::Font(string const& name, double height, Style style) noexcept
+    {
+        auto it = getAvailableFonts().find(name);
+        if(it != getAvailableFonts().end())
+        {
+            m_intern = move(it->second.m_intern->getNewReference());
+        }
+        else
+        {
+            m_intern = getDefaultFont().m_intern->getNewReference();
+        }
+    }
+    
+    string Font::getStyleName() const noexcept
+    {
+        switch(getStyle())
+        {
+            case Regular:
+                return string("Regular");
+                break;
+            case Bold:
+                return string("Bold");
+                break;
+            case Italic:
+                return string("Italic");
+                break;
+            case Underlined:
+                return string("Underlined");
+                break;
+            case BoldItalic:
+                return string("Bold Italic");
+                break;
+            case BoldUnderlined:
+                return string("Bold Underlined");
+                break;
+            case ItalicUnderlined:
+                return string("Italic Underlined");
+                break;
+            default:
+                return string("Bold Italic Underlined");
+                break;
+        }
+    }
+    
+    void Font::setStyle(string const& style)
+    {
+        if(style == string("Regular"))
+        {
+            setStyle(Regular);
+        }
+        else if(style == string("Bold"))
+        {
+            setStyle(Bold);
+        }
+        else if(style == string("Italic"))
+        {
+            setStyle(Italic);
+        }
+        else if(style == string("Underlined"))
+        {
+            setStyle(Underlined);
+        }
+        else if(style == string("Bold Italic"))
+        {
+            setStyle(BoldItalic);
+        }
+        else if(style == string("Bold Underlined"))
+        {
+            setStyle(BoldUnderlined);
+        }
+        else if(style == string("Italic Underlined"))
+        {
+            setStyle(ItalicUnderlined);
+        }
+        else if(style == string("Bold Italic Underlined"))
+        {
+            setStyle(BoldItalicUnderlined);
+        }
     }
 }
 

@@ -91,40 +91,6 @@ namespace Kiwi
          @param window The view of the top level window.
          */
         void removeWindow(sGuiView window) noexcept;
-        
-        //! Retrieves the width of a line.
-        /** The function retreives the width of a line depending on a font.
-         @param font The font.
-         @param line The line.
-         @return The width of the line.
-         */
-        double getLineWidth(Font const& font, string const& line) const noexcept;
-        
-        //! Retrieves the width of a line.
-        /** The function retreives the width of a line depending on a font.
-         @param font The font.
-         @param line The line.
-         @return The width of the line.
-         */
-        double getLineWidth(Font const& font, wstring const& line) const noexcept;
-        
-        //! Retrieves the size of a text.
-        /** The function the size of a text depending on a font.
-         @param font The font.
-         @param text The text.
-         @param width The width limit of the text, zero means no limits.
-         @return The width of the text.
-         */
-        Size getTextSize(Font const& font, string const& text, const double width = 0.) const noexcept;
-        
-        //! Retrieves the size of a text.
-        /** The function the width of a text depending on a font.
-         @param font The font.
-         @param text The text.
-         @param width The width limit of the text, zero means no limits.
-         @return The width of the text.
-         */
-        Size getTextSize(Font const& font, wstring const& text, const double width_limit = 0.) const noexcept;
     };
 }
 
