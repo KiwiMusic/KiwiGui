@@ -158,6 +158,23 @@ namespace Kiwi
         virtual void internalDrawText(string const& text, double x, double y, double w, double h, Font const& font,
                                       Font::Justification j, bool truncated) const noexcept = 0;
         
+        //! Draws a line of text within a rectangle.
+        /** The function draws a line of text within a rectangle.
+         @param text The text.
+         @param x The abscissa of the rectangle.
+         @param y The ordinate of the rectangle.
+         @param w The width of the rectangle.
+         @param h The height of the rectangle.
+         @param j The justification.
+         @param truncated If the text should be truncated if it goes out the boundaries.
+         */
+        virtual void internalDrawText(wstring const& text, double x, double y, double w, double h, Font const& font,
+                                      Font::Justification j, bool truncated) const noexcept
+        {
+            wstring_convert<codecvt_utf8<wchar_t>> cv;
+            internalDrawText(cv.to_bytes(text), x, y, w, h, m_font, j, truncated);
+        }
+        
         //! Fill a path.
         /** The function fills a path.
          @param path The path.
@@ -409,7 +426,7 @@ namespace Kiwi
          @param j The justification.
          @param truncated If the text should be truncated if it goes out the boundaries.
          */
-        void drawText(string const& text, double x, double y, double w, double h, Font::Justification j, bool truncated = false) const noexcept
+        inline void drawText(string const& text, double x, double y, double w, double h, Font::Justification j, bool truncated = false) const noexcept
         {
             internalDrawText(text, x, y, w, h, m_font, j, truncated);
         }
@@ -424,7 +441,7 @@ namespace Kiwi
          @param j The justification.
          @param truncated If the text should be truncated if it goes out the boundaries.
          */
-        void drawText(string const& text, double x, double y, double w, double h, Font const& font, Font::Justification j, bool truncated = false) const noexcept
+        inline void drawText(string const& text, double x, double y, double w, double h, Font const& font, Font::Justification j, bool truncated = false) const noexcept
         {
             internalDrawText(text, x, y, w, h, font, j, truncated);
         }
@@ -436,10 +453,9 @@ namespace Kiwi
          @param j The justification.
          @param truncated If the text should be truncated if it goes out the boundaries.
          */
-        void drawText(wstring const& text, Rectangle const& rect, Font::Justification j, bool truncated = false) const
+        inline void drawText(wstring const& text, Rectangle const& rect, Font::Justification j, bool truncated = false) const
         {
-            wstring_convert<codecvt_utf8<wchar_t>> cv;
-            internalDrawText(string(cv.to_bytes(text)), rect.x(), rect.y(), rect.width(), rect.height(), m_font, j, truncated);
+            internalDrawText(text, rect.x(), rect.y(), rect.width(), rect.height(), m_font, j, truncated);
         }
         
         //! Draws a line of text within a rectangle.
@@ -452,10 +468,9 @@ namespace Kiwi
          @param j The justification.
          @param truncated If the text should be truncated if it goes out the boundaries.
          */
-        void drawText(wstring const& text, double x, double y, double w, double h, Font::Justification j, bool truncated = false) const
+        inline void drawText(wstring const& text, double x, double y, double w, double h, Font::Justification j, bool truncated = false) const
         {
-            wstring_convert<codecvt_utf8<wchar_t>> cv;
-            internalDrawText(cv.to_bytes(text), x, y, w, h, m_font, j, truncated);
+            internalDrawText(text, x, y, w, h, m_font, j, truncated);
         }
         
         //! Draw a line of text within a rectangle.
