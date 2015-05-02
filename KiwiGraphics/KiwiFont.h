@@ -299,10 +299,7 @@ namespace Kiwi
         /** The function sets the name of the font.
          @param size The size of the name.
          */
-        inline void setName(const string& name)
-        {
-            int todo;
-        }
+        void setName(const string& name);
 		
         //! Sets the font height.
         /** The function sets the height of the font.

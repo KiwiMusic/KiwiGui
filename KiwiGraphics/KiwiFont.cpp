@@ -71,6 +71,25 @@ namespace Kiwi
         {
             m_intern = getDefaultFont().m_intern->getNewReference();
         }
+        setHeight(height);
+        setStyle(style);
+    }
+    
+    void Font::setName(const string& name)
+    {
+        const double height = getHeight();
+        const Style  style  = Style(getStyle());
+        auto it = getAvailableFonts().find(name);
+        if(it != getAvailableFonts().end())
+        {
+            m_intern = move(it->second.m_intern->getNewReference());
+        }
+        else
+        {
+            m_intern = getDefaultFont().m_intern->getNewReference();
+        }
+        setHeight(height);
+        setStyle(style);
     }
     
     string Font::getStyleName() const noexcept

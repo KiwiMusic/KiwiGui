@@ -68,16 +68,19 @@ namespace Kiwi
         {
             m_justification = Font::Justification::TopLeft;
             redraw();
+            m_redraw = false;
         }
         else if(justification & Font::Justification::Right && !(m_justification & Font::Justification::Right))
         {
             m_justification = Font::Justification::TopRight;
             redraw();
+            m_redraw = false;
         }
         else if(justification & Font::Justification::HorizontallyCentered && !(m_justification & Font::Justification::HorizontallyCentered))
         {
             m_justification = Font::Justification::CentredTop;
             redraw();
+            m_redraw = false;
         }
     }
     
@@ -87,6 +90,7 @@ namespace Kiwi
         {
             m_line_space = factor;
             redraw();
+            m_redraw = false;
         }
     }
     
@@ -116,6 +120,7 @@ namespace Kiwi
         {
             m_color = color;
             redraw();
+            m_redraw = false;
         }
     }
 
@@ -128,87 +133,11 @@ namespace Kiwi
             sketch.setFont(m_font);
             if(!m_wrapped)
             {
-                const Rectangle bounds  = sketch.getBounds();
-                const double lineheight = getLineHeight();
-                double text_y = 0.;
-                size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
-                while(pos != npos)
-                {
-                    sketch.drawText(wstring(m_text, last, pos - last), 0., text_y, bounds.width(), lineheight, m_justification);
-                    last = ++pos;
-                    pos = m_text.find(L'\n', last);
-                    text_y += lineheight;
-                }
-                sketch.drawText(wstring(m_text, last, npos), 0., text_y, bounds.width(), lineheight, m_justification);
+                sketch.drawText(m_text, getBounds().withZeroOrigin(), m_justification, false);
             }
             else
             {
-                /*
-                sGuiContext ctxt = getContext();
-                if(ctxt)
-                {
-                    const Rectangle bounds  = sketch.getBounds();
-                    const double lineheight = getLineHeight();
-                    double text_y = 0.;
-                    size_type last = 0ul, pos = m_text.find(L'\n', 0ul);
-                    while(pos != npos)
-                    {
-                        wstring line(m_text, last, pos - last);
-                        double width = ctxt->getTextWidth(m_font, line);
-                        if(width <= bounds.width() - m_empty_width)
-                        {
-                            sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
-                            text_y += lineheight;
-                        }
-                        else
-                        {
-                            wstring next;
-                            while(width > bounds.width() - m_empty_width && line.size())
-                            {
-                                next.insert(0ul, 1ul, line[line.size() - 1ul]);
-                                line.pop_back();
-                                width = ctxt->getTextWidth(m_font, line);
-                                if(width <= bounds.width() - m_empty_width)
-                                {
-                                    sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
-                                    text_y += lineheight;
-                                    line.clear();
-                                    swap(line, next);
-                                    width = ctxt->getTextWidth(m_font, line);
-                                }
-                            }
-                            sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
-                            text_y += lineheight;
-                        }
-                        last = ++pos;
-                        pos = m_text.find(L'\n', last);
-                    }
-                    wstring line(m_text, last, npos);
-                    double width = ctxt->getTextWidth(m_font, line);
-                    if(width <= bounds.width() - m_empty_width)
-                    {
-                        sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
-                    }
-                    else
-                    {
-                        wstring next;
-                        while(width > bounds.width() - m_empty_width && line.size())
-                        {
-                            next.insert(0ul, 1ul, line[line.size() - 1ul]);
-                            line.pop_back();
-                            width = ctxt->getTextWidth(m_font, line);
-                            if(width <= bounds.width() - m_empty_width)
-                            {
-                                sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
-                                text_y += lineheight;
-                                line.clear();
-                                swap(line, next);
-                                width = ctxt->getTextWidth(m_font, line);
-                            }
-                        }
-                        sketch.drawText(line, 0., text_y, bounds.width() - m_empty_width, lineheight, m_justification);
-                    }
-                }*/
+                sketch.drawText(m_text, getBounds().withZeroOrigin(), m_justification, true);
             }
         }
     }
@@ -384,16 +313,8 @@ namespace Kiwi
     
     Size GuiTextEditor::getTextSize(const double limit) const noexcept
     {
-        sGuiContext ctxt = getContext();
         lock_guard<mutex> guard(m_text_mutex);
-        if(ctxt && !m_text.empty())
-        {
-            ;
-        }
-        else
-        {
-            return Size(m_empty_width, m_font.getHeight());
-        }
+        return m_font.getTextSize(m_text, limit);
     }
     
     void GuiTextEditor::clearText() noexcept
