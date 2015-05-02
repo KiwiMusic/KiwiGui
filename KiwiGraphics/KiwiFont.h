@@ -63,21 +63,27 @@ namespace Kiwi
         /** Flags describing the style of font
          @see Face
          */
-        enum Style
+        enum Style : unsigned
         {
-            Plain       = 0,    ///< indicates a plain, non-bold, non-italic version of the font
-            Bold        = 1,    ///< boldens the font.
-            Italic      = 2,    ///< An italic version of the font.
-            Underlined  = 4     ///< underlines the font.
+            Plain               = 0,    ///< Plain version of the font
+            Bold                = 1,    ///< Bold version the font.
+            Italic              = 2,    ///< Italic version of the font.
+            BoldItalic          = 3,    ///< Bold/Italic version the font.
+            Underlined          = 4,    ///< Underlined version the font.
+            BoldUnderlined      = 5,    ///< Bold/Underlined version the font.
+            ItalicUnderlined    = 6,    ///< Italic/Underlined version of the font.
+            BoldItalicUnderlined= 7     ///< Bold/Italic/Underlined version the font.
         };
         
     private:
         friend class GuiDeviceManager;
+        class Intern;
+        
         static vector<Font> m_fonts;
         
         string          m_name;
         double			m_size;
-        ulong           m_style;
+        unsigned        m_style;
         
         inline static void setAvailableFonts(vector<Font> const& fonts) noexcept
         {
@@ -90,6 +96,21 @@ namespace Kiwi
         }
         
     public:
+        
+        //! Retrieves the available font names in the system.
+        /** The function the available font names in the system.
+         @return The available font names .
+         */
+        static vector<string> getAvailableNames() noexcept;
+        
+        //! Retrieves the available font families in the system.
+        /** The function the available font families in the system.
+         @return The available font families.
+         */
+        static vector<string> getAvailableFamilies() noexcept;
+        
+    public:
+        
         //! Font constructor.
         /** Initializes a default Arial font with a normal plain style and a font size of 12.
          */
@@ -101,7 +122,7 @@ namespace Kiwi
          @param size The size of the font.
          @param face The face of the font.
 		 */
-        inline Font(string const& name, double size = 12, ulong face = Plain) noexcept : m_name(name), m_size(clip(size, 0.1, 10000.)), m_style(face) {}
+        inline Font(string const& name, double size = 12, Style face = Plain) noexcept : m_name(name), m_size(clip(size, 0.1, 10000.)), m_style(face) {}
         
         //! Font constructor.
         /** Initializes a with another font.
@@ -151,36 +172,9 @@ namespace Kiwi
         /** The function retrieves the name of the font.
          @return The name of the font.
          */
-        inline Font withName(const string& name) const noexcept
-        {
-            return Font(name, m_size, m_style);
-        }
-        
-        //! Sets the font name.
-        /** The function sets the name of the font.
-         @param size The size of the name.
-         */
-        inline void setName(const string& name)
-        {
-            m_name = name;
-        }
-        
-        //! Retrieves the font name.
-        /** The function retrieves the name of the font.
-         @return The name of the font.
-         */
         inline string getName() const noexcept
         {
             return m_name;
-        }
-		
-        //! Sets the font height.
-        /** The function sets the height of the font.
-         @param size The height of the font.
-         */
-        inline void setHeight(const double size)
-        {
-            m_size = clip(size, 0.1, 10000.);
         }
         
         //! Retrieves the font height.
@@ -192,31 +186,13 @@ namespace Kiwi
             return m_size;
         }
         
-        //! Sets the font style.
-        /** The function sets the style of the font.
-         @param styleFlags The style of the font as a set flags.
-         */
-        inline void setStyle(ulong styleFlags)
-        {
-            m_style = styleFlags;
-        }
-        
         //! Retrieves the font style.
         /** The function retrieves the style of the font.
          @return The style of the font.
          */
-        inline ulong getStyle() const noexcept
+        inline unsigned getStyle() const noexcept
         {
-            ulong flags = (m_style & Font::Underlined) ? Underlined : Plain;
-			if(isBold())
-            {
-                flags |= Bold;
-            }
-            if(isItalic())
-            {
-                flags |= Italic;
-            }
-            return flags;
+            return m_style;
         }
         
         //! Retrieves a font name as a string.
@@ -225,7 +201,8 @@ namespace Kiwi
          */
         inline string getStyleName() const noexcept
         {
-            return getStyleName(m_style);
+            int todo;
+            return "Regular";
         }
         
         //! Retrieve if the font is boldened.
@@ -255,49 +232,76 @@ namespace Kiwi
             return m_style & Underlined;
         }
         
+        //! Sets the font name.
+        /** The function sets the name of the font.
+         @param size The size of the name.
+         */
+        inline void setName(const string& name)
+        {
+            m_name = name;
+        }
+		
+        //! Sets the font height.
+        /** The function sets the height of the font.
+         @param size The height of the font.
+         */
+        inline void setHeight(const double size)
+        {
+            m_size = clip(size, 0.1, 10000.);
+        }
+        
+        //! Sets the font style.
+        /** The function sets the style of the font.
+         @param style The style of the font as a set flags.
+         */
+        inline void setStyle(Style style)
+        {
+            m_style = style;
+        }
+        
+        //! Sets the font style.
+        /** The function sets the style of the font.
+         @param styleFlags The style of the font as a set flags.
+         */
+        inline void setStyle(string const& style)
+        {
+            int todo;
+        }
+        
         //! Make the font bold or non-bold
         /** The function makes the font bold or non-bold
          @param shouldBeBold True if bold, false otherwise.
          */
-        void setBold(const bool shouldBeBold)
+        inline void setBold(const bool shouldBeBold) noexcept
         {
-            const ulong flags = getStyle();
-            setStyle(shouldBeBold ? (flags | Bold) : (flags & ~Bold));
+            if(shouldBeBold && !(m_style & Font::Bold))
+                m_style |= Font::Bold;
+            else if(!shouldBeBold && (m_style & Font::Bold))
+                m_style &= Font::Bold;
         }
         
         //! Make the font italic or non-italic
         /** The function makes the font italic or non-italic
          @param shouldBeItalic True if italic, false otherwise.
          */
-        void setItalic(const bool shouldBeItalic)
+        inline void setItalic(const bool shouldBeItalic) noexcept
         {
-            const ulong flags = getStyle();
-            setStyle(shouldBeItalic ? (flags | Italic) : (flags & ~Italic));
+            if(shouldBeItalic && !(m_style & Font::Italic))
+                m_style |= Font::Italic;
+            else if(!shouldBeItalic && (m_style & Font::Italic))
+                m_style &= Font::Italic;
         }
         
         //! Make the font undelined or non-undelined
         /** The function makes the font undelined or non-undelined
          @param shouldBeUnderlined True if undelined, false otherwise.
          */
-        void setUnderline(const bool shouldBeUnderlined)
+        inline void setUnderline(const bool shouldBeUnderlined) noexcept
         {
-            const ulong flags = getStyle();
-            setStyle(shouldBeUnderlined ? (flags | Underlined) : (flags & ~Underlined));
-        }
-        
-        //! Retrieves a font name as a string.
-        /** The function retrieves a font name as a string.
-         @return A font name as a string.
-         */
-        inline static string getStyleName(const ulong styleFlags) noexcept
-        {
-            const bool bold = (styleFlags & Font::Bold);
-            const bool italic = (styleFlags & Font::Italic);
-            
-            if (bold && italic) return "Bold Italic";
-            else if (bold)      return "Bold";
-            else if (italic)    return "Italic";
-            else return "Regular";
+            if(shouldBeUnderlined && !(m_style & Font::Underlined))
+                m_style |= Font::Underlined;
+            else if(!shouldBeUnderlined && (m_style & Font::Underlined))
+                m_style &= Font::Underlined;
         }
         
         //! Compare the font with another.
@@ -319,6 +323,50 @@ namespace Kiwi
         {
             return getName() == other.getName() && getStyle() == other.getStyle() && getHeight() == other.getHeight();
         }
+        
+        //! Retrieves the width of a character.
+        /** The function retreives the width of a character for the font.
+         @param c The character.
+         @return The width of the character.
+         */
+        double getCharacterWidth(char const& c) const noexcept;
+        
+        //! Retrieves the width of a character.
+        /** The function retreives the width of a character for the font.
+         @param c The character.
+         @return The width of the character.
+         */
+        double getCharacterWidth(wchar_t const& c) const noexcept;
+        
+        //! Retrieves the width of a line.
+        /** The function retreives the width of a line for the font.
+         @param line The line.
+         @return The width of the line.
+         */
+        double getLineWidth(string const& line) const noexcept;
+        
+        //! Retrieves the width of a line.
+        /** The function retreives the width of a line for the font.
+         @param line The line.
+         @return The width of the line.
+         */
+        double getLineWidth(wstring const& line) const noexcept;
+        
+        //! Retrieves the size of a text.
+        /** The function the size of a text depending for the font.
+         @param text The text.
+         @param width The width limit of the text, zero means no limits.
+         @return The width of the text.
+         */
+        Size getTextSize(string const& text, const double width = 0.) const noexcept;
+        
+        //! Retrieves the size of a text.
+        /** The function the width of a text depending for the font.
+         @param text The text.
+         @param width The width limit of the text, zero means no limits.
+         @return The width of the text.
+         */
+        Size getTextSize(wstring const& text, const double width = 0.) const noexcept;
         
         //! Retrieve the font as a vector of atoms.
         /** The function retrieves the font as a vector of atoms.
@@ -344,10 +392,18 @@ namespace Kiwi
                 }
                 if(vector.size() > 2 && vector[2].isTag())
                 {
-                    int todo;
+                    setStyle(sTag(vector[2])->getName());
                 }
             }
         }
+    };
+    
+    class Font::Intern
+    {
+    private:
+        
+    public:
+        
     };
 }
 
