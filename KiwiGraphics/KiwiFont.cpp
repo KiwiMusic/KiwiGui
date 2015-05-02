@@ -27,32 +27,32 @@ namespace Kiwi
 {
     vector<Font> Font::m_fonts;
     
-    double Font::getCharacterWidth(char const& c) const noexcept
+    double Font::Intern::getCharacterWidth(char const& c) const noexcept
     {
         return 0.;
     }
     
-    double Font::getCharacterWidth(wchar_t const& c) const noexcept
+    double Font::Intern::getCharacterWidth(wchar_t const& c) const noexcept
     {
         return 0.;
     }
     
-    double Font::getLineWidth(string const& line) const noexcept
+    double Font::Intern::getLineWidth(string const& line) const noexcept
     {
         return 0.;
     }
     
-    double Font::getLineWidth(wstring const& line) const noexcept
+    double Font::Intern::getLineWidth(wstring const& line) const noexcept
     {
         return 0.;
     }
     
-    Size Font::getTextSize(string const& text, const double width) const noexcept
+    Size Font::Intern::getTextSize(string const& text, const double width) const noexcept
     {
         return Size(0., 0.);
     }
     
-    Size Font::getTextSize(wstring const& text, const double width) const noexcept
+    Size Font::Intern::getTextSize(wstring const& text, const double width) const noexcept
     {
         return Size(0., 0.);
     }

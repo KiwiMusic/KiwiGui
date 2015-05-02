@@ -102,64 +102,45 @@ namespace Kiwi
             /** The function retrieves if the font is available in the system.
              @return true if the font is available otherwise false.
              */
-            virtual inline bool isValid() const noexcept
-            {
-                return false;
+            virtual inline bool isValid() const noexcept {return false;}
+            
+            //! Retrieves the font name.
+            /** The function retrieves the name of the font.
+             @return The name of the font.
+             */
+            virtual inline shared_ptr<Intern> getNewReference() const noexcept {
+                return make_shared<Intern>(getName(), getHeight(), Style(getStyle()));
             }
             
             //! Retrieves the font name.
             /** The function retrieves the name of the font.
              @return The name of the font.
              */
-            virtual inline shared_ptr<Intern> getNewReference() const noexcept
-            {
-                return make_shared<Intern>(getName(), getHeight(), getStyle());
-            }
-            
-            //! Retrieves the font name.
-            /** The function retrieves the name of the font.
-             @return The name of the font.
-             */
-            inline string getName() const noexcept
-            {
-                return m_name;
-            }
+            inline string getName() const noexcept {return m_name;}
             
             //! Retrieves the font height.
             /** The function retrieves the height of the font.
              @return The height of the font.
              */
-            inline double getHeight() const noexcept
-            {
-                return m_height;
-            }
+            virtual inline double getHeight() const noexcept {return m_height;}
             
             //! Retrieves the font style.
             /** The function retrieves the style of the font.
              @return true if the font is valid, otherwise false.
              */
-            inline unsigned getStyle() const noexcept
-            {
-                return m_style;
-            }
+            virtual inline unsigned getStyle() const noexcept {return m_style;}
             
             //! Sets the font height.
             /** The function sets the height of the font.
              @param size The height of the font.
              */
-            virtual inline void setHeight(const double size)
-            {
-                m_height = clip(size, 0.1, 10000.);
-            }
+            virtual inline void setHeight(const double size) {m_height = clip(size, 0.1, 10000.);}
             
             //! Sets the font style.
             /** The function sets the style of the font.
              @param style The style of the font as a set flags.
              */
-            virtual inline void setStyle(const Style style)
-            {
-                m_style = style;
-            }
+            virtual inline void setStyle(const Style style) {m_style = style;}
             
             //! Retrieves the width of a character.
             /** The function retreives the width of a character for the font.
@@ -242,9 +223,9 @@ namespace Kiwi
         
         //! Font constructor.
         /** Initializes a font with a name, size and style.
-         @param name The name of the font.
-         @param size The size of the font.
-         @param face The face of the font.
+         @param name    The name of the font.
+         @param height  The height of the font.
+         @param style   The style of the font.
 		 */
         inline Font(string const& name, double height = 12., Style style = Regular) noexcept {}
         
@@ -361,7 +342,7 @@ namespace Kiwi
         /** The function retrieves if a font is boldened.
          @return True if boldened, false otherwise.
          */
-        bool isBold() const noexcept
+        inline bool isBold() const noexcept
         {
             return getStyle() & Bold;
         }
@@ -370,7 +351,7 @@ namespace Kiwi
         /** The function retrieves if a font is italicised.
          @return True if italicised, false otherwise.
          */
-        bool isItalic() const noexcept
+        inline bool isItalic() const noexcept
         {
             return getStyle() & Italic;
         }
@@ -379,7 +360,7 @@ namespace Kiwi
         /** The function retrieves if a font is underlined.
          @return True if underlined, false otherwise.
          */
-        bool isUnderlined() const noexcept
+        inline bool isUnderlined() const noexcept
         {
             return getStyle() & Underlined;
         }
@@ -515,28 +496,40 @@ namespace Kiwi
          @param c The character.
          @return The width of the character.
          */
-        double getCharacterWidth(char const& c) const noexcept;
+        inline double getCharacterWidth(char const& c) const noexcept
+        {
+            return m_intern->getCharacterWidth(c);
+        }
         
         //! Retrieves the width of a character.
         /** The function retreives the width of a character for the font.
          @param c The character.
          @return The width of the character.
          */
-        double getCharacterWidth(wchar_t const& c) const noexcept;
+        inline double getCharacterWidth(wchar_t const& c) const noexcept
+        {
+            return m_intern->getCharacterWidth(c);
+        }
         
         //! Retrieves the width of a line.
         /** The function retreives the width of a line for the font.
          @param line The line.
          @return The width of the line.
          */
-        double getLineWidth(string const& line) const noexcept;
+        inline double getLineWidth(string const& line) const noexcept
+        {
+            return m_intern->getLineWidth(line);
+        }
         
         //! Retrieves the width of a line.
         /** The function retreives the width of a line for the font.
          @param line The line.
          @return The width of the line.
          */
-        double getLineWidth(wstring const& line) const noexcept;
+        inline double getLineWidth(wstring const& line) const noexcept
+        {
+            return m_intern->getLineWidth(line);
+        }
         
         //! Retrieves the size of a text.
         /** The function the size of a text depending for the font.
@@ -544,7 +537,10 @@ namespace Kiwi
          @param width The width limit of the text, zero means no limits.
          @return The width of the text.
          */
-        Size getTextSize(string const& text, const double width = 0.) const noexcept;
+        inline Size getTextSize(string const& text, const double width = 0.) const noexcept
+        {
+            return m_intern->getTextSize(text, width);
+        }
         
         //! Retrieves the size of a text.
         /** The function the width of a text depending for the font.
@@ -552,7 +548,10 @@ namespace Kiwi
          @param width The width limit of the text, zero means no limits.
          @return The width of the text.
          */
-        Size getTextSize(wstring const& text, const double width = 0.) const noexcept;
+        Size getTextSize(wstring const& text, const double width = 0.) const noexcept
+        {
+            return m_intern->getTextSize(text, width);
+        }
         
         //! Retrieve the font as a vector of atoms.
         /** The function retrieves the font as a vector of atoms.
