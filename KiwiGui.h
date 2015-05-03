@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI__
 #define __DEF_KIWI_GUI__
 
-#include "KiwiGuiDevice.h"
+#include "KiwiWidgets/KiwiWidgets.h"
 
 #endif
 

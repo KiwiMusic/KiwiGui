@@ -26,7 +26,7 @@
 
 #include "KiwiRectangle.h"
 
-// Todo (AffineMatrix, dashed line support)
+// Todo : (dashed line support, other shapes ?)
 namespace Kiwi
 {
     // ================================================================================ //

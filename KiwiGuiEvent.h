@@ -21,8 +21,8 @@
  ==============================================================================
  */
 
-#ifndef __DEF_KIWI_GUI_KEYBOARDER__
-#define __DEF_KIWI_GUI_KEYBOARDER__
+#ifndef __DEF_KIWI_GUI_EVENT__
+#define __DEF_KIWI_GUI_EVENT__
 
 #include "KiwiGraphics/KiwiGraphics.h"
 

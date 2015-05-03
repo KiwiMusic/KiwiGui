@@ -25,7 +25,6 @@
 #define __DEF_KIWI_GUI_WINDOW__
 
 #include "KiwiGuiContainer.h"
-#include "KiwiGuiTextEditor.h"
 
 namespace Kiwi
 {
