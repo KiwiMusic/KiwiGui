@@ -133,11 +133,11 @@ namespace Kiwi
             sketch.setFont(m_font);
             if(!m_wrapped)
             {
-                sketch.drawText(m_text, getBounds().withZeroOrigin(), m_justification, false);
+                sketch.drawText(m_text, view->getBounds().withZeroOrigin(), m_justification, false);
             }
             else
             {
-                sketch.drawText(m_text, getBounds().withZeroOrigin(), m_justification, true);
+                sketch.drawText(m_text, view->getBounds().withZeroOrigin(), m_justification, true);
             }
         }
     }
@@ -302,6 +302,7 @@ namespace Kiwi
                     return true;
                 }
             }
+            
         }
         return false;
     }
@@ -347,8 +348,9 @@ namespace Kiwi
         if(caret)
         {
             lock_guard<mutex> guard(m_carets_mutex);
+            caret->setColor(m_color);
             m_carets.insert(caret);
-            //addChild(caret);
+            addChild(caret);
         }
     }
     
@@ -358,7 +360,7 @@ namespace Kiwi
         {
             lock_guard<mutex> guard(m_carets_mutex);
             m_carets.erase(caret);
-            //removeChild(caret);
+            removeChild(caret);
         }
     }
     
@@ -385,7 +387,7 @@ namespace Kiwi
         return make_shared<Controller>(static_pointer_cast<GuiTextEditor>(shared_from_this()));
     }
                 
-    void GuiTextEditor::eraseAtCaret(sCaret caret)
+    void GuiTextEditor::eraseAtCaret(const sCaret caret)
     {
         if(!caret->empty())
         {
@@ -393,8 +395,9 @@ namespace Kiwi
             {
                 lock_guard<mutex> guard(m_text_mutex);
                 m_text.erase(caret->first(), caret->second());
+                caret->start = caret->caret = caret->first();
+                caret->dist  = npos;
             }
-            moveCaretToPreviousCharacter(caret, false);
             vector<sListener> listeners(getListeners());
             for(auto it : listeners)
             {
@@ -412,7 +415,7 @@ namespace Kiwi
         }
     }
     
-    void GuiTextEditor::insertAtCaret(sCaret caret, wstring const& text) noexcept
+    void GuiTextEditor::insertAtCaret(const sCaret caret, wstring const& text) noexcept
     {
         if(!text.empty())
         {
@@ -421,18 +424,13 @@ namespace Kiwi
                 lock_guard<mutex> guard(m_text_mutex);
                 if(!caret->empty())
                 {
-                    m_text.erase(caret->first(), caret->second());
-                    if(!select) {
-                        caret->empty() ? caret->start = caret->caret = max(caret->caret, 1ul) - 1ul : caret->start = caret->caret = min(caret->caret, caret->start);
-                    }
-                    else if(caret->caret != 0) {
-                        --caret->caret;
-                    }
+                    m_text.erase(caret->first(), caret->second() - caret->first());
+                    caret->start = caret->caret = caret->first();
                     caret->dist  = npos;
                 }
                 m_text.insert(caret->caret, text);
             }
-            moveCaretToNextCharacter(caret, false);
+            caret->start = caret->caret = min(caret->caret + text.size(), m_text.size());
             vector<sListener> listeners(getListeners());
             for(auto it : listeners)
             {
@@ -479,6 +477,17 @@ namespace Kiwi
             ++caret->caret;
         }
         caret->dist = npos;
+        
+        cout << "next"<< endl;
+        if(caret->empty())
+        {
+            wcout << m_text[caret->caret - 1ul] << endl;
+        }
+        else
+        {
+            cout << caret->second() - caret->first()<< endl;
+            wcout << wstring(m_text, caret->first(), caret->second() - caret->first()) << endl;
+        }
     }
     
     void GuiTextEditor::moveCaretToPreviousCharacter(const sCaret caret, const bool select) noexcept
@@ -593,6 +602,85 @@ namespace Kiwi
         }
         caret->dist  = npos;
     }
+    
+    void GuiTextEditor::setCaretPosition(const sCaret caret, const double limit) const noexcept
+    {
+        lock_guard<mutex> guard(m_text_mutex);
+        if(m_wrapped)
+        {
+            const size_type linebreak = m_text.find_last_of(L'\n', caret->caret);
+            if(linebreak == npos)
+            {
+                Size offset;
+                size_type pos = 0;
+                wstring line(1ul, m_text[pos]);
+                offset.width(m_font.getLineWidth(line));
+                while(pos <= caret->caret)
+                {
+                    if(offset.width() > limit)
+                    {
+                        offset.height(offset.height() + m_font.getHeight());
+                        line.clear();
+                        line += m_text[pos];
+                    }
+                    line += m_text[++pos];
+                    offset.width(m_font.getLineWidth(line));
+                }
+                caret->setPosition(Point(offset.width(), offset.height()));
+            }
+            else
+            {
+                Size offset = m_font.getTextSize(wstring(m_text, 0ul, linebreak), limit);
+                size_type pos = linebreak+1;
+                wstring line(1ul, m_text[pos]);
+                offset.width(m_font.getLineWidth(line));
+                while(pos <= caret->caret)
+                {
+                    if(offset.width() > limit)
+                    {
+                        offset.height(offset.height() + m_font.getHeight());
+                        line.clear();
+                        line += m_text[pos];
+                    }
+                    line += m_text[++pos];
+                    offset.width(m_font.getLineWidth(line));
+                }
+                caret->setPosition(Point(offset.width(), offset.height()));
+            }
+        }
+        else
+        {
+            if(caret->caret == 0ul)
+            {
+                caret->setPosition(Point());
+            }
+            else
+            {
+                size_type linebreak = m_text.find_last_of(L'\n', caret->caret - ulong(m_text[caret->caret] == L'\n'));
+                if(linebreak == npos) {
+                    caret->setPosition(Point(m_font.getLineWidth(wstring(m_text, 0ul, caret->caret)), 0.));
+                }
+                else {
+                    Point pos(m_font.getLineWidth(wstring(m_text, linebreak + 1ul, caret->caret - linebreak - 1ul)), m_font.getHeight());
+                    if(linebreak != 0ul) {
+                        linebreak = m_text.find_last_of(L'\n', linebreak - 1ul);
+                        while(linebreak != npos)
+                        {
+                            pos.y(pos.y() + m_font.getHeight());
+                            if(linebreak == 0ul) {
+                                linebreak = npos;
+                            }
+                            else {
+                                linebreak = m_text.find_last_of(L'\n', max(linebreak, 1ul) - 1ul);
+                            }
+                        }
+                    }
+                    caret->setPosition(pos);
+                }
+            }
+            
+        }
+    }
 
     // ================================================================================ //
     //                              TEXT EDITOR CONTROLLER                              //
@@ -608,6 +696,13 @@ namespace Kiwi
     {
         m_editor->removeCaret(m_caret);
     }
+    
+    void GuiTextEditor::Controller::draw(Sketch& sketch)
+    {
+        const Size viewSize = getView()->getSize();
+        m_editor->setCaretPosition(m_caret, viewSize.width());
+        m_editor->draw(getView(), sketch);
+    }
         
     bool GuiTextEditor::Controller::receive(MouseEvent const& event)
     {
@@ -616,7 +711,16 @@ namespace Kiwi
     
     bool GuiTextEditor::Controller::receive(KeyboardEvent const& event)
     {
-        return m_editor->receive(m_caret, event);
+        if(m_editor->receive(m_caret, event))
+        {
+            const Size viewSize = getView()->getSize();
+            m_editor->setCaretPosition(m_caret, viewSize.width());
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     
     bool GuiTextEditor::Controller::receive(KeyboardFocus const event)
@@ -647,10 +751,9 @@ namespace Kiwi
         }
         if(m_status)
         {
-            /*
             sketch.setColor(m_color);
-            sketch.drawLine(0., 0., 0., getSize().height(), 2.);
-             */
+            sketch.setLineWidth(2.);
+            sketch.drawLine(0., 0., 0., getSize().height());
         }
     }
     

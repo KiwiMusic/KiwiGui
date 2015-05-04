@@ -28,6 +28,84 @@
 
 namespace Kiwi
 {
+    class Text
+    {
+        static wstring_convert<codecvt_utf8<wchar_t>> m_converter;
+        class Line
+        {
+        private:
+            wstring m_text;
+        public:
+            inline Line() noexcept {}
+            inline Line(wchar_t c) noexcept : m_text(1ul, c) {}
+            inline Line(wstring const& text) noexcept : m_text(text) {}
+            inline Line(wstring&& text) noexcept {m_text.swap(text);}
+            
+            inline bool empty() const noexcept {return m_text.empty();}
+            inline ulong size() const noexcept {return ulong(m_text.size());}
+            inline wstring& text() noexcept {return m_text;}
+            inline wstring const& text() const noexcept {return m_text;}
+            
+        };
+    private:
+      
+    public:
+        static const ulong npos = -1;
+        Font            m_font;
+        vector<Line>    m_lines;
+        
+        inline Text() noexcept {};
+        inline Text(char c) noexcept {m_lines.push_back(Line(m_converter.from_bytes(c)));}
+        inline Text(wchar_t c) noexcept {m_lines.push_back(Line(c));}
+        inline Text(string const& text) noexcept {m_lines.push_back(Line(m_converter.from_bytes(text)));}
+        inline Text(wstring const& text) noexcept {m_lines.push_back(Line(text));}
+        inline Text(wstring&& text) noexcept {m_lines.push_back(Line(forward<wstring>(text)));}
+        inline ~Text() {m_lines.clear();}
+        
+        inline bool empty() const noexcept {return m_lines.empty();}
+        inline ulong size() const noexcept {return ulong(m_lines.size());}
+        
+        inline void erase(ulong start, ulong end) noexcept
+        {
+            if(start > end) {
+                swap(start, end);
+            }
+            ulong pos = 0, sl = npos, se = npos;
+            for(ulong i = 0; i < m_lines.size(); i++)
+            {
+                pos += m_lines[i].size();
+                if(sl == npos && pos > start) {
+                    sl = i;
+                }
+                if(pos > end) {
+                    se = i; break;
+                }
+            }
+            if(sl != npos && se != npos)
+            {
+                
+            }
+        }
+        
+        inline void insert(const ulong pos, string const& text) noexcept
+        {
+            
+        }
+        
+        inline Size getTextSize(const double limit = 0.) const noexcept
+        {
+            if(!empty())
+            {
+                Size size = m_font.getTextSize(m_lines[0].text(), limit);
+                for(ulong i = 1; i < ulong(m_lines.size()); i++) {
+                    size += m_font.getTextSize(m_lines[i].text(), limit);
+                }
+                return size;
+            }
+            return Size();
+        }
+    };
+    
     // ================================================================================ //
     //                                     TEXT EDITOR                                  //
     // ================================================================================ //
@@ -277,6 +355,13 @@ namespace Kiwi
          */
         void removeCaret(sCaret caret);
         
+        //! Retrieves the display position of caret.
+        /** The function retrieves the display position of caret.
+         @param limit The width limit.
+         @return The position of the caret.
+         */
+        void setCaretPosition(const sCaret caret, const double limit = 0.) const noexcept;
+        
         //! The text editor keybaord receive method.
         /** The function adds character on move the caret.
          @param caret The caret.
@@ -288,14 +373,14 @@ namespace Kiwi
         /** The function erases the caret's selection and notifies the other carets.
          @param caret  The caret.
          */
-        void eraseAtCaret(sCaret caret);
+        void eraseAtCaret(const sCaret caret);
         
         //! Insert text at the caret.
         /** The function inserts text at the caret's selection and notifies the other carets.
          @param caret  The caret.
          @param text   The text.
          */
-        void insertAtCaret(sCaret caret, wstring const& text) noexcept;
+        void insertAtCaret(const sCaret caret, wstring const& text) noexcept;
         
         //! Moves the caret to the begining of the text.
         /** The function moves the caret to the begining of the text (cmd + top).
@@ -613,6 +698,12 @@ namespace Kiwi
          @return true if the controller wants the actions, othrewise false.
          */
         inline bool wantActions() const noexcept override {return false;}
+        
+        //! The paint method that can be override.
+        /** The function shoulds draw some stuff in the sketch.
+         @param sketch  A sketch to draw.
+         */
+        void draw(Sketch& sketch) override;
         
         //! The mouse receive method.
         /** The function pass the mouse event to the sketcher if it inherits from mouser.
