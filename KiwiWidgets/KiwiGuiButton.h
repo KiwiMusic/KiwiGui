@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_BUTTON__
 #define __DEF_KIWI_GUI_BUTTON__
 
-#include "KiwiGuiView.h"
+#include "../KiwiGuiDevice.h"
 
 namespace Kiwi
 {
