@@ -160,7 +160,7 @@ namespace Kiwi
         
         set<wCaret,
         owner_less<wCaret>>     m_carets;
-        mutex                   m_carets_mutex;        
+        mutable mutex           m_carets_mutex;
     public:
         
         //! Constructor.
@@ -479,6 +479,25 @@ namespace Kiwi
                 }
             }
             return lists;
+        }
+        
+        //! Gets the carets.
+        /** The functions gets the carets.
+         @return The carets.
+         */
+        inline vector<sCaret> getCarets() const noexcept
+        {
+            vector<sCaret> carets;
+            lock_guard<mutex> guard(m_carets_mutex);
+            for(auto it = m_carets.begin(); it != m_carets.end();)
+            {
+                sCaret l = (*it).lock();
+                if(l)
+                {
+                    carets.push_back(l); ++it;
+                }
+            }
+            return carets;
         }
         
         //! Gets the carets.

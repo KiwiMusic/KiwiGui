@@ -123,7 +123,7 @@ namespace Kiwi
             m_redraw = false;
         }
     }
-
+    
     void GuiTextEditor::draw(scGuiView view, Sketch& sketch) const
     {
         lock_guard<mutex> guard(m_text_mutex);
@@ -386,6 +386,89 @@ namespace Kiwi
     {
         return make_shared<Controller>(static_pointer_cast<GuiTextEditor>(shared_from_this()));
     }
+    
+    // ================================================================================ //
+    //                                  TEXT EDITOR CARET                               //
+    // ================================================================================ //
+    
+    void GuiTextEditor::setCaretPosition(const sCaret caret, const double limit) const noexcept
+    {
+        lock_guard<mutex> guard(m_text_mutex);
+        if(m_wrapped)
+        {
+            const size_type linebreak = m_text.find_last_of(L'\n', caret->caret);
+            if(linebreak == npos)
+            {
+                Size offset;
+                size_type pos = 0;
+                wstring line(1ul, m_text[pos]);
+                offset.width(m_font.getLineWidth(line));
+                while(pos <= caret->caret)
+                {
+                    if(offset.width() > limit)
+                    {
+                        offset.height(offset.height() + m_font.getHeight());
+                        line.clear();
+                        line += m_text[pos];
+                    }
+                    line += m_text[++pos];
+                    offset.width(m_font.getLineWidth(line));
+                }
+                caret->setPosition(Point(offset.width(), offset.height()));
+            }
+            else
+            {
+                Size offset = m_font.getTextSize(wstring(m_text, 0ul, linebreak), limit);
+                size_type pos = linebreak+1;
+                wstring line(1ul, m_text[pos]);
+                offset.width(m_font.getLineWidth(line));
+                while(pos <= caret->caret)
+                {
+                    if(offset.width() > limit)
+                    {
+                        offset.height(offset.height() + m_font.getHeight());
+                        line.clear();
+                        line += m_text[pos];
+                    }
+                    line += m_text[++pos];
+                    offset.width(m_font.getLineWidth(line));
+                }
+                caret->setPosition(Point(offset.width(), offset.height()));
+            }
+        }
+        else
+        {
+            if(caret->caret == 0ul)
+            {
+                caret->setPosition(Point());
+            }
+            else
+            {
+                size_type linebreak = m_text.find_last_of(L'\n', caret->caret - ulong(m_text[caret->caret] == L'\n'));
+                if(linebreak == npos) {
+                    caret->setPosition(Point(m_font.getLineWidth(wstring(m_text, 0ul, caret->caret)), 0.));
+                }
+                else {
+                    Point pos(m_font.getLineWidth(wstring(m_text, linebreak + 1ul, caret->caret - linebreak - 1ul)), m_font.getHeight());
+                    if(linebreak != 0ul) {
+                        linebreak = m_text.find_last_of(L'\n', linebreak - 1ul);
+                        while(linebreak != npos)
+                        {
+                            pos.y(pos.y() + m_font.getHeight());
+                            if(linebreak == 0ul) {
+                                linebreak = npos;
+                            }
+                            else {
+                                linebreak = m_text.find_last_of(L'\n', max(linebreak, 1ul) - 1ul);
+                            }
+                        }
+                    }
+                    caret->setPosition(pos);
+                }
+            }
+            
+        }
+    }
                 
     void GuiTextEditor::eraseAtCaret(const sCaret caret)
     {
@@ -431,6 +514,7 @@ namespace Kiwi
                 m_text.insert(caret->caret, text);
             }
             caret->start = caret->caret = min(caret->caret + text.size(), m_text.size());
+            
             vector<sListener> listeners(getListeners());
             for(auto it : listeners)
             {
@@ -601,85 +685,6 @@ namespace Kiwi
             caret->start = caret->caret;
         }
         caret->dist  = npos;
-    }
-    
-    void GuiTextEditor::setCaretPosition(const sCaret caret, const double limit) const noexcept
-    {
-        lock_guard<mutex> guard(m_text_mutex);
-        if(m_wrapped)
-        {
-            const size_type linebreak = m_text.find_last_of(L'\n', caret->caret);
-            if(linebreak == npos)
-            {
-                Size offset;
-                size_type pos = 0;
-                wstring line(1ul, m_text[pos]);
-                offset.width(m_font.getLineWidth(line));
-                while(pos <= caret->caret)
-                {
-                    if(offset.width() > limit)
-                    {
-                        offset.height(offset.height() + m_font.getHeight());
-                        line.clear();
-                        line += m_text[pos];
-                    }
-                    line += m_text[++pos];
-                    offset.width(m_font.getLineWidth(line));
-                }
-                caret->setPosition(Point(offset.width(), offset.height()));
-            }
-            else
-            {
-                Size offset = m_font.getTextSize(wstring(m_text, 0ul, linebreak), limit);
-                size_type pos = linebreak+1;
-                wstring line(1ul, m_text[pos]);
-                offset.width(m_font.getLineWidth(line));
-                while(pos <= caret->caret)
-                {
-                    if(offset.width() > limit)
-                    {
-                        offset.height(offset.height() + m_font.getHeight());
-                        line.clear();
-                        line += m_text[pos];
-                    }
-                    line += m_text[++pos];
-                    offset.width(m_font.getLineWidth(line));
-                }
-                caret->setPosition(Point(offset.width(), offset.height()));
-            }
-        }
-        else
-        {
-            if(caret->caret == 0ul)
-            {
-                caret->setPosition(Point());
-            }
-            else
-            {
-                size_type linebreak = m_text.find_last_of(L'\n', caret->caret - ulong(m_text[caret->caret] == L'\n'));
-                if(linebreak == npos) {
-                    caret->setPosition(Point(m_font.getLineWidth(wstring(m_text, 0ul, caret->caret)), 0.));
-                }
-                else {
-                    Point pos(m_font.getLineWidth(wstring(m_text, linebreak + 1ul, caret->caret - linebreak - 1ul)), m_font.getHeight());
-                    if(linebreak != 0ul) {
-                        linebreak = m_text.find_last_of(L'\n', linebreak - 1ul);
-                        while(linebreak != npos)
-                        {
-                            pos.y(pos.y() + m_font.getHeight());
-                            if(linebreak == 0ul) {
-                                linebreak = npos;
-                            }
-                            else {
-                                linebreak = m_text.find_last_of(L'\n', max(linebreak, 1ul) - 1ul);
-                            }
-                        }
-                    }
-                    caret->setPosition(pos);
-                }
-            }
-            
-        }
     }
 
     // ================================================================================ //
