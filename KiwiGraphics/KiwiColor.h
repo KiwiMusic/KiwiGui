@@ -392,6 +392,7 @@ namespace Kiwi
         static const Color green;
         static const Color blue;
         static const Color yellow;
+        static const Color transparent;
     };
 }
 
