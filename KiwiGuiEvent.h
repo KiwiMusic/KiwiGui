@@ -70,6 +70,12 @@ namespace Kiwi
     typedef shared_ptr<const GuiButton>         scGuiButton;
     typedef weak_ptr<const GuiButton>           wcGuiButton;
     
+    class GuiScrollBar;
+    typedef shared_ptr<GuiScrollBar>            sGuiScrollBar;
+    typedef weak_ptr<GuiScrollBar>              wGuiScrollBar;
+    typedef shared_ptr<const GuiScrollBar>      scGuiScrollBar;
+    typedef weak_ptr<const GuiScrollBar>        wcGuiScrollBar;
+    
     class GuiContainer;
     typedef shared_ptr<GuiContainer>            sGuiContainer;
     typedef weak_ptr<GuiContainer>              wGuiContainer;
