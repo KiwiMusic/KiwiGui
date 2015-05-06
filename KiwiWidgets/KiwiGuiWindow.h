@@ -42,8 +42,7 @@ namespace Kiwi
         typedef weak_ptr<const Header>      wcHeader;
         
     private:
-        const sGuiContainer m_container;
-        Color  m_color;
+        Color           m_color;
     public:
         
         //! The window constructor.
@@ -54,7 +53,7 @@ namespace Kiwi
          @param buttons The buttons available at the top of the window.
          @param show    If the window should be popup.
          */
-        GuiWindow(sGuiContext context, Color const& color = Color(0., 0., 0., 1.)) noexcept;
+        GuiWindow(sGuiContext context, Color const& color = Colors::white) noexcept;
         
         //! The window destructor.
         /** The function does nothing.
@@ -83,18 +82,6 @@ namespace Kiwi
          */
         void draw(scGuiView view, Sketch& sketch) const override;
         
-        //! Adds a sketcher to the window.
-        /** The function adds sketcher to the window that will be displayed inside the window container.
-         @param sketcher The sketcher.
-         */
-        void addContent(sGuiSketcher sketcher) noexcept;
-        
-        //! Remove a sketcher from the window.
-        /** The function removes a sketcher from the window container.
-         @param sketcher The sketcher.
-         */
-        void removeContent(sGuiSketcher sketcher) noexcept;
-        
         //! Displays the windows.
         /** This function displays the window in the desktop.
          */
@@ -109,7 +96,13 @@ namespace Kiwi
         /** This function removes the window from the desktop.
          */
         void minimize();
-
+        
+        //! Notify the manager that the values of an attribute has changed.
+        /** The function notifies the manager that the values of an attribute has changed.
+         @param attr An attribute.
+         @return pass true to notify changes to listeners, false if you don't want them to be notified
+         */
+        bool notify(sAttr attr) override;
     };
     
     // ================================================================================ //

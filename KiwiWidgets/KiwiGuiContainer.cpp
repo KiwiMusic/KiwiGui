@@ -39,11 +39,6 @@ namespace Kiwi
     {
         ;
     }
-    
-    void GuiContainer::draw(scGuiView ctrl, Sketch& sketch) const
-    {
-        
-    }
 
     void GuiContainer::addContent(sGuiSketcher sketcher) noexcept
     {
@@ -53,6 +48,49 @@ namespace Kiwi
     void GuiContainer::removeContent(sGuiSketcher sketcher) noexcept
     {
         removeChild(sketcher);
+    }
+    
+    // ================================================================================ //
+    //                                  GUI VIEW PORT                                   //
+    // ================================================================================ //
+    
+    GuiViewPort::GuiViewPort(sGuiContext context) noexcept : GuiSketcher(context),
+    m_container(make_shared<GuiContainer>(context))
+    {
+        m_container->setBounds(getBounds());
+        addChild(m_container);
+    }
+    
+    GuiViewPort::~GuiViewPort() noexcept
+    {
+        ;
+    }
+    
+    void GuiViewPort::setContent(sGuiSketcher sketcher) noexcept
+    {
+        if(m_content)
+        {
+            m_container->removeContent(sketcher);
+        }
+        m_container->addContent(sketcher);
+        m_container->setBounds(getBounds());
+    }
+    
+    void GuiViewPort::setContentPosition(Point const& position)
+    {
+        m_container->setPosition(-position);
+        //m_container->setSize(getSize() + Size(position.x(), position.y()));
+    }
+    
+    bool GuiViewPort::notify(sAttr attr)
+    {
+        if(attr->getName() == Tags::size)
+        {
+            const Point pos = m_container->getPosition();
+            m_container->setSize(getSize());
+            //m_container->setSize(getSize() + Size(pos.x(), pos.y()));
+        }
+        return true;
     }
 
 }
