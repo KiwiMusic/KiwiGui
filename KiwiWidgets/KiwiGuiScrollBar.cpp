@@ -96,7 +96,7 @@ namespace Kiwi
         getView()->redraw();
     }
     
-    void GuiScrollBar::Controller::draw(Sketch& sketch)
+    void GuiScrollBar::Controller::draw(sGuiView view, Sketch& sketch)
     {
         if(m_scrollbar->getThumbDisplayTime() < 0.) {m_visible = true;}
         sketch.fillAll(m_scrollbar->getBackgroundColor());
@@ -117,7 +117,7 @@ namespace Kiwi
         }
     }
     
-    bool GuiScrollBar::Controller::receive(MouseEvent const& event)
+    bool GuiScrollBar::Controller::receive(sGuiView view, MouseEvent const& event)
     {
         cout << "scroll bar receive mouse event" << endl;
         if(event.isWheel())
@@ -144,7 +144,7 @@ namespace Kiwi
             else if(m_scrollbar->getThumbDisplayTime() > 0.)
             {
                 m_visible = false;
-                getView()->redraw();
+                view->redraw();
             }
         }
         

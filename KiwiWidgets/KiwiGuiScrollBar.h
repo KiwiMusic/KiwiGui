@@ -203,16 +203,17 @@ namespace Kiwi
         
         //! The paint method that can be override.
         /** The function shoulds draw some stuff in the sketch.
+         @param view    The view that ask to draw.
          @param sketch  A sketch to draw.
          */
-        void draw(Sketch& sketch) override;
+        void draw(sGuiView view, Sketch& sketch) override;
         
         //! The mouse receive method.
         /** The function pass the mouse event to the sketcher if it inherits from mouser.
          @param event    A mouser event.
          @return true if the class has done something with the event otherwise false
          */
-        bool receive(MouseEvent const& event) override;
+        bool receive(sGuiView view, MouseEvent const& event) override;
         
         //! Sets the maximum and minimum limits of the thumb.
         /** The function sets the maximum and minimum limits of the thumb.
