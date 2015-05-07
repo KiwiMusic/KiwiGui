@@ -211,12 +211,19 @@ namespace Kiwi
         return m_views.find(view) != m_views.end();
     }
     
-    void GuiSketcher::redraw() noexcept
+    void GuiSketcher::redraw(sGuiView view) noexcept
     {
-        vector<sGuiView> views(getViews());
-        for(auto it : views)
+        if(view && hasView(view))
         {
-            it->redraw();
+            view->redraw();
+        }
+        else
+        {
+            vector<sGuiView> views(getViews());
+            for(auto it : views)
+            {
+                it->redraw();
+            }
         }
     }
     

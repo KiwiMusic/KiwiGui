@@ -186,10 +186,11 @@ namespace Kiwi
     // ================================================================================ //
     
     
-    const Color Colors::black   = Color(0., 0., 0., 1.);
-    const Color Colors::white   = Color(1., 1., 1., 1.);
-    const Color Colors::red     = Color(1., 0., 0., 1.);
-    const Color Colors::green   = Color(0., 1., 0., 1.);
-    const Color Colors::blue    = Color(0., 0., 1., 1.);
-    const Color Colors::yellow  = Color(1., 1., 0., 1.);
+    const Color Colors::black       = Color(0., 0., 0., 1.);
+    const Color Colors::white       = Color(1., 1., 1., 1.);
+    const Color Colors::red         = Color(1., 0., 0., 1.);
+    const Color Colors::green       = Color(0., 1., 0., 1.);
+    const Color Colors::blue        = Color(0., 0., 1., 1.);
+    const Color Colors::yellow      = Color(1., 1., 0., 1.);
+    const Color Colors::transparent = Color(0., 0., 0., 0.);
 }

@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_TEXT_EDITOR__
 #define __DEF_KIWI_GUI_TEXT_EDITOR__
 
-#include "KiwiGuiView.h"
+#include "KiwiGuiViewPort.h"
 
 namespace Kiwi
 {
@@ -160,7 +160,7 @@ namespace Kiwi
         
         set<wCaret,
         owner_less<wCaret>>     m_carets;
-        mutex                   m_carets_mutex;        
+        mutable mutex           m_carets_mutex;
     public:
         
         //! Constructor.
@@ -482,6 +482,25 @@ namespace Kiwi
         }
         
         //! Gets the carets.
+        /** The functions gets the carets.
+         @return The carets.
+         */
+        inline vector<sCaret> getCarets() const noexcept
+        {
+            vector<sCaret> carets;
+            lock_guard<mutex> guard(m_carets_mutex);
+            for(auto it = m_carets.begin(); it != m_carets.end();)
+            {
+                sCaret l = (*it).lock();
+                if(l)
+                {
+                    carets.push_back(l); ++it;
+                }
+            }
+            return carets;
+        }
+        
+        //! Gets the carets.
         /** The functions gets the carets removes the deprecated ones.
          @return The carets.
          */
@@ -703,28 +722,28 @@ namespace Kiwi
         /** The function shoulds draw some stuff in the sketch.
          @param sketch  A sketch to draw.
          */
-        void draw(Sketch& sketch) override;
+        void draw(sGuiView view, Sketch& sketch) override;
         
         //! The mouse receive method.
         /** The function pass the mouse event to the sketcher if it inherits from mouser.
          @param event    A mouser event.
          @return true if the class has done something with the event otherwise false
          */
-        bool receive(MouseEvent const& event) override;
+        bool receive(sGuiView view, MouseEvent const& event) override;
         
         //! The keyboard receive method.
         /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
          @param event    A keyboard event.
          @return true if the class has done something with the event otherwise false
          */
-        bool receive(KeyboardEvent const& event) override;
+        bool receive(sGuiView view,KeyboardEvent const& event) override;
         
         //! The keyboard focus receive method.
         /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
          @param event    A focus event.
          @return true if the class has done something with the event otherwise false
          */
-        bool receive(KeyboardFocus const event)  override;
+        bool receive(sGuiView view,KeyboardFocus const event) override;
         
         
     };

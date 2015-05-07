@@ -102,7 +102,7 @@ namespace Kiwi
 		
 		//! The draw method that should be override.
 		/** The function shoulds draw some stuff in the sketch.
-         @param ctrl    The controller that ask the draw.
+         @param view    The view that ask the draw.
 		 @param sketch  A sketch to draw.
 		 */
 		virtual void draw(scGuiView view, Sketch& sketch) const = 0;
@@ -206,10 +206,11 @@ namespace Kiwi
          */
         vector<sGuiSketcher> getChilds() const noexcept;
     
-		//! Send a notification to each view that the sketcher needs to be redrawn.
-		/** The function sends a notification to each view that the sketcher should be redrawn.
+		//! Send a notification to one or all views that the sketcher needs to be redrawn.
+		/** The function sends a notification to one or all views that the sketcher should be redrawn.
+         @param view The view that should be redrawn or nothing for all.
 		 */
-		void redraw() noexcept;
+		void redraw(sGuiView view = sGuiView()) noexcept;
         
         //! Send a notification to a view that the sketcher needs the keyboard focus.
         /** The function sends a notification to a view that the sketcher wants the keyboard focus. If the view is empty, the notification will be sent to the first view.

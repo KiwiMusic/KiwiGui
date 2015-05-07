@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_CONTAINER__
 #define __DEF_KIWI_GUI_CONTAINER__
 
-#include "KiwiGuiButton.h"
+#include "KiwiGuiScrollBar.h"
 
 namespace Kiwi
 {
@@ -65,7 +65,7 @@ namespace Kiwi
          @param ctrl    The controller that ask the draw.
          @param sketch  A sketch to draw.
          */
-        void draw(scGuiView view, Sketch& sketch) const override;
+        void draw(scGuiView view, Sketch& sketch) const override {};
         
         //! Adds a sketcher to the window.
         /** The function adds sketcher to the window that will be displayed inside the window container.

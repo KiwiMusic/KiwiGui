@@ -205,21 +205,28 @@ namespace Kiwi
          @param event    A mouser event.
          @return true if the class has done something with the event otherwise false
          */
-        bool receive(MouseEvent const& event);
+        inline void draw(Sketch& sketch) {m_controller->draw(shared_from_this(), sketch);}
+        
+        //! The mouse receive method.
+        /** The function pass the mouse event to the sketcher if it inherits from mouser.
+         @param event    A mouser event.
+         @return true if the class has done something with the event otherwise false
+         */
+        inline bool receive(MouseEvent const& event) {return m_controller->receive(shared_from_this(), event);}
         
         //! The keyboard receive method.
         /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
          @param event    A keyboard event.
          @return true if the class has done something with the event otherwise false
          */
-        bool receive(KeyboardEvent const& event);
+        inline bool receive(KeyboardEvent const& event) {return m_controller->receive(shared_from_this(), event);}
         
         //! The keyboard focus receive method.
         /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
          @param event    A focus event.
          @return true if the class has done something with the event otherwise false
          */
-        bool receive(KeyboardFocus event);
+        inline bool receive(KeyboardFocus event) {return m_controller->receive(shared_from_this(), event);}
         
         //! Retrieves the action codes.
         /** The function retreives the action codes from the the manager.

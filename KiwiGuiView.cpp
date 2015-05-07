@@ -151,42 +151,6 @@ namespace Kiwi
         }
     }
     
-    bool GuiView::receive(MouseEvent const& event)
-    {
-        if(m_controller->wantMouse())
-        {
-            return m_controller->receive(event);
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
-    bool GuiView::receive(KeyboardEvent const& event)
-    {
-        if(m_controller->wantKeyboard())
-        {
-            return m_controller->receive(event);
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
-    bool GuiView::receive(KeyboardFocus event)
-    {
-        if(m_controller->wantKeyboard())
-        {
-            return m_controller->receive(event);
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
     vector<Action::Code> GuiView::getActionCodes()
     {
         if(m_controller->wantActions())

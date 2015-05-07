@@ -44,9 +44,9 @@ namespace Kiwi
         public:
             virtual ~Listener() noexcept {};
             
-            //! Receives the notfivation that a button has been pressed.
-            /** The function receives the notfivation that a button has been pressed.
-             @param The button.
+            //! Receives the notification that a button has been pressed.
+            /** The function receives the notification that a button has been pressed.
+             @param button The button.
              */
             virtual void buttonPressed(sGuiButton button) = 0;
         };

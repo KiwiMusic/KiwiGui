@@ -49,46 +49,67 @@ namespace Kiwi
         return getSketcher()->getSize();
     }
     
-    void GuiController::setVisible(const bool visible)
+    void GuiController::setBounds(Rectangle const& bounds) noexcept
     {
-        sGuiView view = getView();
-        if(view)
-        {
-            view->setVisible(visible);
-        }
+        m_bounds = bounds;
     }
     
-    void GuiController::draw(Sketch& sketch)
+    void GuiController::setBounds(Rectangle&& bounds) noexcept
     {
-        getSketcher()->draw(getView(), sketch);
+        m_bounds = forward<Rectangle>(bounds);
     }
     
-    bool GuiController::receive(MouseEvent const& event)
+    void GuiController::setPosition(Point const& position) noexcept
+    {
+        m_bounds.position(position);
+    }
+    
+    void GuiController::setPosition(Point&& position) noexcept
+    {
+        m_bounds.position(forward<Point>(position));
+    }
+    
+    void GuiController::setSize(Size const& size) noexcept
+    {
+        m_bounds.size(size);
+    }
+    
+    void GuiController::setSize(Size&& size) noexcept
+    {
+        m_bounds.size(forward<Size>(size));
+    }
+    
+    void GuiController::draw(sGuiView view, Sketch& sketch)
+    {
+        getSketcher()->draw(view, sketch);
+    }
+    
+    bool GuiController::receive(sGuiView view, MouseEvent const& event)
     {
         sGuiMouser mouser = dynamic_pointer_cast<GuiMouser>(getSketcher());
         if(mouser)
         {
-            return mouser->receive(getView(), event);
+            return mouser->receive(view, event);
         }
         return false;
     }
     
-    bool GuiController::receive(KeyboardEvent const& event)
+    bool GuiController::receive(sGuiView view, KeyboardEvent const& event)
     {
         sGuiKeyboarder keyboarder = dynamic_pointer_cast<GuiKeyboarder>(getSketcher());
         if(keyboarder)
         {
-            return keyboarder->receive(getView(), event);
+            return keyboarder->receive(view, event);
         }
         return false;
     }
     
-    bool GuiController::receive(KeyboardFocus const event)
+    bool GuiController::receive(sGuiView view, KeyboardFocus const event)
     {
         sGuiKeyboarder keyboarder = dynamic_pointer_cast<GuiKeyboarder>(getSketcher());
         if(keyboarder)
         {
-            return keyboarder->receive(getView(), event);
+            return keyboarder->receive(view, event);
         }
         return false;
     }

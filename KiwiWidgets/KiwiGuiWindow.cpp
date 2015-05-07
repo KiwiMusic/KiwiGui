@@ -31,13 +31,11 @@ namespace Kiwi
     // ================================================================================ //
 	
     GuiWindow::GuiWindow(sGuiContext context, Color const& color) noexcept : GuiSketcher(context),
-    m_container(make_shared<GuiContainer>(context))
+    m_color(Colors::white)
     {
         setPosition(Point(0., 0.));
         setSize(Size(800., 600.));
-        setBackgroundColor(Color(1., 1., 1., 0.));
-        addChild(m_container);
-        m_container->setSize(getSize());
+        setBackgroundColor(color);
     }
     
     GuiWindow::~GuiWindow() noexcept
@@ -55,18 +53,7 @@ namespace Kiwi
 
     void GuiWindow:: draw(scGuiView ctrl, Sketch& sketch) const
     {
-        sketch.setColor(m_color);
-        sketch.fillRectangle(sketch.getBounds(), 4.);
-    }
-    
-    void GuiWindow::addContent(sGuiSketcher sketcher) noexcept
-    {
-        m_container->addContent(sketcher);
-    }
-    
-    void GuiWindow::removeContent(sGuiSketcher sketcher) noexcept
-    {
-        m_container->removeContent(sketcher);
+        sketch.fillAll(m_color);
     }
     
     void GuiWindow::display()
@@ -108,6 +95,15 @@ namespace Kiwi
                 views[i]->setMinimize(true);
             }
         }
+    }
+    
+    bool GuiWindow::notify(sAttr attr)
+    {
+        if(attr->getName() == Tags::size)
+        {
+            ;
+        }
+        return true;
     }
     
     // ================================================================================ //

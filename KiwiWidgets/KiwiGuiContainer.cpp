@@ -39,11 +39,6 @@ namespace Kiwi
     {
         ;
     }
-    
-    void GuiContainer::draw(scGuiView ctrl, Sketch& sketch) const
-    {
-        
-    }
 
     void GuiContainer::addContent(sGuiSketcher sketcher) noexcept
     {
@@ -54,7 +49,6 @@ namespace Kiwi
     {
         removeChild(sketcher);
     }
-
 }
 
 
