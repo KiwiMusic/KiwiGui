@@ -37,6 +37,7 @@ namespace Kiwi
         friend GuiSketcher;
     private:
         const sGuiSketcher  m_sketcher;
+        Rectangle           m_bounds;
         wGuiView            m_view;
         
         //! Sets the view of the controller.
@@ -177,30 +178,34 @@ namespace Kiwi
         
         //! The paint method that can be override.
         /** The function shoulds draw some stuff in the sketch.
+         @param view    The view that ask to draw.
          @param sketch  A sketch to draw.
          */
-        virtual void draw(Sketch& sketch);
+        virtual void draw(sGuiView view, Sketch& sketch);
         
         //! The mouse receive method.
         /** The function pass the mouse event to the sketcher if it inherits from mouser.
+         @param view    The view that gives the event.
          @param event    A mouser event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(MouseEvent const& event);
+        virtual bool receive(sGuiView view, MouseEvent const& event);
         
         //! The keyboard receive method.
         /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
+         @param view    The view that gives the event.
          @param event    A keyboard event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(KeyboardEvent const& event);
+        virtual bool receive(sGuiView view, KeyboardEvent const& event);
         
         //! The keyboard focus receive method.
         /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
+         @param view    The view that gives the event.
          @param event    A focus event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(KeyboardFocus const event);
+        virtual bool receive(sGuiView view, KeyboardFocus const event);
         
         //! Retrieves the action codes.
         /** The function retreives the action codes from the the manager.
@@ -247,6 +252,42 @@ namespace Kiwi
          @return The position.
          */
         Point getMouseRelativePosition() const noexcept;
+        
+        //! Sets the bounds of the controller.
+        /** The function sets the bounds of the controller.
+         @param bounds The bounds of the controller.
+         */
+        void setBounds(Rectangle const& bounds) noexcept;
+        
+        //! Sets the bounds of the controller.
+        /** The function sets the bounds of the controller.
+         @param bounds The bounds of the controller.
+         */
+        void setBounds(Rectangle&& bounds) noexcept;
+        
+        //! Sets the position of the controller.
+        /** The function sets the position of the controller.
+         @param position The position of the controller.
+         */
+        void setPosition(Point const& position) noexcept;
+        
+        //! Sets the position of the controller.
+        /** The function sets the position of the controller.
+         @param position The position of the controller.
+         */
+        void setPosition(Point&& position) noexcept;
+        
+        //! Sets the size of the controller.
+        /** The function sets the size of the controller.
+         @param size The size of the controller.
+         */
+        void setSize(Size const& size) noexcept;
+        
+        //! Sets the size of the controller.
+        /** The function sets the size of the controller.
+         @param size The size of the controller.
+         */
+        void setSize(Size&& size) noexcept;
     };
 }
 

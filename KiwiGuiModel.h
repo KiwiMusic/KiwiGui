@@ -102,7 +102,7 @@ namespace Kiwi
 		
 		//! The draw method that should be override.
 		/** The function shoulds draw some stuff in the sketch.
-         @param ctrl    The controller that ask the draw.
+         @param view    The view that ask the draw.
 		 @param sketch  A sketch to draw.
 		 */
 		virtual void draw(scGuiView view, Sketch& sketch) const = 0;
