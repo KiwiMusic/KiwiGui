@@ -49,6 +49,15 @@ namespace Kiwi
         return getSketcher()->getSize();
     }
     
+    void GuiController::setVisible(const bool visible)
+    {
+        sGuiView view = getView();
+        if(view)
+        {
+            view->setVisible(visible);
+        }
+    }
+    
     void GuiController::draw(Sketch& sketch)
     {
         getSketcher()->draw(getView(), sketch);

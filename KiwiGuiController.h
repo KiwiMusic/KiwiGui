@@ -52,7 +52,10 @@ namespace Kiwi
         //! The controller constructor.
         /** The function does nothing.
          */
-        inline GuiController(sGuiSketcher sketcher) noexcept : m_sketcher(sketcher) {}
+        inline GuiController(sGuiSketcher sketcher) noexcept : m_sketcher(sketcher)
+        {
+            assert(m_sketcher);
+        }
         
         //! The controller destructor.
         /** The function does nothing.
@@ -103,7 +106,7 @@ namespace Kiwi
             return m_sketcher->getContext();
         }
         
-        //! Retrieves the sketcher of the controller.
+        //! Retrieve the sketcher of the controller.
         /** The function retrieves the sketcher of the controller.
          @return The sketcher.
          */
@@ -112,7 +115,7 @@ namespace Kiwi
             return m_sketcher;
         }
         
-        //! Receives if the controller wants the mouse.
+        //! Retrieve if the controller wants the mouse.
         /** This function retrieves if the controller wants the mouse.
          @return true if the controller wants the mouse, othrewise false.
          */
@@ -126,7 +129,7 @@ namespace Kiwi
             return false;
         }
         
-        //! Receives if the controller wants the keyboard.
+        //! Retrieve if the controller wants the keyboard.
         /** This function retrieves if the controller wants the keyboard.
          @return true if the controller wants the keyboard, othrewise false.
          */
@@ -140,7 +143,7 @@ namespace Kiwi
             return false;
         }
         
-        //! Receives if the controller wants actions.
+        //! Retrieve if the controller wants actions.
         /** This function retrieves if the controller wants the actions.
          @return true if the controller wants the actions, othrewise false.
          */
@@ -173,6 +176,21 @@ namespace Kiwi
         inline Rectangle getBounds() const noexcept
         {
             return Rectangle(getPosition(), getSize());
+        }
+        
+        //! Make the sketcher's view visible or invisible.
+        /** This function make the sketcher's view visible or invisible.
+         @param visible True to make it visible, otherwise false.
+         */
+        virtual void setVisible(const bool visible);
+        
+        //! Retrieve if the sketcher is visible.
+        /** The function retrieves if the sketcher is visible.
+         @param true if the sketcher is visible, otherwise false.
+         */
+        virtual bool isVisible() const noexcept
+        {
+            return false;
         }
         
         //! The paint method that can be override.

@@ -160,6 +160,12 @@ namespace Kiwi
          */
         virtual void grabFocus() = 0;
         
+        //! Make the view visible or invisible.
+        /** This function make the view visible or invisible.
+         @param visible True to make it visible, otherwise false.
+         */
+        virtual void setVisible(const bool visible) = 0;
+        
         //! Adds the view to the desktop.
         /** This function adds the view to the desktop as a top level window.
          */
