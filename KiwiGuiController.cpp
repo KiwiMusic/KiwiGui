@@ -79,6 +79,15 @@ namespace Kiwi
         m_bounds.size(forward<Size>(size));
     }
     
+    void GuiController::setVisible(const bool visible)
+    {
+        sGuiView view = getView();
+        if(view)
+        {
+            view->setVisible(visible);
+        }
+    }
+    
     void GuiController::draw(sGuiView view, Sketch& sketch)
     {
         getSketcher()->draw(view, sketch);
