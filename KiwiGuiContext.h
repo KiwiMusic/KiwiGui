@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_CONTEXT__
 #define __DEF_KIWI_GUI_CONTEXT__
 
-#include "KiwiGuiTextEditor.h"
+#include "KiwiGuiView.h"
 
 namespace Kiwi
 {
