@@ -38,6 +38,9 @@ namespace Kiwi
     private:
         const sGuiSketcher  m_sketcher;
         Rectangle           m_bounds;
+        bool                m_want_mouse;
+        bool                m_want_keyboard;
+        bool                m_want_action;
         wGuiView            m_view;
         
         //! Sets the view of the controller.
@@ -159,73 +162,70 @@ namespace Kiwi
         /** The function retrieves the position of the sketcher.
          @return The position of the sketcher.
          */
-        virtual Point getPosition() const noexcept;
+        inline Point getPosition() const noexcept {return m_bounds.position();}
         
         //! Retrieve the size of the sketcher.
         /** The function retrieves the size of the sketcher.
          @return The size of the sketcher.
          */
-        virtual Size getSize() const noexcept;
+        inline Size getSize() const noexcept {return m_bounds.size();}
         
         //! Retrieve the bounds of the object.
         /** The function retrieves the bounds of the object.
          @return The bounds of the object.
          */
-        inline Rectangle getBounds() const noexcept
-        {
-            return Rectangle(getPosition(), getSize());
-        }
+        inline Rectangle getBounds() const noexcept {return m_bounds;}
         
-        //! The paint method that can be override.
-        /** The function shoulds draw some stuff in the sketch.
-         @param view    The view that ask to draw.
-         @param sketch  A sketch to draw.
+        //! The draw method that can be override.
+        /** The function shoulds draw some stuff.
+         @param view    The view that owns the controller.
+         @param sketch  The sketch to draw.
          */
         virtual void draw(sGuiView view, Sketch& sketch);
         
-        //! The mouse receive method.
+        //! The mouse receive method that can be override.
         /** The function pass the mouse event to the sketcher if it inherits from mouser.
-         @param view    The view that gives the event.
-         @param event    A mouser event.
+         @param view    The view that owns the controller.
+         @param event   The mouser event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(sGuiView view, MouseEvent const& event);
+        virtual bool receive(sGuiView view, MouseEvent const& event) {return false;}
         
-        //! The keyboard receive method.
+        //! The keyboard receive method that can be override.
         /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
-         @param view    The view that gives the event.
-         @param event    A keyboard event.
+         @param view    The view that owns the controller.
+         @param event   The keyboard event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(sGuiView view, KeyboardEvent const& event);
+        virtual bool receive(sGuiView view, KeyboardEvent const& event) {return false;}
         
-        //! The keyboard focus receive method.
+        //! The focus receive method that can be override.
         /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
-         @param view    The view that gives the event.
-         @param event    A focus event.
+         @param view    The view that owns the controller.
+         @param event   The focus event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(sGuiView view, KeyboardFocus const event);
+        virtual bool receive(sGuiView view, KeyboardFocus const event) {return false;}
         
         //! Retrieves the action codes.
         /** The function retreives the action codes from the the manager.
          @return The action codes.
          */
-        virtual vector<Action::Code> getActionCodes();
+        virtual vector<Action::Code> getActionCodes() {return vector<Action::Code>();}
         
         //! Retrieves an action from the manager.
         /** The function retreives an action from the the manager.
          @param code The code of the action.
          @return The action.
          */
-        virtual Action getAction(const ulong code);
+        virtual Action getAction(const ulong code) {return Action();}
         
         //! Performs an action.
         /** The function performs an action.
          @param code The code of the action.
          @return true if the action has been performed, otherwise false.
          */
-        virtual bool performAction(const ulong code);
+        virtual bool performAction(const ulong code) {return false;}
         
         //! Test if the point lies into the sketcher of the controler.
         /** The tests if the point lies into the sketcher of the controler.

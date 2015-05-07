@@ -35,11 +35,12 @@ namespace Kiwi
     m_scrollbar_h(make_shared<GuiScrollBar>(context, GuiScrollBar::Horizontal)),
     m_scrollbar_v(make_shared<GuiScrollBar>(context, GuiScrollBar::Vertical))
     {
+        /*
         Rectangle bounds = getBounds();
         m_container->setBounds(bounds);
         m_scrollbar_h->setBounds(Rectangle(0., bounds.height() - 10., bounds.width(), 10.));
         m_scrollbar_v->setBounds(Rectangle(bounds.width() - 10., 0., 10., bounds.height()));
-
+         */
         addChild(m_container);
         addChild(m_scrollbar_h);
         addChild(m_scrollbar_v);
@@ -57,15 +58,15 @@ namespace Kiwi
             m_container->removeContent(sketcher);
         }
         m_container->addContent(sketcher);
-        m_container->setBounds(getBounds());
+        //m_container->setBounds(getBounds());
     }
     
     void GuiViewPort::setContentPosition(Point const& position)
     {
-        m_container->setPosition(-position);
+        //m_container->setPosition(-position);
         //m_container->setSize(getSize() + Size(position.x(), position.y()));
     }
-    
+    /*
     bool GuiViewPort::notify(sAttr attr)
     {
         if(attr->getName() == Tags::size)
@@ -76,6 +77,7 @@ namespace Kiwi
         }
         return true;
     }
+     */
 
 }
 

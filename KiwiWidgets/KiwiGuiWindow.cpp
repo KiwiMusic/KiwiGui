@@ -33,8 +33,9 @@ namespace Kiwi
     GuiWindow::GuiWindow(sGuiContext context, Color const& color) noexcept : GuiSketcher(context),
     m_color(Colors::white)
     {
-        setPosition(Point(0., 0.));
-        setSize(Size(800., 600.));
+        int todo;
+        //setPosition(Point(0., 0.));
+        //setSize(Size(800., 600.));
         setBackgroundColor(color);
     }
     
@@ -97,15 +98,6 @@ namespace Kiwi
         }
     }
     
-    bool GuiWindow::notify(sAttr attr)
-    {
-        if(attr->getName() == Tags::size)
-        {
-            ;
-        }
-        return true;
-    }
-    
     // ================================================================================ //
     //                              GUI WINDOW HEADER                                   //
     // ================================================================================ //
@@ -126,11 +118,13 @@ namespace Kiwi
     m_bd_color(bdcolor),
     m_txt_color(txtcolor)
     {
+        /*
         setPosition(Point(0., 0.));
         setSize(Size(window->getSize().width(), 24.));
         m_button_close->setBounds(Rectangle(6., 6., 12., 12.));
         m_button_minimize->setBounds(Rectangle(24, 6., 12., 12.));
         m_button_maximize->setBounds(Rectangle(42, 6., 12., 12.));
+         */
     }
     
     GuiWindow::Header::~Header() noexcept
@@ -218,7 +212,7 @@ namespace Kiwi
         sketch.setColor(m_bd_color);
         sketch.drawRectangle(sketch.getBounds().withZeroOrigin(), 1.);
         sketch.setColor(m_txt_color);
-        sketch.drawText(m_title, 60., 0., getSize().width() - 120., getSize().height(), Font::Centred);
+        //sketch.drawText(m_title, 60., 0., getSize().width() - 120., getSize().height(), Font::Centred);
     }
     
     bool GuiWindow::Header::receive(scGuiView view, MouseEvent const& event)
@@ -233,7 +227,7 @@ namespace Kiwi
             sGuiWindow window = getWindow();
             if(window)
             {
-                window->setPosition(window->getPosition() + position - m_last_pos);
+                //window->setPosition(window->getPosition() + position - m_last_pos);
             }
             m_last_pos = position;
         }
@@ -245,6 +239,7 @@ namespace Kiwi
                 sGuiContext ctxt = getContext();
                 if(ctxt)
                 {
+                    /*
                     const Rectangle bounds = window->getBounds();
                     const Rectangle screen = ctxt->getScreenBounds(bounds.centre());
                     if(screen == bounds)
@@ -256,6 +251,7 @@ namespace Kiwi
                         m_last_bounds = bounds;
                         window->setBounds(screen);
                     }
+                     */
                 }
             }
         }

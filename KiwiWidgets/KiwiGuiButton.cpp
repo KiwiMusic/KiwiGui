@@ -31,76 +31,52 @@ namespace Kiwi
     // ================================================================================ //
 	
     GuiButton::GuiButton(sGuiContext context, Color const& color) noexcept : GuiSketcher(context),
-    m_color(color)
+    m_background_color(color)
     {
         ;
     }
     
-
-    GuiButton::~GuiButton() noexcept
+    void GuiButton::setBackgroundColor(Color const& color) noexcept
     {
-        ;
-    }
-    
-    void GuiButton::setColor(Color const& color) noexcept
-    {
-        if(color != m_color)
+        if(color != m_background_color)
         {
-            m_color = color;
+            m_background_color = color;
             redraw();
         }
     }
     
     void GuiButton::draw(scGuiView view, Sketch& sketch) const
     {
-        const Rectangle bounds = getBounds().withZeroOrigin();
-        sketch.setColor(getColor().darker(0.1));
-        sketch.fillEllipse(bounds);
-        sketch.setColor(getColor());
+        const Rectangle bounds = view->getBounds().withZeroOrigin();
+        sketch.setColor(m_background_color.darker(0.1));
+        sketch.setLineWidth(1.);
+        sketch.drawRectangle(bounds);
+        sketch.setColor(m_background_color);
         sketch.fillEllipse(bounds.reduced(0.5));
     }
     
-    bool GuiButton::receive(scGuiView view, MouseEvent const& event)
+    bool GuiButton::valid(scGuiView view, MouseEvent const& event)
     {
-        if(event.isDown())
+        return event.isDown();
+    }
+    
+    // ================================================================================ //
+    //                              GUI BUTTON CONTROLLER                               //
+    // ================================================================================ //
+    
+    bool GuiButton::Controller::receive(sGuiView view, MouseEvent const& event)
+    {
+        if(m_button->valid(view, event))
         {
-            lock_guard<mutex> guard(m_lists_mutex);
-            auto it = m_lists.begin();
-            while(it != m_lists.end())
+            vector<sListener> listeners(getListeners());
+            for(auto it : listeners)
             {
-                sListener listener = (*it).lock();
-                if(listener)
-                {
-                    listener->buttonPressed(static_pointer_cast<GuiButton>(shared_from_this()));
-                    ++it;
-                }
-                else
-                {
-                    it = m_lists.erase(it);
-                }
+                it->buttonPressed(m_button);
             }
+            return true;
         }
-        return true;
+        return false;
     }
-    
-    void GuiButton::addListener(sListener listener)
-    {
-        if(listener)
-        {
-            lock_guard<mutex> guard(m_lists_mutex);
-            m_lists.insert(listener);
-        }
-    }
-    
-    void GuiButton::removeListener(sListener listener)
-    {
-        if(listener)
-        {
-            lock_guard<mutex> guard(m_lists_mutex);
-            m_lists.erase(listener);
-        }
-    }
-
 }
 
 

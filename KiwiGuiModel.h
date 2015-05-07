@@ -35,7 +35,7 @@ namespace Kiwi
 	//! The sketcher...
 	/** The sketcher...
 	 */
-    class GuiSketcher : public Attr::Manager
+    class GuiSketcher : public inheritable_enable_shared_from_this<GuiSketcher>
 	{
 	private:
         const wGuiContext           m_context;
@@ -72,33 +72,6 @@ namespace Kiwi
          @return The device manager.
          */
         sGuiDeviceManager getDeviceManager() const noexcept;
-        
-        //! Retrieves the position of the sketcher.
-        /** The function retrieves the position of the sketcher.
-         @return The position of the sketcher.
-         */
-        inline Point getPosition() const noexcept
-        {
-            return Attr::Manager::getAttrValue<Point>(Tags::position);
-        }
-        
-        //! Retrieves the size of the sketcher.
-        /** The function retrieves the size of the sketcher.
-         @return The size of the sketcher.
-         */
-        inline Size getSize() const noexcept
-        {
-            return Attr::Manager::getAttrValue<Size>(Tags::size);
-        }
-        
-        //! Retrieves the bounds of the sketcher.
-        /** The function retrieves the bounds of the sketcher.
-         @return The bounds of the sketcher.
-         */
-        inline Rectangle getBounds() const noexcept
-        {
-            return Rectangle(getPosition(), getSize());
-        }
 		
 		//! The draw method that should be override.
 		/** The function shoulds draw some stuff in the sketch.
@@ -137,24 +110,6 @@ namespace Kiwi
          @return true if the sketcher has the view, otherwise false.
          */
         bool hasView(sGuiView view) const noexcept;
-		
-        //! Sets the bounds of the sketcher.
-        /** The function sets the bounds of the sketcher.
-         @param bounds The bounds of the sketcher.
-         */
-        void setBounds(Rectangle const& bounds) noexcept;
-        
-        //! Sets the position of the sketcher.
-        /** The function sets the position of the sketcher.
-         @param position The position of the sketcher.
-         */
-        void setPosition(Point const& position) noexcept;
-        
-        //! Sets the size of the sketcher.
-        /** The function sets the size of the sketcher.
-         @param size The size of the sketcher.
-         */
-        void setSize(Size const& size) noexcept;
         
     protected:
         
@@ -338,6 +293,47 @@ namespace Kiwi
          */
         virtual bool performAction(const ulong code) = 0;
     };
+    
+    template<class T, class U> class ModelBroadcaster
+    {
+    protected:
+        typedef typename Broadcaster<U>::sListener sListener;
+        
+    public:
+        constexpr inline ModelBroadcaster()
+        {
+            static_assert(is_base_of<GuiController, T>::value, "The model broadcaster template is only valid for controllers.");
+            static_assert(is_base_of<Broadcaster<U>, T>::value, "The model broadcaster template is only valid for broadcasters.");
+        }
+        
+        inline ~ModelBroadcaster() {}
+        
+        //! Add an instance listener in the binding list of the manager.
+        /** The function adds an instance listener in the binding list of the manager.
+         @param listener  The listener.
+         */
+        void addListener(sListener listener)
+        {
+            if(listener)
+            {
+                ;
+            }
+        }
+        
+        //! Remove an instance listener from the binding list of the manager.
+        /** The function removes an instance listener from the binding list of the manager.
+         @param listener  The listener.
+         */
+        void removeListener(sListener listener)
+        {
+            if(listener)
+            {
+                ;
+            }
+        }
+    };
+    
+    
 }
 
 #endif

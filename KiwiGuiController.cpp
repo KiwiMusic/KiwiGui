@@ -39,44 +39,64 @@ namespace Kiwi
         }
     }
     
-    Point GuiController::getPosition() const noexcept
-    {
-        return getSketcher()->getPosition();
-    }
-    
-    Size GuiController::getSize() const noexcept
-    {
-        return getSketcher()->getSize();
-    }
-    
     void GuiController::setBounds(Rectangle const& bounds) noexcept
     {
         m_bounds = bounds;
+        sGuiView view = getView();
+        if(view)
+        {
+            view->boundsChanged();
+        }
     }
     
     void GuiController::setBounds(Rectangle&& bounds) noexcept
     {
         m_bounds = forward<Rectangle>(bounds);
+        sGuiView view = getView();
+        if(view)
+        {
+            view->boundsChanged();
+        }
     }
     
     void GuiController::setPosition(Point const& position) noexcept
     {
         m_bounds.position(position);
+        sGuiView view = getView();
+        if(view)
+        {
+            view->positionChanged();
+        }
     }
     
     void GuiController::setPosition(Point&& position) noexcept
     {
         m_bounds.position(forward<Point>(position));
+        sGuiView view = getView();
+        if(view)
+        {
+            view->positionChanged();
+        }
     }
     
     void GuiController::setSize(Size const& size) noexcept
     {
         m_bounds.size(size);
+        sGuiView view = getView();
+        if(view)
+        {
+            view->sizeChanged();
+        }
     }
     
     void GuiController::setSize(Size&& size) noexcept
     {
         m_bounds.size(forward<Size>(size));
+        sGuiView view = getView();
+        if(view)
+        {
+            view->sizeChanged();
+        }
     }
     
     void GuiController::draw(sGuiView view, Sketch& sketch)
@@ -84,59 +104,14 @@ namespace Kiwi
         getSketcher()->draw(view, sketch);
     }
     
-    bool GuiController::receive(sGuiView view, MouseEvent const& event)
-    {
-        sGuiMouser mouser = dynamic_pointer_cast<GuiMouser>(getSketcher());
-        if(mouser)
-        {
-            return mouser->receive(view, event);
-        }
-        return false;
-    }
-    
-    bool GuiController::receive(sGuiView view, KeyboardEvent const& event)
-    {
-        sGuiKeyboarder keyboarder = dynamic_pointer_cast<GuiKeyboarder>(getSketcher());
-        if(keyboarder)
-        {
-            return keyboarder->receive(view, event);
-        }
-        return false;
-    }
-    
-    bool GuiController::receive(sGuiView view, KeyboardFocus const event)
-    {
-        sGuiKeyboarder keyboarder = dynamic_pointer_cast<GuiKeyboarder>(getSketcher());
-        if(keyboarder)
-        {
-            return keyboarder->receive(view, event);
-        }
-        return false;
-    }
-    
-    vector<Action::Code> GuiController::getActionCodes()
-    {
-        return vector<Action::Code>();
-    }
-    
-    Action GuiController::getAction(const ulong code)
-    {
-        return Action();
-    }
-    
-    bool GuiController::performAction(const ulong code)
-    {
-        return false;
-    }
-    
     bool GuiController::contains(Point const& pt)
     {
-        return getBounds().contains(pt);
+        return m_bounds.contains(pt);
     }
     
     bool GuiController::overlaps(Rectangle const& rect)
     {
-        return getBounds().overlaps(rect);
+        return m_bounds.overlaps(rect);
     }
     
     Point GuiController::getMousePosition() const noexcept

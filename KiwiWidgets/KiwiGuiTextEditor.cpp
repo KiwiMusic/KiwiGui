@@ -414,7 +414,7 @@ namespace Kiwi
                     line += m_text[++pos];
                     offset.width(m_font.getLineWidth(line));
                 }
-                caret->setPosition(Point(offset.width(), offset.height()));
+                //caret->setPosition(Point(offset.width(), offset.height()));
             }
             else
             {
@@ -433,20 +433,20 @@ namespace Kiwi
                     line += m_text[++pos];
                     offset.width(m_font.getLineWidth(line));
                 }
-                caret->setPosition(Point(offset.width(), offset.height()));
+                //caret->setPosition(Point(offset.width(), offset.height()));
             }
         }
         else
         {
             if(caret->caret == 0ul)
             {
-                caret->setPosition(Point());
+                //caret->setPosition(Point());
             }
             else
             {
                 size_type linebreak = m_text.find_last_of(L'\n', caret->caret - ulong(m_text[caret->caret] == L'\n'));
                 if(linebreak == npos) {
-                    caret->setPosition(Point(m_font.getLineWidth(wstring(m_text, 0ul, caret->caret)), 0.));
+                    //caret->setPosition(Point(m_font.getLineWidth(wstring(m_text, 0ul, caret->caret)), 0.));
                 }
                 else {
                     Point pos(m_font.getLineWidth(wstring(m_text, linebreak + 1ul, caret->caret - linebreak - 1ul)), m_font.getHeight());
@@ -463,7 +463,7 @@ namespace Kiwi
                             }
                         }
                     }
-                    caret->setPosition(pos);
+                    //caret->setPosition(pos);
                 }
             }
             
@@ -758,7 +758,7 @@ namespace Kiwi
         {
             sketch.setColor(m_color);
             sketch.setLineWidth(2.);
-            sketch.drawLine(0., 0., 0., getSize().height());
+            //sketch.drawLine(0., 0., 0., getSize().height());
         }
     }
     

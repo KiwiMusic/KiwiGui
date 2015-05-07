@@ -96,13 +96,6 @@ namespace Kiwi
         /** This function removes the window from the desktop.
          */
         void minimize();
-        
-        //! Notify the manager that the values of an attribute has changed.
-        /** The function notifies the manager that the values of an attribute has changed.
-         @param attr An attribute.
-         @return pass true to notify changes to listeners, false if you don't want them to be notified
-         */
-        bool notify(sAttr attr) override;
     };
     
     // ================================================================================ //

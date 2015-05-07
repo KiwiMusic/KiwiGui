@@ -33,8 +33,7 @@ namespace Kiwi
     GuiSketcher::GuiSketcher(sGuiContext context) noexcept :
     m_context(context)
     {
-        createAttr(Tags::position,  "Position", "Appearance", Point(0., 0.));
-        createAttr(Tags::size,      "Size",     "Appearance", Size(10., 10.));
+        ;
     }
     
 	GuiSketcher::~GuiSketcher() noexcept
@@ -63,22 +62,6 @@ namespace Kiwi
             return ctxt->getMousePosition();
         }
         return Point();
-    }
-    
-    void GuiSketcher::setBounds(Rectangle const& bounds) noexcept
-    {
-        setPosition(bounds.position());
-        setSize(bounds.size());
-    }
-    
-    void GuiSketcher::setPosition(Point const& position) noexcept
-    {
-        setAttrValue(Tags::position, position);
-    }
-    
-    void GuiSketcher::setSize(Size const& size) noexcept
-    {
-        setAttrValue(Tags::size, size);
     }
     
     sGuiView GuiSketcher::createView() noexcept
@@ -116,14 +99,13 @@ namespace Kiwi
                     if(status)
                     {
                         ctrl->setView(view);
-                        addListener(view, {Tags::position, Tags::size});
                         vector<sGuiSketcher> childs(getChilds());
                         for(auto it : childs)
                         {
                             sGuiView childview = it->createView();
                             if(childview)
                             {
-                                view->add(childview);
+                                view->addChild(childview);
                             }
                         }
                         viewCreated(view);
@@ -146,7 +128,6 @@ namespace Kiwi
             }
             if(status)
             {
-                removeListener(view, {Tags::position, Tags::size});
                 viewRemoved(view);
             }
         }
@@ -295,7 +276,7 @@ namespace Kiwi
                 vector<sGuiView> views(getViews());
                 for(auto it : views)
                 {
-                    it->add(child->createView());
+                    it->addChild(child->createView());
                 }
             }
         }
@@ -318,7 +299,7 @@ namespace Kiwi
                     sGuiView view = it->getParent();
                     if(view && hasView(it->getParent()))
                     {
-                        view->remove(it);
+                        view->removeChild(it);
                     }
                 }
             }

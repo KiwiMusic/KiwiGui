@@ -84,7 +84,8 @@ namespace Kiwi
          */
         inline Point getContentPosition() const noexcept
         {
-            return m_container->getPosition();
+            int todo;
+            return Point();//m_container->getPosition();
         }
         
         //! The draw method that should be override.
@@ -93,13 +94,6 @@ namespace Kiwi
          @param sketch  A sketch to draw.
          */
         void draw(scGuiView view, Sketch& sketch) const override {sketch.fillAll(Colors::white);}
-        
-        //! Notify the manager that the values of an attribute has changed.
-        /** The function notifies the manager that the values of an attribute has changed.
-         @param attr An attribute.
-         @return pass true to notify changes to listeners, false if you don't want them to be notified
-         */
-        bool notify(sAttr attr) override;
     };
     
     class GuiViewPort::Controller : public GuiController

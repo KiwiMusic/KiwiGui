@@ -108,7 +108,7 @@ namespace Kiwi
         return Rectangle();
     }
 
-    void GuiView::add(sGuiView child) noexcept
+    void GuiView::addChild(sGuiView child) noexcept
     {
         if(child)
         {
@@ -119,7 +119,7 @@ namespace Kiwi
                 child->m_parent_view = shared_from_this();
                 try
                 {
-                    addChild(child);
+                    addChildView(child);
                 }
                 catch(exception& e)
                 {
@@ -129,7 +129,7 @@ namespace Kiwi
         }
     }
     
-    void GuiView::remove(sGuiView child) noexcept
+    void GuiView::removeChild(sGuiView child) noexcept
     {
         if(child)
         {
@@ -141,61 +141,13 @@ namespace Kiwi
                 child->m_parent_view = sGuiView();
                 try
                 {
-                    removeChild(child);
+                    removeChildView(child);
                 }
                 catch(exception& e)
                 {
                     
                 }
             }
-        }
-    }
-    
-    vector<Action::Code> GuiView::getActionCodes()
-    {
-        if(m_controller->wantActions())
-        {
-            return m_controller->getActionCodes();
-        }
-        else
-        {
-            return vector<Action::Code>();
-        }
-    }
-    
-    Action GuiView::getAction(const ulong code)
-    {
-        if(m_controller->wantActions())
-        {
-            return m_controller->getAction(code);
-        }
-        else
-        {
-            return Action();
-        }
-    }
-    
-    bool GuiView::performAction(const ulong code)
-    {
-        if(m_controller->wantActions())
-        {
-            return m_controller->performAction(code);
-        }
-        else
-        {
-            return false;
-        }
-    }
-    
-    void GuiView::attrChanged(Attr::sManager manager, sAttr attr)
-    {
-        if(attr->getName() == Tags::position)
-        {
-            move();
-        }
-        else if(attr->getName() == Tags::size)
-        {
-            resize();
         }
     }
 }

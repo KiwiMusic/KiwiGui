@@ -32,7 +32,7 @@ namespace Kiwi
     //                                      GUI VIEW                                    //
     // ================================================================================ //
     
-    class GuiView : public Attr::Listener, public enable_shared_from_this<GuiView>
+    class GuiView : public enable_shared_from_this<GuiView>
     {
     private:
         const wGuiContext       m_context;
@@ -140,59 +140,17 @@ namespace Kiwi
          */
         Rectangle getParentBounds() const noexcept;
         
-        //! Receives the notification that the sketcher needs to be redrawn.
-        /** This function is called by the sketcher whenever it needs to be redrawn.
-         */
-        virtual void redraw() = 0;
-        
-        //! Receives the notification that the sketcher needs to be moved.
-        /** This function is called by the sketcher whenever it needs to be moved.
-         */
-        virtual void move() = 0;
-        
-        //! Receives the notification that the sketcher needs to be resized.
-        /** This function is called by the sketcher whenever it needs to be resized.
-         */
-        virtual void resize() = 0;
-        
-        //! Receives the notification that the sketcher needs the keyboard focus.
-        /** This function is called by the sketcher whenever it needs the keyboard focus.
-         */
-        virtual void grabFocus() = 0;
-        
-        //! Adds the view to the desktop.
-        /** This function adds the view to the desktop as a top level window.
-         */
-        virtual void addToDesktop() = 0;
-        
-        //! Removes the view from the desktop.
-        /** This function removes the view from the desktop.
-         */
-        virtual void removeFromDesktop() = 0;
-        
-        //! Minimize the view.
-        /** This function minimizes the view.
-         */
-        virtual void setMinimize(const bool state) = 0;
-        
         //! Adds a child view to the view.
         /** The function adds a child view that will be displayed inside the view.
          @param child The child.
          */
-        void add(sGuiView child) noexcept;
+        void addChild(sGuiView child) noexcept;
         
         //! Remove a child view from the view.
         /** The function removes a child view and make it invisible.
          @param child The child.
          */
-        void remove(sGuiView child) noexcept;
-        
-        //! Receive the notification that an attribute has changed.
-        /** The function must be implement to receive notifications when an attribute is added or removed, or when its value, appearance or behavior changes.
-         @param manager     The attribute manager.
-         @param attr		The attribute that has been modified.
-         */
-        void attrChanged(Attr::sManager manager, sAttr attr) override;
+        void removeChild(sGuiView child) noexcept;
         
         //! The mouse receive method.
         /** The function pass the mouse event to the sketcher if it inherits from mouser.
@@ -226,21 +184,61 @@ namespace Kiwi
         /** The function retreives the action codes from the the manager.
          @return The action codes.
          */
-        vector<Action::Code> getActionCodes();
+        inline vector<Action::Code> getActionCodes() {return m_controller->getActionCodes();}
         
         //! Retrieves an action from the manager.
         /** The function retreives an action from the the manager.
          @param code The code of the action.
          @return The action.
          */
-        Action getAction(const ulong code);
+        inline Action getAction(const ulong code) {return m_controller->getAction(code);}
         
         //! Performs an action.
         /** The function performs an action.
          @param code The code of the action.
          @return true if the action has been performed, otherwise false.
          */
-        bool performAction(const ulong code);
+        inline bool performAction(const ulong code) {return m_controller->performAction(code);}
+        
+        //! Receives the notification that the controller needs to be redrawn.
+        /** This function is called by the controller whenever it needs to be redrawn.
+         */
+        virtual void redraw() = 0;
+        
+        //! Receives the notification that the bounds of the controller changed.
+        /** This function is called by the controller whenever its bounds changed.
+         */
+        virtual void boundsChanged() = 0;
+        
+        //! Receives the notification that the position of the controller changed.
+        /** This function is called by the controller whenever it needs to be moved.
+         */
+        virtual void positionChanged() = 0;
+        
+        //! Receives the notification that the size of the controller changed.
+        /** This function is called by the controller whenever it needs to be resized.
+         */
+        virtual void sizeChanged() = 0;
+        
+        //! Receives the notification that the sketcher needs the keyboard focus.
+        /** This function is called by the sketcher whenever it needs the keyboard focus.
+         */
+        virtual void grabFocus() = 0;
+        
+        //! Adds the view to the desktop.
+        /** This function adds the view to the desktop as a top level window.
+         */
+        virtual void addToDesktop() = 0;
+        
+        //! Removes the view from the desktop.
+        /** This function removes the view from the desktop.
+         */
+        virtual void removeFromDesktop() = 0;
+        
+        //! Minimize the view.
+        /** This function minimizes the view.
+         */
+        virtual void setMinimize(const bool state) = 0;
         
     private:
         
@@ -248,13 +246,13 @@ namespace Kiwi
         /** The function adds a child view that will be displayed inside the view.
          @param child The child.
          */
-        virtual void addChild(sGuiView child) = 0;
+        virtual void addChildView(sGuiView child) = 0;
         
         //! Remove a child view from the view.
         /** The function removes a child view and make it invisible.
          @param child The child.
          */
-        virtual void removeChild(sGuiView child) = 0;
+        virtual void removeChildView(sGuiView child) = 0;
         
         //@internal
         void setParent(sGuiView child);
