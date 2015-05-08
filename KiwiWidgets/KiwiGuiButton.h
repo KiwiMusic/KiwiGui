@@ -48,7 +48,7 @@ namespace Kiwi
     public:
         
         //! The button constructor.
-        /** The function initializes the sketcher and defaults values.
+        /** The function initializes the button and defaults values.
          @param context The context.
          @param bgcolor   The button background color.
          */
@@ -78,13 +78,13 @@ namespace Kiwi
          */
         virtual void draw(scGuiView view, Sketch& sketch) const;
         
-        //! The pressed valid method that can be override.
+        //! The mouse receive method that can be override.
         /** The function should return true if the button has been well pressed, otherwise it should return false. The default implementation returns true whenever the mouse event is down. Another implementation cans valid the  another kind of mouse event or/and defines an area where the press action is valid.
          @param view    The view that owns the controller.
          @param event   The mouser event.
          @return true if the button has been well pressed, otherwise false.
          */
-        virtual bool valid(scGuiView view, MouseEvent const& event);
+        virtual bool receive(scGuiView view, MouseEvent const& event);
         
         //! Add an instance listener in the binding list of the manager.
         /** The function adds an instance listener in the binding list of the manager.
@@ -126,7 +126,7 @@ namespace Kiwi
         //! The controller constructor.
         /** The function does nothing.
          */
-        Controller(sGuiButton button) noexcept : GuiController(button), m_button(button) {}
+        Controller(sGuiContext context, sGuiButton button) noexcept;
         
         //! The controller destructor.
         /** The function does nothing.

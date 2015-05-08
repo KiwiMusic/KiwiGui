@@ -77,12 +77,15 @@ namespace Kiwi
     // ================================================================================ //
     
     GuiScrollBar::Controller::Controller(sGuiScrollBar scrollbar) noexcept :
-    GuiController(scrollbar),
+    GuiController(scrollbar->getContext()),
     m_scrollbar(scrollbar)
     {
         m_limits    = {0., 1.};
         m_range     = {0., 0.};
         m_visible   = scrollbar->getThumbDisplayTime() < 0.;
+        shouldReceiveMouse(true);
+        shouldReceiveKeyboard(false);
+        shouldReceiveActions(false);
     }
     
     GuiScrollBar::Controller::~Controller() noexcept

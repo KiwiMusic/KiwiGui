@@ -57,64 +57,55 @@ namespace Kiwi
         /** The function retrieves the context of the view.
          @return The context.
          */
-        inline sGuiContext getContext() const noexcept
-        {
-            return m_context.lock();
-        }
+        inline sGuiContext getContext() const noexcept {return m_context.lock();}
         
         //! Retrieves the controller of the view.
         /** The function retrieves the controller of the view.
          @return The controller.
          */
-        inline sGuiController getController() const noexcept
-        {
-            return m_controller;
-        }
-        
-        //! Retrieves the sketcher of the controller.
-        /** The function retrieves the sketcher of the controller.
-         @return The sketcher.
-         */
-        inline sGuiSketcher getSketcher() const noexcept
-        {
-            return m_controller->getSketcher();
-        }
+        inline sGuiController getController() const noexcept {return m_controller;}
         
         //! Retrieves the parent view of the view.
         /** The function retrieves the parent view of the view.
          @return The parent view.
          */
-        inline sGuiView getParent() const noexcept
-        {
-            return m_parent_view.lock();
-        }
+        inline sGuiView getParent() const noexcept {return m_parent_view.lock();}
         
         //! Retrieve the position of the view.
         /** The function retrieves the position of the view.
          @return The position of the view.
          */
-        inline Point getPosition() const noexcept
-        {
-            return m_controller->getPosition();
-        }
+        inline Point getPosition() const noexcept {return m_controller->getPosition();}
         
         //! Retrieve the size of the view.
         /** The function retrieves the size of the view.
          @return The size of the view.
          */
-        inline Size getSize() const noexcept
-        {
-            return m_controller->getSize();
-        }
+        inline Size getSize() const noexcept {return m_controller->getSize();}
         
         //! Retrieve the bounds of the view.
         /** The function retrieves the bounds of the view.
          @return The bounds of the view.
          */
-        inline Rectangle getBounds() const noexcept
-        {
-            return m_controller->getBounds();
-        }
+        inline Rectangle getBounds() const noexcept {return m_controller->getBounds();}
+        
+        //! Receives if the view wants the mouse.
+        /** This function retrieves if the view wants the mouse.
+         @return true if the view wants the mouse, othrewise false.
+         */
+        inline bool wantMouse() const noexcept {return m_controller->wantMouse();}
+        
+        //! Receives if the view wants the keyboard.
+        /** This function retrieves if the view wants the keyboard.
+         @return true if the view wants the keyboard, othrewise false.
+         */
+        inline bool wantKeyboard() const noexcept {return m_controller->wantKeyboard();}
+        
+        //! Receives if the view wants actions.
+        /** This function retrieves if the view wants the actions.
+         @return true if the view wants the actions, othrewise false.
+         */
+        inline bool wantActions() const noexcept  {return m_controller->wantActions();}
         
         //! Retrieve the global position of the view.
         /** The function retrieves tthe global position of the view.
@@ -219,6 +210,11 @@ namespace Kiwi
         /** This function is called by the controller whenever it needs to be resized.
          */
         virtual void sizeChanged() = 0;
+        
+        //! Receives the notification that the behavior of the controller changed.
+        /** This function is called by the controller whenever its behavior changed.
+         */
+        virtual void behaviorChanged() = 0;
         
         //! Receives the notification that the sketcher needs the keyboard focus.
         /** This function is called by the sketcher whenever it needs the keyboard focus.

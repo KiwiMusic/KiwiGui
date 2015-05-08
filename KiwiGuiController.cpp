@@ -30,13 +30,24 @@ namespace Kiwi
     //                                      GUI CONTROLLER                              //
     // ================================================================================ //
     
-    void GuiController::redraw() noexcept
+    GuiController::GuiController(sGuiContext context) noexcept : m_context(context),
+    m_bounds(), m_want_mouse(false), m_want_keyboard(false), m_want_action(false)
+    {
+        
+    }
+    
+    sGuiController GuiController::geParent() const noexcept
     {
         sGuiView view = getView();
         if(view)
         {
-            view->redraw();
+            view = view->getParent();
+            if(view)
+            {
+                return view->getController();
+            }
         }
+        return sGuiController();
     }
     
     void GuiController::setBounds(Rectangle const& bounds) noexcept
@@ -46,6 +57,33 @@ namespace Kiwi
         if(view)
         {
             view->boundsChanged();
+        }
+    }
+    
+    void GuiController::shouldReceiveMouse(const bool accept) noexcept
+    {
+        sGuiView view = getView();
+        if(view)
+        {
+            view->behaviorChanged();
+        }
+    }
+    
+    void GuiController::shouldReceiveKeyboard(const bool accept) noexcept
+    {
+        sGuiView view = getView();
+        if(view)
+        {
+            view->behaviorChanged();
+        }
+    }
+    
+    void GuiController::shouldReceiveActions(const bool accept) noexcept
+    {
+        sGuiView view = getView();
+        if(view)
+        {
+            view->behaviorChanged();
         }
     }
     
@@ -99,11 +137,6 @@ namespace Kiwi
         }
     }
     
-    void GuiController::draw(sGuiView view, Sketch& sketch)
-    {
-        getSketcher()->draw(view, sketch);
-    }
-    
     bool GuiController::contains(Point const& pt)
     {
         return m_bounds.contains(pt);
@@ -150,6 +183,15 @@ namespace Kiwi
         else
         {
             return Point();
+        }
+    }
+    
+    void GuiController::redraw() noexcept
+    {
+        sGuiView view = getView();
+        if(view)
+        {
+            view->redraw();
         }
     }
 }

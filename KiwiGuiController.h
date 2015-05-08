@@ -32,159 +32,107 @@ namespace Kiwi
     //                                  GUI CONTROLLER                                  //
     // ================================================================================ //
     
+    //! The controller is a class that manages the drawing and the interactions requested by a view.
+    /** The controller is instantiate by a model to serve as a bridge between the its interface and a view.
+     */
     class GuiController : public enable_shared_from_this<GuiController>
     {
-        friend GuiSketcher;
     private:
-        const sGuiSketcher  m_sketcher;
+        const wGuiContext   m_context;
         Rectangle           m_bounds;
         bool                m_want_mouse;
         bool                m_want_keyboard;
         bool                m_want_action;
         wGuiView            m_view;
-        
-        //! Sets the view of the controller.
-        /** The function sets the view of the controller.
-         @param The view.
-         */
-        inline void setView(sGuiView view) noexcept
-        {
-            m_view = view;
-        }
+
     public:
         
         //! The controller constructor.
-        /** The function does nothing.
+        /** The function initializes the defaults values of the controller.
+         @context The glocal context.
          */
-        inline GuiController(sGuiSketcher sketcher) noexcept : m_sketcher(sketcher) {}
+        GuiController(sGuiContext context) noexcept;
         
         //! The controller destructor.
         /** The function does nothing.
          */
         virtual inline ~GuiController() noexcept {};
         
-    protected:
-        
-        //! Retrieve the shared pointer of the controller.
-        /** The function retrieves the shared pointer of controller.
-         @return The shared pointer of the controller.
-         */
-        sGuiController getShared() noexcept
-        {
-            return shared_from_this();
-        }
-        
-        //! Retrieve the shared pointer of the controller.
-        /** The function retrieves the shared pointer of controller.
-         @return The shared pointer of the controller.
-         */
-        scGuiController getShared() const noexcept
-        {
-            return shared_from_this();
-        }
-        
-        //! Send a notification to the view that the sketcher needs to be redrawn.
-        /** The function sends a notification to the each that the sketcher should be redrawn.
-         */
-        void redraw() noexcept;
-        
-    public:
         //! Retrieves the view of the controller.
         /** The function retrieves the view of the controller.
          @return The view.
          */
-        inline sGuiView getView() const noexcept
-        {
-            return m_view.lock();
-        }
+        inline sGuiView getView() const noexcept {return m_view.lock();}
         
         //! Retrieves the context of the controller.
         /** The function retrieves the context of the controller.
          @return The context.
          */
-        inline sGuiContext getContext() const noexcept
-        {
-            return m_sketcher->getContext();
-        }
-        
-        //! Retrieves the sketcher of the controller.
-        /** The function retrieves the sketcher of the controller.
-         @return The sketcher.
+        inline sGuiContext getContext() const noexcept{return m_context.lock();}
+
+        //! Retrieves the parent controller.
+        /** The function retrieves parent controller.
+         @return The parent controller.
          */
-        inline sGuiSketcher getSketcher() const noexcept
-        {
-            return m_sketcher;
-        }
+        sGuiController geParent() const noexcept;
         
         //! Receives if the controller wants the mouse.
         /** This function retrieves if the controller wants the mouse.
          @return true if the controller wants the mouse, othrewise false.
          */
-        virtual inline bool wantMouse() const noexcept
-        {
-            sGuiMouser mouser = dynamic_pointer_cast<GuiMouser>(getSketcher());
-            if(mouser)
-            {
-                return true;
-            }
-            return false;
-        }
+        inline bool wantMouse() const noexcept {return m_want_mouse;}
         
         //! Receives if the controller wants the keyboard.
         /** This function retrieves if the controller wants the keyboard.
          @return true if the controller wants the keyboard, othrewise false.
          */
-        virtual inline bool wantKeyboard() const noexcept
-        {
-            sGuiKeyboarder keyboarder = dynamic_pointer_cast<GuiKeyboarder>(getSketcher());
-            if(keyboarder)
-            {
-                return true;
-            }
-            return false;
-        }
+        inline bool wantKeyboard() const noexcept {return m_want_keyboard;}
         
         //! Receives if the controller wants actions.
         /** This function retrieves if the controller wants the actions.
          @return true if the controller wants the actions, othrewise false.
          */
-        virtual inline bool wantActions() const noexcept
-        {
-            sGuiActionManager actionmanager = dynamic_pointer_cast<GuiActionManager>(getSketcher());
-            if(actionmanager)
-            {
-                return true;
-            }
-            return false;
-        }
+        inline bool wantActions() const noexcept  {return m_want_action;}
         
-        //! Retrieve the position of the sketcher.
-        /** The function retrieves the position of the sketcher.
-         @return The position of the sketcher.
+        //! Retrieve the position of the controller.
+        /** The function retrieves the position of the controller.
+         @return The position of the controller.
          */
         inline Point getPosition() const noexcept {return m_bounds.position();}
         
-        //! Retrieve the size of the sketcher.
-        /** The function retrieves the size of the sketcher.
-         @return The size of the sketcher.
+        //! Retrieve the size of the controller.
+        /** The function retrieves the size of the controller.
+         @return The size of the controller.
          */
         inline Size getSize() const noexcept {return m_bounds.size();}
         
-        //! Retrieve the bounds of the object.
-        /** The function retrieves the bounds of the object.
-         @return The bounds of the object.
+        //! Retrieve the bounds of the controller.
+        /** The function retrieves the bounds of the controller.
+         @return The bounds of the controller.
          */
         inline Rectangle getBounds() const noexcept {return m_bounds;}
         
-        //! The draw method that can be override.
+        //! Retrieves the absolute mouse position.
+        /** The function retrieves the absolute mouse position.
+         @return The position.
+         */
+        Point getMousePosition() const noexcept;
+        
+        //! Retrieves the relative mouse position.
+        /** The function retrieves the relative mouse position.
+         @return The position.
+         */
+        Point getMouseRelativePosition() const noexcept;
+        
+        //! The draw method that should be override.
         /** The function shoulds draw some stuff.
          @param view    The view that owns the controller.
          @param sketch  The sketch to draw.
          */
-        virtual void draw(sGuiView view, Sketch& sketch);
+        virtual void draw(sGuiView view, Sketch& sketch) = 0;
         
         //! The mouse receive method that can be override.
-        /** The function pass the mouse event to the sketcher if it inherits from mouser.
+        /** The function shoulds perform some stuff.
          @param view    The view that owns the controller.
          @param event   The mouser event.
          @return true if the class has done something with the event otherwise false
@@ -192,7 +140,7 @@ namespace Kiwi
         virtual bool receive(sGuiView view, MouseEvent const& event) {return false;}
         
         //! The keyboard receive method that can be override.
-        /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
+        /** The function shoulds perform some stuff.
          @param view    The view that owns the controller.
          @param event   The keyboard event.
          @return true if the class has done something with the event otherwise false
@@ -200,7 +148,7 @@ namespace Kiwi
         virtual bool receive(sGuiView view, KeyboardEvent const& event) {return false;}
         
         //! The focus receive method that can be override.
-        /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
+        /** The function shoulds perform some stuff.
          @param view    The view that owns the controller.
          @param event   The focus event.
          @return true if the class has done something with the event otherwise false
@@ -227,31 +175,37 @@ namespace Kiwi
          */
         virtual bool performAction(const ulong code) {return false;}
         
-        //! Test if the point lies into the sketcher of the controler.
-        /** The tests if the point lies into the sketcher of the controler.
+        //! Test if the point lies into the controler.
+        /** The tests if the point lies into the controler.
          @param pt The point.
-         @return true if the point ies into the sketcher of the controler, otherwise false.
+         @return true if the point ies into the controler, otherwise false.
          */
         virtual bool contains(Point const& pt);
         
-        //! Test if the rectangle overlaps the sketcher of the controler.
-        /** The tests if the rectangle overlaps the sketcher of the controler.
+        //! Test if the rectangle overlaps the controler.
+        /** The tests if the rectangle overlaps the controler.
          @param rect The rectangle.
-         @return true if the rectangle overlaps the sketcher of the controler, otherwise false.
+         @return true if the rectangle overlaps of the controler, otherwise false.
          */
         virtual bool overlaps(Rectangle const& rect);
         
-        //! Retrieves the absolute mouse position.
-        /** The function retrieves the absolute mouse position.
-         @return The position.
+        //! Sets if the controller should receive mouse events.
+        /** The function sets if the controller should receive mouse events.
+         @param accept true if the controller shoulds receive the mouse events, otherwise false.
          */
-        Point getMousePosition() const noexcept;
+        void shouldReceiveMouse(const bool accept) noexcept;
         
-        //! Retrieves the relative mouse position.
-        /** The function retrieves the relative mouse position.
-         @return The position.
+        //! Sets if the controller should receive keyboard events.
+        /** The function sets if the controller should keyboard mouse events.
+         @param accept true if the controller shoulds keyboard the mouse events, otherwise false.
          */
-        Point getMouseRelativePosition() const noexcept;
+        void shouldReceiveKeyboard(const bool accept) noexcept;
+        
+        //! Sets if the controller should receive actions.
+        /** The function sets if the controller should receive actions.
+         @param accept true if the controller shoulds actions, otherwise false.
+         */
+        void shouldReceiveActions(const bool accept) noexcept;
         
         //! Sets the bounds of the controller.
         /** The function sets the bounds of the controller.
@@ -288,6 +242,13 @@ namespace Kiwi
          @param size The size of the controller.
          */
         void setSize(Size&& size) noexcept;
+        
+    protected:
+        
+        //! Send a notification to the view that the sketcher needs to be redrawn.
+        /** The function sends a notification to the each that the sketcher should be redrawn.
+         */
+        void redraw() noexcept;
     };
 }
 

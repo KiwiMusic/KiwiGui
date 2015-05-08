@@ -64,6 +64,15 @@ namespace Kiwi
     //                              GUI BUTTON CONTROLLER                               //
     // ================================================================================ //
     
+    GuiButton::Controller::Controller(sGuiButton button) noexcept :
+    GuiController(button->getContext()),
+    m_button(button)
+    {
+        shouldReceiveMouse(true);
+        shouldReceiveKeyboard(false);
+        shouldReceiveActions(false);
+    }
+    
     bool GuiButton::Controller::receive(sGuiView view, MouseEvent const& event)
     {
         if(m_button->valid(view, event))

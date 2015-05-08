@@ -171,24 +171,6 @@ namespace Kiwi
          */
         ~Controller() noexcept;
         
-        //! Receives if the controller wants the mouse.
-        /** This function retrieves if the controller wants the mouse.
-         @return true if the controller wants the mouse, othrewise false.
-         */
-        inline bool wantMouse() const noexcept override {return true;}
-        
-        //! Receives if the controller wants the keyboard.
-        /** This function retrieves if the controller wants the keyboard.
-         @return true if the controller wants the keyboard, othrewise false.
-         */
-        inline bool wantKeyboard() const noexcept override {return false;}
-        
-        //! Receives if the controller wants actions.
-        /** This function retrieves if the controller wants the actions.
-         @return true if the controller wants the actions, othrewise false.
-         */
-        virtual inline bool wantActions() const noexcept override {return false;}
-        
         //! Gets the maximum and minimum limits of the thumb.
         /** The function retreives the maximum and minimum limits of the thumb.
          @return The maximum and minimum limits of the thumb.
