@@ -301,6 +301,20 @@ namespace Kiwi
         }
     }
     
+    void GuiSketcher::addChildForView(sGuiView view, sGuiSketcher child) noexcept
+    {
+        if(view && child)
+        {
+            for(auto v : getViews())
+            {
+                if(v == view)
+                {
+                    view->add(child->createView());
+                }
+            }
+        }
+    }
+    
     void GuiSketcher::removeChild(sGuiSketcher child) noexcept
     {
         if(child)
@@ -320,6 +334,22 @@ namespace Kiwi
                     {
                         view->remove(it);
                     }
+                }
+            }
+        }
+    }
+    
+    void GuiSketcher::removeChildForView(sGuiView view, sGuiSketcher child) noexcept
+    {
+        if(child)
+        {
+            vector<sGuiView> childviews = child->getViews();
+            for(auto it : childviews)
+            {
+                sGuiView view = it->getParent();
+                if(view && hasView(it->getParent()))
+                {
+                    view->remove(it);
                 }
             }
         }

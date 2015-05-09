@@ -188,11 +188,25 @@ namespace Kiwi
          */
         void addChild(sGuiSketcher child) noexcept;
         
+        //! Adds a child sketcher to the sketcher of a given view.
+        /** The function adds a child sketcher that will be displayed inside the sketcher of a given view.
+         @param view The view.
+         @param child The child.
+         */
+        void addChildForView(sGuiView view, sGuiSketcher child) noexcept;
+        
         //! Remove a child sketcher from the sketcher.
         /** The function removes a child sketcher and make it invisible.
          @param child The child.
          */
         void removeChild(sGuiSketcher child) noexcept;
+        
+        //! Removes a child sketcher from the sketcher on a given view.
+        /** The function removes a child sketcher and make it invisible on a given view.
+         @param view The view.
+         @param child The child.
+         */
+        void removeChildForView(sGuiView view, sGuiSketcher child) noexcept;
         
         //! Retrives all the child sketchers from the sketcher.
         /** The function retrieves all the child sketchers from the sketcher. The methods also cleans the childs list if some of them are not valid anymore.
