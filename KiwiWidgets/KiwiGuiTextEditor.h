@@ -114,7 +114,7 @@ namespace Kiwi
     /**
      The text editor...
      */
-    class GuiTextEditor : public GuiSketcher
+    class GuiTextEditor : public GuiModel
     {
     public:
         
@@ -322,12 +322,12 @@ namespace Kiwi
          @param ctrl    The controller that ask the draw.
          @param sketch  A sketch to draw.
          */
-        void draw(scGuiView view, Sketch& sketch) const override;
+        void draw(scGuiView view, Sketch& sketch) const;
         
         //! Notify the text editor that it should grab the keayboard focus.
         /** The function notifies the text editor that it should grab the keayboard focus.
          */
-        inline void grabFocus() {GuiSketcher::grabFocus();}
+        inline void grabFocus() {GuiModel::grabFocus();}
         
         //! Adds a listener in the binding list of the text editor.
         /** The function adds a listener in the binding list of the text editor.
@@ -571,7 +571,7 @@ namespace Kiwi
     /**
      The caret...
      */
-    class GuiTextEditor::Caret : public GuiSketcher, public Clock
+    class GuiTextEditor::Caret : public GuiModel, public Clock
     {
     public:
         typedef wstring::size_type size_type;
@@ -592,7 +592,7 @@ namespace Kiwi
         /** The function initialize a default caret for the text editor.
          @param context The context.
          */
-        inline Caret(sGuiTextEditor editor) noexcept : GuiSketcher(editor->getContext()),
+        inline Caret(sGuiTextEditor editor) noexcept : GuiModel(editor->getContext()),
         m_status(false),
         m_active(false),
         m_color(Colors::black),
@@ -646,16 +646,16 @@ namespace Kiwi
          @param ctrl    The controller that ask the draw.
          @param sketch  A sketch to draw.
          */
-        void draw(scGuiView view, Sketch& sketch) const override;
+        void draw(scGuiView view, Sketch& sketch) const;
         
         //! Receives the notification that a view has been created.
-        /** The function notfies the sketcher that a view has been created.
+        /** The function notfies the model that a view has been created.
          @param view The view.
          */
         void viewCreated(sGuiView view) noexcept override;
         
         //! Receives the notification that a view has been removed.
-        /** The function notfies the sketcher that a view has been removed.
+        /** The function notfies the model that a view has been removed.
          @param view The view.
          */
         void viewRemoved(sGuiView view) noexcept override;
@@ -671,6 +671,11 @@ namespace Kiwi
          @return pass true to notify changes to listeners, false if you don't want them to be notified
          */
         bool notify(sAttr attr) {m_status = true; return true;};
+        
+        sGuiController createController() override
+        {
+            return nullptr;
+        }
     };
     
     
@@ -700,24 +705,6 @@ namespace Kiwi
          */
         ~Controller() noexcept;
         
-        //! Receives if the controller wants the mouse.
-        /** This function retrieves if the controller wants the mouse.
-         @return true if the controller wants the mouse, othrewise false.
-         */
-        inline bool wantMouse() const noexcept override {return true;}
-        
-        //! Receives if the controller wants the keyboard.
-        /** This function retrieves if the controller wants the keyboard.
-         @return true if the controller wants the keyboard, othrewise false.
-         */
-        inline bool wantKeyboard() const noexcept override {return true;}
-        
-        //! Receives if the controller wants actions.
-        /** This function retrieves if the controller wants the actions.
-         @return true if the controller wants the actions, othrewise false.
-         */
-        inline bool wantActions() const noexcept override {return false;}
-        
         //! The paint method that can be override.
         /** The function shoulds draw some stuff in the sketch.
          @param sketch  A sketch to draw.
@@ -725,21 +712,21 @@ namespace Kiwi
         void draw(sGuiView view, Sketch& sketch) override;
         
         //! The mouse receive method.
-        /** The function pass the mouse event to the sketcher if it inherits from mouser.
+        /** The function pass the mouse event to the model if it inherits from mouser.
          @param event    A mouser event.
          @return true if the class has done something with the event otherwise false
          */
         bool receive(sGuiView view, MouseEvent const& event) override;
         
         //! The keyboard receive method.
-        /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
+        /** The function pass the keyboard event to the model if it inherits from keyboarder.
          @param event    A keyboard event.
          @return true if the class has done something with the event otherwise false
          */
         bool receive(sGuiView view,KeyboardEvent const& event) override;
         
         //! The keyboard focus receive method.
-        /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
+        /** The function pass the keyboard event to the model if it inherits from keyboarder.
          @param event    A focus event.
          @return true if the class has done something with the event otherwise false
          */

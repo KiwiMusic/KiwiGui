@@ -28,11 +28,11 @@
 
 namespace Kiwi
 {
-    class GuiSketcher;
-    typedef shared_ptr<GuiSketcher>            sGuiSketcher;
-    typedef weak_ptr<GuiSketcher>              wGuiSketcher;
-    typedef shared_ptr<const GuiSketcher>      scGuiSketcher;
-    typedef weak_ptr<const GuiSketcher>        wcGuiSketcher;
+    class GuiModel;
+    typedef shared_ptr<GuiModel>            sGuiModel;
+    typedef weak_ptr<GuiModel>              wGuiModel;
+    typedef shared_ptr<const GuiModel>      scGuiModel;
+    typedef weak_ptr<const GuiModel>        wcGuiModel;
     
     class GuiKeyboarder;
     typedef shared_ptr<GuiKeyboarder>          sGuiKeyboarder;

@@ -30,18 +30,15 @@ namespace Kiwi
     //                                  GUI WINDOW                                      //
     // ================================================================================ //
 	
-    GuiWindow::GuiWindow(sGuiContext context, Color const& color) noexcept : GuiSketcher(context),
+    GuiWindow::GuiWindow(sGuiContext context, Color const& color) noexcept : GuiModel(context),
     m_color(Colors::white)
     {
-        int todo;
-        //setPosition(Point(0., 0.));
-        //setSize(Size(800., 600.));
         setBackgroundColor(color);
     }
     
     GuiWindow::~GuiWindow() noexcept
     {
-        ;
+        cout << "~GuiWindow" << endl;
     }
     void GuiWindow::setBackgroundColor(Color const& color) noexcept
     {
@@ -51,50 +48,81 @@ namespace Kiwi
             redraw();
         }
     }
-
-    void GuiWindow:: draw(scGuiView ctrl, Sketch& sketch) const
-    {
-        sketch.fillAll(m_color);
-    }
     
-    void GuiWindow::display()
+    void GuiWindow::addToDesktop() noexcept
     {
-        sGuiContext ctxt = getContext();
-        if(ctxt)
+        removeFromDesktop();
+        sGuiView view = createView();
+        if(view)
         {
-            sGuiView view = createView();
-            if(view)
+            sGuiContext ctxt = getContext();
+            if(ctxt)
             {
                 view->addToDesktop();
-                ctxt->addWindow(view);
+            }
+            else
+            {
+                removeView(view);
             }
         }
     }
     
-    void GuiWindow::close()
+    void GuiWindow::removeFromDesktop() noexcept
     {
         sGuiContext ctxt = getContext();
         if(ctxt)
         {
-            vector<sGuiView> views = getViews();
-            for(vector<sGuiView>::size_type i = 0; i < views.size(); i++)
+            for(auto it : getViews())
             {
-                views[i]->removeFromDesktop();
-                ctxt->removeWindow(views[i]);
+                it->removeFromDesktop();
+                removeView(it);
             }
         }
     }
     
-    void GuiWindow::minimize()
+    sGuiController GuiWindow::createController()
     {
-        sGuiContext ctxt = getContext();
-        if(ctxt)
+        return make_shared<Controller>(getContext(), static_pointer_cast<GuiWindow>(shared_from_this()));
+    }
+    
+    // ================================================================================ //
+    //                              GUI WINDOW CONTROLLER                               //
+    // ================================================================================ //
+    
+    GuiWindow::Controller::Controller(sGuiContext context, sGuiWindow window) noexcept : GuiController(context),
+    m_window(window)
+    {
+        shouldReceiveMouse(false);
+        shouldReceiveKeyboard(false);
+        shouldReceiveActions(false);
+        setBounds(Rectangle(20., 20., 800., 600.));
+    }
+
+    void GuiWindow::Controller::close()
+    {
+        ;
+    }
+    
+    void GuiWindow::Controller::minimize()
+    {
+        sGuiView view = getView();
+        if(view)
         {
-            vector<sGuiView> views = getViews();
-            for(vector<sGuiView>::size_type i = 0; i < views.size(); i++)
-            {
-                views[i]->setMinimize(true);
-            }
+            view->setMinimize(true);
+        }
+    }
+    
+    void GuiWindow::Controller::maximize()
+    {
+        
+    }
+    
+    void GuiWindow::Controller::draw(sGuiView view, Sketch& sketch)
+    {
+        sGuiWindow window(getWindow());
+        if(window)
+        {
+            sketch.fillAll(window->getBackgroundColor());
         }
     }
     
@@ -107,7 +135,7 @@ namespace Kiwi
                               Color const& bgcolor,
                               Color const& bdcolor,
                               Color const& txtcolor) noexcept :
-    GuiSketcher(window->getContext()),
+    GuiModel(window->getContext()),
     m_window(window),
     m_button_close(make_shared<GuiButton>(getContext(), Colors::red.brighter(0.4))),
     m_button_minimize(make_shared<GuiButton>(getContext(), Colors::yellow.brighter(0.4))),
@@ -265,7 +293,7 @@ namespace Kiwi
             sGuiWindow window = getWindow();
             if(window)
             {
-                window->close();
+                //window->close();
             }
         }
         else if(button == m_button_minimize)
@@ -273,7 +301,7 @@ namespace Kiwi
             sGuiWindow window = getWindow();
             if(window)
             {
-                window->minimize();
+                //window->minimize();
             }
         }
         else if(button == m_button_maximize)

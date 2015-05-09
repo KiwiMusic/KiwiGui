@@ -30,13 +30,13 @@ namespace Kiwi
 	//                                      SKETCHER                                    //
 	// ================================================================================ //
 	
-    GuiSketcher::GuiSketcher(sGuiContext context) noexcept :
+    GuiModel::GuiModel(sGuiContext context) noexcept :
     m_context(context)
     {
         ;
     }
     
-	GuiSketcher::~GuiSketcher() noexcept
+	GuiModel::~GuiModel() noexcept
 	{
         lock_guard<mutex> guard1(m_views_mutex);
         m_views.clear();
@@ -44,7 +44,7 @@ namespace Kiwi
         m_childs.clear();
 	}
     
-    sGuiDeviceManager GuiSketcher::getDeviceManager() const noexcept
+    sGuiDeviceManager GuiModel::getDeviceManager() const noexcept
     {
         sGuiContext ctxt = getContext();
         if(ctxt)
@@ -54,7 +54,7 @@ namespace Kiwi
         return sGuiDeviceManager();
     }
     
-    Point GuiSketcher::getMousePosition() const noexcept
+    Point GuiModel::getMousePosition() const noexcept
     {
         sGuiContext ctxt = getContext();
         if(ctxt)
@@ -64,7 +64,7 @@ namespace Kiwi
         return Point();
     }
     
-    sGuiView GuiSketcher::createView() noexcept
+    sGuiView GuiModel::createView() noexcept
     {
         sGuiContext ctxt = getContext();
         if(ctxt)
@@ -98,8 +98,7 @@ namespace Kiwi
                     }
                     if(status)
                     {
-                        ctrl->setView(view);
-                        vector<sGuiSketcher> childs(getChilds());
+                        vector<sGuiModel> childs(getChilds());
                         for(auto it : childs)
                         {
                             sGuiView childview = it->createView();
@@ -117,7 +116,7 @@ namespace Kiwi
         return sGuiView();
     }
     
-    void GuiSketcher::removeView(sGuiView view) noexcept
+    void GuiModel::removeView(sGuiView view) noexcept
     {
         if(view)
         {
@@ -133,66 +132,29 @@ namespace Kiwi
         }
     }
     
-    vector<sGuiView> GuiSketcher::getViews() noexcept
+    vector<sGuiView> GuiModel::getViews() const noexcept
     {
-        vector<sGuiView> views;
         lock_guard<mutex> guard(m_views_mutex);
-        auto it = m_views.begin();
-        while(it != m_views.end())
-        {
-            sGuiView view = (*it).lock();
-            if(view)
-            {
-                views.push_back(view);
-                ++it;
-            }
-            else
-            {
-                it = m_views.erase(it);
-            }
-        }
-        return views;
+        return vector<sGuiView>(m_views.begin(), m_views.end());
     }
     
-    vector<sGuiView> GuiSketcher::getViews() const noexcept
-    {
-        vector<sGuiView> views;
-        lock_guard<mutex> guard(m_views_mutex);
-        auto it = m_views.begin();
-        while(it != m_views.end())
-        {
-            sGuiView view = (*it).lock();
-            if(view)
-            {
-                views.push_back(view);
-                ++it;
-            }
-        }
-        return views;
-    }
-    
-    sGuiView GuiSketcher::getFirstView() const noexcept
+    sGuiView GuiModel::getFirstView() const noexcept
     {
         lock_guard<mutex> guard(m_views_mutex);
-        auto it = m_views.begin();
-        while(it != m_views.end())
+        if(!m_views.empty())
         {
-            sGuiView view = (*it).lock();
-            if(view)
-            {
-                return view;
-            }
+            return *m_views.begin();
         }
         return sGuiView();
     }
     
-    bool GuiSketcher::hasView(sGuiView view) const noexcept
+    bool GuiModel::hasView(sGuiView view) const noexcept
     {
         lock_guard<mutex> guard(m_views_mutex);
         return m_views.find(view) != m_views.end();
     }
     
-    void GuiSketcher::redraw(sGuiView view) noexcept
+    void GuiModel::redraw(sGuiView view) noexcept
     {
         if(view && hasView(view))
         {
@@ -208,7 +170,7 @@ namespace Kiwi
         }
     }
     
-    void GuiSketcher::grabFocus(sGuiView view) noexcept
+    void GuiModel::grabFocus(sGuiView view) noexcept
     {
         if(view && hasView(view))
         {
@@ -224,45 +186,13 @@ namespace Kiwi
         }
     }
     
-    vector<sGuiSketcher> GuiSketcher::getChilds() noexcept
+    vector<sGuiModel> GuiModel::getChilds() const noexcept
     {
-        vector<sGuiSketcher> childs;
         lock_guard<mutex> guard(m_childs_mutex);
-        auto it = m_childs.begin();
-        while(it != m_childs.end())
-        {
-            sGuiSketcher child = (*it).lock();
-            if(!child)
-            {
-                it = m_childs.erase(it);
-            }
-            else
-            {
-                childs.push_back(child);
-                ++it;
-            }
-        }
-        return childs;
+        return vector<sGuiModel>(m_childs.begin(), m_childs.end());
     }
     
-    vector<sGuiSketcher> GuiSketcher::getChilds() const noexcept
-    {
-        vector<sGuiSketcher> childs;
-        lock_guard<mutex> guard(m_childs_mutex);
-        auto it = m_childs.begin();
-        while(it != m_childs.end())
-        {
-            sGuiSketcher child = (*it).lock();
-            if(child)
-            {
-                childs.push_back(child);
-                ++it;
-            }
-        }
-        return childs;
-    }
-    
-    void GuiSketcher::addChild(sGuiSketcher child) noexcept
+    void GuiModel::addChild(sGuiModel child) noexcept
     {
         if(child)
         {
@@ -282,7 +212,7 @@ namespace Kiwi
         }
     }
     
-    void GuiSketcher::removeChild(sGuiSketcher child) noexcept
+    void GuiModel::removeChild(sGuiModel child) noexcept
     {
         if(child)
         {
@@ -304,10 +234,5 @@ namespace Kiwi
                 }
             }
         }
-    }
-    
-    sGuiController GuiSketcher::createController()
-    {
-        return make_shared<GuiController>(static_pointer_cast<GuiSketcher>(shared_from_this()));
     }
 }

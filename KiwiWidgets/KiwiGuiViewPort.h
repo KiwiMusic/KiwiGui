@@ -32,22 +32,20 @@ namespace Kiwi
     //                                  GUI VIEW PORT                                   //
     // ================================================================================ //
     
-    //! The view port is a sketcher that ...
+    //! The view port is a model that ...
     /** The view port
      */
-    class GuiViewPort : public GuiSketcher
+    class GuiViewPort : public GuiModel
     {
     private:
         class Controller;
-        
-        const sGuiContainer m_container;
         const sGuiScrollBar m_scrollbar_h;
         const sGuiScrollBar m_scrollbar_v;
-        sGuiSketcher        m_content;
+        sGuiModel        m_content;
     public:
         
         //! The view port constructor.
-        /** The function intialize the sketcher and allocates a container.
+        /** The function intialize the model and allocates a container.
          @param context The context.
          */
         GuiViewPort(sGuiContext context) noexcept;
@@ -57,29 +55,29 @@ namespace Kiwi
          */
         ~GuiViewPort() noexcept;
         
-        //! Sets the content sketcher of the view port.
-        /** The function sets the content sketcher of the view port.
-         @param sketcher The content sketcher.
+        //! Sets the content model of the view port.
+        /** The function sets the content model of the view port.
+         @param model The content model.
          */
-        void setContent(sGuiSketcher sketcher) noexcept;
+        void setContent(sGuiModel model) noexcept;
         
-        //! Gets the content sketcher of the view port.
-        /** The function retrieves the content sketcher of the view port.
-         @return The content sketcher.
+        //! Gets the content model of the view port.
+        /** The function retrieves the content model of the view port.
+         @return The content model.
          */
-        inline sGuiSketcher getContent() const noexcept
+        inline sGuiModel getContent() const noexcept
         {
             return m_content;
         }
         
-        //! Sets the content sketcher position.
-        /** The function sets the content sketcher position.
+        //! Sets the content model position.
+        /** The function sets the content model position.
          @param position The position of the content.
          */
         void setContentPosition(Point const& position);
         
-        //! Gets the content sketcher position.
-        /** The function retrieves the content sketcher position.
+        //! Gets the content model position.
+        /** The function retrieves the content model position.
          @return The position of the content.
          */
         inline Point getContentPosition() const noexcept
@@ -93,7 +91,12 @@ namespace Kiwi
          @param ctrl    The controller that ask the draw.
          @param sketch  A sketch to draw.
          */
-        void draw(scGuiView view, Sketch& sketch) const override {sketch.fillAll(Colors::white);}
+        void draw(scGuiView view, Sketch& sketch) const {sketch.fillAll(Colors::white);}
+        
+        sGuiController createController() override
+        {
+            return nullptr;
+        }
     };
     
     class GuiViewPort::Controller : public GuiController

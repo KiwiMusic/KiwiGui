@@ -32,21 +32,13 @@ namespace Kiwi
     //                                  GUI CONTAINER                                   //
     // ================================================================================ //
     
-    //! The container is a sketcher that facilitates the positioning of sub sketchers.
-    /** The container allows to creates...
+    //! The container is a simple model that allows to add childs models.
+    /** The container allows to adds childs models from other models.
      */
-    class GuiContainer : public GuiSketcher
+    class GuiContainer : public GuiModel
     {
-    public:
-        struct Cell
-        {
-            ulong row;
-            ulong column;
-        };
-        
     private:
-        map<Cell, ulong> m_disposition;
-        
+        class Controller;
     public:
         
         //! The window constructor.
@@ -60,24 +52,22 @@ namespace Kiwi
          */
         virtual ~GuiContainer() noexcept;
         
-        //! The draw method that should be override.
-        /** The function shoulds draw some stuff in the sketch.
-         @param ctrl    The controller that ask the draw.
-         @param sketch  A sketch to draw.
+        //! Adds a model to the window.
+        /** The function adds model to the window that will be displayed inside the window container.
+         @param model The model.
          */
-        void draw(scGuiView view, Sketch& sketch) const override {};
+        void addContent(sGuiModel model) noexcept;
         
-        //! Adds a sketcher to the window.
-        /** The function adds sketcher to the window that will be displayed inside the window container.
-         @param sketcher The sketcher.
+        //! Remove a model from the window.
+        /** The function removes a model from the window container.
+         @param model The model.
          */
-        void addContent(sGuiSketcher sketcher) noexcept;
+        void removeContent(sGuiModel model) noexcept;
         
-        //! Remove a sketcher from the window.
-        /** The function removes a sketcher from the window container.
-         @param sketcher The sketcher.
-         */
-        void removeContent(sGuiSketcher sketcher) noexcept;
+        sGuiController createController() noexcept override
+        {
+            return nullptr;
+        }
     };
 }
 

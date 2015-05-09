@@ -32,20 +32,30 @@ namespace Kiwi
     //                                  GUI SCROOLBAR                                   //
     // ================================================================================ //
     
-    //! The scrool bar
-    /** The...
+    //! The scrool bar is a graphical range slider.
+    /** The scroll bar is a graphical range slider that generally is used to control the view ports.
      */
-    class GuiScrollBar : public GuiSketcher
+    class GuiScrollBar : public GuiModel
     {
     public:
+        class Listener;
+        typedef shared_ptr<Listener>    sListener;
+        typedef weak_ptr<Listener>      wListener;
+        
+        /** The direction of the scroll bar.
+         */
         enum Direction
         {
-            Vertical    = false,
-            Horizontal  = true
+            Vertical    = false,///< Vertical.
+            Horizontal  = true  ///< Horizontal.
         };
-    private:
-        class Controller;
         
+    protected:
+        class Controller;
+        typedef shared_ptr<Controller>  sController;
+        typedef weak_ptr<Controller>    wController;
+        
+    private:
         const Direction m_direction;
         double          m_thumb_time;
         Color           m_thumb_color;
@@ -53,7 +63,7 @@ namespace Kiwi
         
     public:
         
-        //! The button constructor.
+        //! The scroll bar constructor.
         /** The function does nothing.
          @param context     The context.
          @param direction   The direction of the scroll bar.
@@ -67,7 +77,7 @@ namespace Kiwi
                      Color const& tbcolor = Colors::black,
                      Color const& bgcolor = Colors::transparent) noexcept;
         
-        //! The button destructor.
+        //! The scroll bar destructor.
         /** The function does nothing.
          */
         inline virtual ~GuiScrollBar() noexcept {}
@@ -114,12 +124,20 @@ namespace Kiwi
          */
         void setThumbColor(Color const& color) noexcept;
         
-        //! The draw method that should be override.
-        /** The function shoulds draw some stuff in the sketch.
-         @param ctrl    The controller that ask the draw.
+        //! The draw method that can be override.
+        /** The function shoulds draw some stuff in the sketch. The default implementation draws a simple rectangle for the thumb. Another implementation can draw more differents or complex shapes.
+         @param ctrl    The controller that ask to be redraw.
          @param sketch  A sketch to draw.
          */
-        void draw(scGuiView view, Sketch& sketch) const override {};
+        virtual void draw(sController ctrl, Sketch& sketch) const;
+        
+        //! The mouse receive method that can be override.
+        /** The function should return true if the scroll has been well performed, otherwise it should return false. The default implementation returns true whenever there is a mouse wheel event or when the thumb is visible whith the mouse drown and drag events. Another implementation cans define another behavior.
+         @param ctrl    The controller that ask to be redraw.
+         @param event   The mouser event.
+         @return true if the button has been well performed, otherwise false.
+         */
+        virtual bool receive(sController ctrl, MouseEvent const& event);
         
     private:
         
@@ -134,42 +152,41 @@ namespace Kiwi
     //                              GUI SCROOLBAR CONTROLLER                            //
     // ================================================================================ //
     
-    class GuiScrollBar::Controller : public GuiController, public Clock
+    //! The scroll bar controller.
+    /** The scroll bar controller manage a view of a scroll bar.
+     */
+    class GuiScrollBar::Controller : public GuiController, public Broadcaster<Listener>, public Clock
     {
-    public:
-        class Listener
-        {
-        public:
-            virtual ~Listener() noexcept {};
-            
-            //! Receives the notification that a scroll bar has moved.
-            /** The function receivesthe notification that a scroll bar has moved.
-             @param scrollbar The scroll bar.
-             */
-            virtual void scrollBarMoved(sGuiScrollBar scrollbar) = 0;
-        };
-        typedef shared_ptr<Listener>    sListener;
-        typedef weak_ptr<Listener>      wListener;
-        
     private:
-        const sGuiScrollBar     m_scrollbar;
+        const wGuiScrollBar     m_scrollbar;
         array<double, 2>        m_limits;
         array<double, 2>        m_range;
         atomic_bool             m_visible;
         
-        set<wListener,
-        owner_less<wListener>> m_lists;
-        mutex                  m_lists_mutex;
     public:
-        //! The controller constructor.
-        /** The function does nothing.
+        //! The scroll bar controller constructor.
+        /** The function initialize the scroll bar controller.
+         @param context     The context.
+         @param scrollbar   The scroll bar to control.
          */
-        Controller(sGuiScrollBar scrollbar) noexcept;
+        Controller(sGuiContext context, sGuiScrollBar scrollbar) noexcept;
         
         //! The controller destructor.
         /** The function does nothing.
          */
-        ~Controller() noexcept;
+        inline ~Controller() noexcept {};
+        
+        //! Gets the scroll bar.
+        /** The function retrieves the scroll bar.
+         @return The scroll bar.
+         */
+        inline sGuiScrollBar getScrollBar() const noexcept {return m_scrollbar.lock();}
+        
+        //! Gets if the thumb is visible.
+        /** The function retreives if the thumb is visible.
+         @return true if the thumb is visible, otherwise false.
+         */
+        inline bool isThumbVisible() const noexcept {return m_visible;}
         
         //! Gets the maximum and minimum limits of the thumb.
         /** The function retreives the maximum and minimum limits of the thumb.
@@ -191,7 +208,7 @@ namespace Kiwi
         void draw(sGuiView view, Sketch& sketch) override;
         
         //! The mouse receive method.
-        /** The function pass the mouse event to the sketcher if it inherits from mouser.
+        /** The function pass the mouse event to the model if it inherits from mouser.
          @param event    A mouser event.
          @return true if the class has done something with the event otherwise false
          */
@@ -229,18 +246,28 @@ namespace Kiwi
         /** The tick function is called by a clock after a delay.
          */
         void tick() override;
-        
-        //! Add an instance listener in the binding list of the controller.
-        /** The function adds an instance listener in the binding list of the controller.
-         @param listener  The listener.
+    };
+    
+    // ================================================================================ //
+    //                              GUI SCROOLBAR LISTENER                              //
+    // ================================================================================ //
+    
+    //! The button listener.
+    /** The button listener is notified when a the scroll bar moved.
+     */
+    class GuiScrollBar::Listener
+    {
+    public:
+        //! The listener destructor.
+        /** The function frees the memory.
          */
-        void addListener(sListener listener);
+        virtual ~Listener() noexcept {};
         
-        //! Remove an instance listener from the binding list of the controller.
-        /** The function removes an instance listener from the binding list of the controller.
-         @param listener  The listener.
+        //! Receives the notification that a scroll bar moved.
+        /** The function receivesthe notification that a scroll bar moved.
+         @param scrollbar The scroll bar.
          */
-        void removeListener(sListener listener);
+        virtual void scrollBarMoved(sGuiScrollBar scrollbar) = 0;
     };
 }
 

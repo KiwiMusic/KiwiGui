@@ -39,20 +39,23 @@ namespace Kiwi
     GuiContext::~GuiContext() noexcept
     {
         lock_guard<mutex> guard(m_mutex);
-        m_windows.clear();
+        m_top_levels.clear();
     }
     
     sGuiView GuiContext::createView(sGuiController ctrl) const noexcept
     {
+        sGuiView view;
         sGuiDeviceManager device = getDeviceManager();
         if(device)
         {
-            return device->createView(ctrl);
+            view = device->createView(ctrl);
+            if(view)
+            {
+                ctrl->m_view = view;
+            }
+            return view;
         }
-        else
-        {
-            return sGuiView();
-        }
+        return sGuiView();
     }
     
     Point GuiContext::getMousePosition() const noexcept
@@ -81,21 +84,21 @@ namespace Kiwi
         }
     }
     
-    void GuiContext::addWindow(sGuiView window) noexcept
+    void GuiContext::addTopLevelModel(sGuiModel view) noexcept
     {
-        if(window)
+        if(view)
         {
             lock_guard<mutex> gard(m_mutex);
-            m_windows.insert(window);
+            m_top_levels.insert(view);
         }
     }
     
-    void GuiContext::removeWindow(sGuiView window) noexcept
+    void GuiContext::removeTopLevelModel(sGuiModel view) noexcept
     {
-        if(window)
+        if(view)
         {
             lock_guard<mutex> gard(m_mutex);
-            m_windows.erase(window);
+            m_top_levels.erase(view);
         }
     }
 }

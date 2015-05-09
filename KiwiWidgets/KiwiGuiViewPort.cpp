@@ -30,8 +30,7 @@ namespace Kiwi
     //                                  GUI VIEW PORT                                   //
     // ================================================================================ //
     
-    GuiViewPort::GuiViewPort(sGuiContext context) noexcept : GuiSketcher(context),
-    m_container(make_shared<GuiContainer>(context)),
+    GuiViewPort::GuiViewPort(sGuiContext context) noexcept : GuiModel(context),
     m_scrollbar_h(make_shared<GuiScrollBar>(context, GuiScrollBar::Horizontal)),
     m_scrollbar_v(make_shared<GuiScrollBar>(context, GuiScrollBar::Vertical))
     {
@@ -41,7 +40,6 @@ namespace Kiwi
         m_scrollbar_h->setBounds(Rectangle(0., bounds.height() - 10., bounds.width(), 10.));
         m_scrollbar_v->setBounds(Rectangle(bounds.width() - 10., 0., 10., bounds.height()));
          */
-        addChild(m_container);
         addChild(m_scrollbar_h);
         addChild(m_scrollbar_v);
     }
@@ -51,14 +49,13 @@ namespace Kiwi
         ;
     }
     
-    void GuiViewPort::setContent(sGuiSketcher sketcher) noexcept
+    void GuiViewPort::setContent(sGuiModel model) noexcept
     {
         if(m_content)
         {
-            m_container->removeContent(sketcher);
+            removeChild(m_content);
         }
-        m_container->addContent(sketcher);
-        //m_container->setBounds(getBounds());
+        addChild(m_content);
     }
     
     void GuiViewPort::setContentPosition(Point const& position)

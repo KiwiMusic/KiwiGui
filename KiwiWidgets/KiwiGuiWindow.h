@@ -32,7 +32,7 @@ namespace Kiwi
     //                                  GUI WINDOW                                      //
     // ================================================================================ //
     
-    class GuiWindow : public GuiSketcher
+    class GuiWindow : public GuiModel
     {
     public:
         class Header;
@@ -41,7 +41,13 @@ namespace Kiwi
         typedef shared_ptr<const Header>    scHeader;
         typedef weak_ptr<const Header>      wcHeader;
         
+    protected:
+        class Controller;
+        typedef shared_ptr<Controller>  sController;
+        typedef weak_ptr<Controller>    wController;
+        
     private:
+        sHeader         m_header;
         Color           m_color;
     public:
         
@@ -60,49 +66,93 @@ namespace Kiwi
          */
         virtual ~GuiWindow() noexcept;
         
-        //! Sets the background color of the window
+        //! Sets the background color of the window.
         /** The function sets the background color of the window.
          @param color The background color.
          */
         void setBackgroundColor(Color const& color) noexcept;
         
-        //! Retreives the background color of the window
+        //! Retreives the background color of the window.
         /** The function retreives the background color of the window.
          @return The background color.
          */
-        inline Color getBackgroundColor() const noexcept
-        {
-            return m_color;
-        }
+        inline Color getBackgroundColor() const noexcept {return m_color;}
         
-        //! The paint method that should be override.
-        /** The function shoulds draw some stuff in the sketch.
-         @param ctrl    The controller that ask the draw.
-         @param sketch  A sketch to draw.
+        //! Add a new view of the window to the desktop
+        /** The function adds new view of the window to the desktop
          */
-        void draw(scGuiView view, Sketch& sketch) const override;
+        void addToDesktop() noexcept;
         
-        //! Displays the windows.
-        /** This function displays the window in the desktop.
+        //! Remove the view of the window to the desktop
+        /** The function removes the view of the window from the desktop
          */
-        void display();
+        void removeFromDesktop() noexcept;
         
-        //! Closes the windows.
-        /** This function removes the window from the desktop.
+        //! Create the controller.
+        /** The function creates a controller for the window.
+         @return The controller.
+         */
+        sGuiController createController() override;
+    };
+    
+    // ================================================================================ //
+    //                              GUI WINDOW CONTROLLER                               //
+    // ================================================================================ //
+    
+    //! The window controller.
+    /** The window controller manage a view of a window.
+     */
+    class GuiWindow::Controller : public GuiController
+    {
+    private:
+        const wGuiWindow m_window;
+    public:
+        //! The window controller constructor.
+        /** The function initialize the window controller.
+         @param context The context.
+         @param window  The window to control.
+         */
+        Controller(sGuiContext context, sGuiWindow window) noexcept;
+        
+        //! The controller destructor.
+        /** The function does nothing.
+         */
+        inline ~Controller() noexcept {};
+        
+        //! Retreives the window of the controller.
+        /** The function retreives the window of the controller.
+         @return The window.
+         */
+        inline sGuiWindow getWindow() const noexcept {return m_window.lock();}
+        
+        //! Closes the window's view.
+        /** This function removes the window's view from the desktop.
          */
         void close();
-
-        //! Closes the windows.
-        /** This function removes the window from the desktop.
+        
+        //! Minimize the window's view.
+        /** This function minimize the window's view.
          */
         void minimize();
+        
+        //! Maximize the window's view.
+        /** This function maximize the window's view.
+         */
+        void maximize();
+        
+        //! The draw method that can be override.
+        /** The function shoulds draw some stuff.
+         @param view    The view that owns the controller.
+         @param sketch  The sketch to draw.
+         */
+        void draw(sGuiView view, Sketch& sketch) override;
     };
     
     // ================================================================================ //
     //                              GUI WINDOW HEADER                                   //
     // ================================================================================ //
     
-    class GuiWindow::Header : public GuiSketcher, public GuiMouser, public GuiButton::Listener
+    class GuiWindow::Header : public GuiModel, public GuiMouser, public GuiButton::Listener
     {
     private:
         const wGuiWindow m_window;
@@ -274,7 +324,7 @@ namespace Kiwi
          @param ctrl    The controller that ask the draw.
          @param sketch  A sketch to draw.
          */
-        void draw(scGuiView view, Sketch& sketch) const override;
+        void draw(scGuiView view, Sketch& sketch) const;
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
@@ -289,6 +339,11 @@ namespace Kiwi
          @param The button.
          */
         void buttonPressed(sGuiButton button) override;
+        
+        sGuiController createController() override
+        {
+            return nullptr;
+        }
     };
 
 }

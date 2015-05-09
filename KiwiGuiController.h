@@ -38,6 +38,8 @@ namespace Kiwi
     class GuiController : public enable_shared_from_this<GuiController>
     {
     private:
+        friend class GuiContext;
+        
         const wGuiContext   m_context;
         Rectangle           m_bounds;
         bool                m_want_mouse;
@@ -243,12 +245,25 @@ namespace Kiwi
          */
         void setSize(Size&& size) noexcept;
         
-    protected:
-        
-        //! Send a notification to the view that the sketcher needs to be redrawn.
-        /** The function sends a notification to the each that the sketcher should be redrawn.
+        //! Send a notification to the view that the controller needs to be redrawn.
+        /** The function sends a notification to the view that the controller should be redrawn.
          */
         void redraw() noexcept;
+        
+        //! Send a notification to the view that the controller wants the keyboard focus.
+        /** The function sends a notification to the view that the controller wants the keyboard focus.
+         */
+        void grabFocus() noexcept;
+        
+        //! Sends the notification to the view that the controller needs to go behind the other controllers.
+        /** This function sends a notification to the view that the controller needs to go behind the other controllers.
+         */
+        void toBack() noexcept;
+        
+        //! Sends the notification to the view that the controller needs to go in front of the other controllers.
+        /** This function sends a notification to the view that the controller needs to in front of the other controllers.
+         */
+        void toFont() noexcept;
     };
 }
 

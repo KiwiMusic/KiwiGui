@@ -194,6 +194,33 @@ namespace Kiwi
             view->redraw();
         }
     }
+    
+    void GuiController::grabFocus() noexcept
+    {
+        sGuiView view = getView();
+        if(view)
+        {
+            view->redraw();
+        }
+    }
+    
+    void GuiController::toBack() noexcept
+    {
+        sGuiView view = getView();
+        if(view)
+        {
+            view->redraw();
+        }
+    }
+    
+    void GuiController::toFont() noexcept
+    {
+        sGuiView view = getView();
+        if(view)
+        {
+            view->redraw();
+        }
+    }
 }
 
 

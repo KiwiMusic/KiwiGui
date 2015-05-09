@@ -30,7 +30,7 @@ namespace Kiwi
     //                                  GUI CONTAINER                                   //
     // ================================================================================ //
 	
-    GuiContainer::GuiContainer(sGuiContext context) noexcept : GuiSketcher(context)
+    GuiContainer::GuiContainer(sGuiContext context) noexcept : GuiModel(context)
     {
         ;
     }
@@ -40,14 +40,14 @@ namespace Kiwi
         ;
     }
 
-    void GuiContainer::addContent(sGuiSketcher sketcher) noexcept
+    void GuiContainer::addContent(sGuiModel model) noexcept
     {
-        addChild(sketcher);
+        addChild(model);
     }
     
-    void GuiContainer::removeContent(sGuiSketcher sketcher) noexcept
+    void GuiContainer::removeContent(sGuiModel model) noexcept
     {
-        removeChild(sketcher);
+        removeChild(model);
     }
 }
 

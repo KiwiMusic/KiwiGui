@@ -35,29 +35,33 @@ namespace Kiwi
     //! The button is a simple graphical button.
     /** The button is a simple graphical button that the user can press.
      */
-    class GuiButton : public GuiSketcher
+    class GuiButton : public GuiModel
     {
     public:
         class Listener;
         typedef shared_ptr<Listener>    sListener;
         typedef weak_ptr<Listener>      wListener;
         
-    private:
+    protected:
         class Controller;
+        typedef shared_ptr<Controller>  sController;
+        typedef weak_ptr<Controller>    wController;
+        
+    private:
         Color m_background_color;
     public:
         
         //! The button constructor.
         /** The function initializes the button and defaults values.
          @param context The context.
-         @param bgcolor   The button background color.
+         @param bgcolor The button background color.
          */
         GuiButton(sGuiContext context, Color const& bgcolor = Colors::white) noexcept;
         
         //! The button destructor.
         /** The function frees the memory.
          */
-        virtual ~GuiButton() noexcept {};
+        inline virtual ~GuiButton() noexcept {};
         
         //! Retreives the background color of the button.
         /** The function retreives background the color of the button.
@@ -73,18 +77,18 @@ namespace Kiwi
         
         //! The draw method that can be override.
         /** The function shoulds draw some stuff in the sketch. The default implementation draws a simple square with the background color and a darker border. Another implementation can draw more differents or complex shapes.
-         @param view    The view that ask to be redraw.
+         @param ctrl    The controller that ask to be redraw.
          @param sketch  A sketch to draw.
          */
-        virtual void draw(scGuiView view, Sketch& sketch) const;
+        virtual void draw(sController ctrl, Sketch& sketch) const;
         
         //! The mouse receive method that can be override.
-        /** The function should return true if the button has been well pressed, otherwise it should return false. The default implementation returns true whenever the mouse event is down. Another implementation cans valid the  another kind of mouse event or/and defines an area where the press action is valid.
-         @param view    The view that owns the controller.
+        /** The function should return true if the button has been well pressed, otherwise it should return false. The default implementation returns true whenever the mouse event is down. Another implementation cans valid another kind of mouse event or/and defines an area where the press action is valid.
+         @param ctrl    The controller that ask to be redraw.
          @param event   The mouser event.
          @return true if the button has been well pressed, otherwise false.
          */
-        virtual bool receive(scGuiView view, MouseEvent const& event);
+        virtual bool receive(sController ctrl, MouseEvent const& event);
         
         //! Add an instance listener in the binding list of the manager.
         /** The function adds an instance listener in the binding list of the manager.
@@ -109,6 +113,14 @@ namespace Kiwi
                 ;
             }
         }
+        
+    private:
+        
+        //! Create the controller.
+        /** The function creates a controller depending on the inheritance.
+         @return The controller.
+         */
+        sGuiController createController() override;
     };
     
     // ================================================================================ //
@@ -121,27 +133,35 @@ namespace Kiwi
     class GuiButton::Controller : public GuiController, public Broadcaster<Listener>
     {
     private:
-        const sGuiButton       m_button;
+        const wGuiButton m_button;
     public:
-        //! The controller constructor.
-        /** The function does nothing.
+        //! The button controller constructor.
+        /** The function initialize the button controller.
+         @param context The context.
+         @param button  The button to control.
          */
         Controller(sGuiContext context, sGuiButton button) noexcept;
         
         //! The controller destructor.
         /** The function does nothing.
          */
-        ~Controller() noexcept {};
+        inline ~Controller() noexcept {};
+        
+        //! Gets the button.
+        /** The function retrieves the button.
+         @return The button.
+         */
+        inline sGuiButton getButton() const noexcept {return m_button.lock();}
         
         //! The draw method that can be override.
         /** The function shoulds draw some stuff.
          @param view    The view that owns the controller.
          @param sketch  The sketch to draw.
          */
-        void draw(sGuiView view, Sketch& sketch) override {m_button->draw(view, sketch);}
+        void draw(sGuiView view, Sketch& sketch) override;
         
         //! The mouse receive method that can be override.
-        /** The function pass the mouse event to the sketcher if it inherits from mouser.
+        /** The function pass the mouse event to the model if it inherits from mouser.
          @param view    The view that owns the controller.
          @param event   The mouser event.
          @return true if the class has done something with the event, otherwise false.true if the button has been well pressed

@@ -31,7 +31,7 @@ namespace Kiwi
     // ================================================================================ //
     
     GuiTextEditor::GuiTextEditor(sGuiContext context) noexcept :
-    GuiSketcher(context)
+    GuiModel(context)
     {
         m_notify_return = UsedAsCharacter;
         m_notify_tab    = UsedAsCharacter;
@@ -691,10 +691,13 @@ namespace Kiwi
     //                              TEXT EDITOR CONTROLLER                              //
     // ================================================================================ //
     
-    GuiTextEditor::Controller::Controller(sGuiTextEditor editor) noexcept : GuiController(editor), m_editor(editor),
+    GuiTextEditor::Controller::Controller(sGuiTextEditor editor) noexcept : GuiController(editor->getContext()), m_editor(editor),
         m_caret(make_shared<GuiTextEditor::Caret>(editor))
     {
         m_editor->addCaret(m_caret);
+        shouldReceiveMouse(true);
+        shouldReceiveKeyboard(true);
+        shouldReceiveActions(true);
     }
         
     GuiTextEditor::Controller::~Controller() noexcept

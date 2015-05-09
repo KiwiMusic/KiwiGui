@@ -144,28 +144,28 @@ namespace Kiwi
         void removeChild(sGuiView child) noexcept;
         
         //! The mouse receive method.
-        /** The function pass the mouse event to the sketcher if it inherits from mouser.
+        /** The function pass the mouse event to the model if it inherits from mouser.
          @param event    A mouser event.
          @return true if the class has done something with the event otherwise false
          */
         inline void draw(Sketch& sketch) {m_controller->draw(shared_from_this(), sketch);}
         
         //! The mouse receive method.
-        /** The function pass the mouse event to the sketcher if it inherits from mouser.
+        /** The function pass the mouse event to the model if it inherits from mouser.
          @param event    A mouser event.
          @return true if the class has done something with the event otherwise false
          */
         inline bool receive(MouseEvent const& event) {return m_controller->receive(shared_from_this(), event);}
         
         //! The keyboard receive method.
-        /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
+        /** The function pass the keyboard event to the model if it inherits from keyboarder.
          @param event    A keyboard event.
          @return true if the class has done something with the event otherwise false
          */
         inline bool receive(KeyboardEvent const& event) {return m_controller->receive(shared_from_this(), event);}
         
         //! The keyboard focus receive method.
-        /** The function pass the keyboard event to the sketcher if it inherits from keyboarder.
+        /** The function pass the keyboard event to the model if it inherits from keyboarder.
          @param event    A focus event.
          @return true if the class has done something with the event otherwise false
          */
@@ -216,10 +216,20 @@ namespace Kiwi
          */
         virtual void behaviorChanged() = 0;
         
-        //! Receives the notification that the sketcher needs the keyboard focus.
-        /** This function is called by the sketcher whenever it needs the keyboard focus.
+        //! Receives the notification that the model needs the keyboard focus.
+        /** This function is called by the model whenever it needs the keyboard focus.
          */
         virtual void grabFocus() = 0;
+        
+        //! Receives the notification that the model needs to go behind the other viewes.
+        /** This function is called by the model whenever it needs to go behind the other viewes.
+         */
+        virtual void toBack() = 0;
+        
+        //! Receives the notification that the model needs to go in front of the other viewes.
+        /** This function is called by the model whenever it needs to go in front of the other viewes.
+         */
+        virtual void toFont() = 0;
         
         //! Adds the view to the desktop.
         /** This function adds the view to the desktop as a top level window.

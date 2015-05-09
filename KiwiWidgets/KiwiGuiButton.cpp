@@ -30,7 +30,7 @@ namespace Kiwi
     //                                  GUI BUTTON                                      //
     // ================================================================================ //
 	
-    GuiButton::GuiButton(sGuiContext context, Color const& color) noexcept : GuiSketcher(context),
+    GuiButton::GuiButton(sGuiContext context, Color const& color) noexcept : GuiModel(context),
     m_background_color(color)
     {
         ;
@@ -45,9 +45,9 @@ namespace Kiwi
         }
     }
     
-    void GuiButton::draw(scGuiView view, Sketch& sketch) const
+    void GuiButton::draw(sController ctrl, Sketch& sketch) const
     {
-        const Rectangle bounds = view->getBounds().withZeroOrigin();
+        const Rectangle bounds = ctrl->getBounds().withZeroOrigin();
         sketch.setColor(m_background_color.darker(0.1));
         sketch.setLineWidth(1.);
         sketch.drawRectangle(bounds);
@@ -55,17 +55,22 @@ namespace Kiwi
         sketch.fillEllipse(bounds.reduced(0.5));
     }
     
-    bool GuiButton::valid(scGuiView view, MouseEvent const& event)
+    bool GuiButton::receive(sController ctrl, MouseEvent const& event)
     {
         return event.isDown();
+    }
+    
+    sGuiController GuiButton::createController()
+    {
+        return make_shared<Controller>(getContext(), static_pointer_cast<GuiButton>(shared_from_this()));
     }
     
     // ================================================================================ //
     //                              GUI BUTTON CONTROLLER                               //
     // ================================================================================ //
     
-    GuiButton::Controller::Controller(sGuiButton button) noexcept :
-    GuiController(button->getContext()),
+    GuiButton::Controller::Controller(sGuiContext context, sGuiButton button) noexcept :
+    GuiController(context),
     m_button(button)
     {
         shouldReceiveMouse(true);
@@ -75,16 +80,29 @@ namespace Kiwi
     
     bool GuiButton::Controller::receive(sGuiView view, MouseEvent const& event)
     {
-        if(m_button->valid(view, event))
+        sGuiButton button(getButton());
+        if(button)
         {
-            vector<sListener> listeners(getListeners());
-            for(auto it : listeners)
+            if(button->receive(static_pointer_cast<Controller>(shared_from_this()), event))
             {
-                it->buttonPressed(m_button);
+                vector<sListener> listeners(getListeners());
+                for(auto it : listeners)
+                {
+                    it->buttonPressed(button);
+                }
+                return true;
             }
-            return true;
         }
         return false;
+    }
+    
+    void GuiButton::Controller::draw(sGuiView view, Sketch& sketch)
+    {
+        sGuiButton button(getButton());
+        if(button)
+        {
+            button->draw(static_pointer_cast<Controller>(shared_from_this()), sketch);
+        }
     }
 }
 

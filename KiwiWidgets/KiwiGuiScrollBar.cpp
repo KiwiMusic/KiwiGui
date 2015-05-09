@@ -31,7 +31,7 @@ namespace Kiwi
                                const double time,
                                Color const& tbcolor,
                                Color const& bgcolor) noexcept :
-    GuiSketcher(context),
+    GuiModel(context),
     m_direction(direction),
     m_thumb_time(time),
     m_thumb_color(tbcolor),
@@ -67,17 +67,71 @@ namespace Kiwi
         }
     }
     
+    void GuiScrollBar::draw(sController ctrl, Sketch& sketch) const
+    {
+        sketch.fillAll(m_background_color);
+        if(ctrl->isThumbVisible())
+        {
+            const array<double, 2> limits = ctrl->getRangeLimits(), range = ctrl->getCurrentRange();
+            const Size size = ctrl->getSize();
+            sketch.setColor(m_thumb_color);
+            if(m_direction == Horizontal)
+            {
+                const double ratio = size.width() / (limits[1] - limits[0]);
+                sketch.fillRectangle((range[0] + limits[0]) * ratio, 0., (range[1] + limits[0]) * ratio, size.height());
+            }
+            else
+            {
+                const double ratio = size.height() / (limits[1] - limits[0]);
+                sketch.fillRectangle(0., (range[0] + limits[0]) * ratio, size.width(), (range[1] + limits[0]) * ratio);
+            }
+        }
+    }
+    
+    bool GuiScrollBar::receive(sController ctrl, MouseEvent const& event)
+    {
+        if(event.isWheel())
+        {
+            const array<double, 2> range = ctrl->getCurrentRange();
+            if(m_direction == Horizontal)
+            {
+                ctrl->scrollTo(event.getWheelOffsetX() + (range[1] - range[0]) * 0.5);
+            }
+            else
+            {
+                ctrl->scrollTo(event.getWheelOffsetY() + (range[1] - range[0]) * 0.5);
+            }
+            return true;
+        }
+        else if(event.isDown() || event.isDrag())
+        {
+            if(ctrl->isThumbVisible() || m_thumb_time < 0.)
+            {
+                if(m_direction == Horizontal)
+                {
+                    ctrl-> scrollTo(event.getX());
+                }
+                else
+                {
+                    ctrl-> scrollTo(event.getY());
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    
     sGuiController GuiScrollBar::createController()
     {
-        return make_shared<Controller>(static_pointer_cast<GuiScrollBar>(shared_from_this()));
+        return make_shared<Controller>(getContext(), static_pointer_cast<GuiScrollBar>(shared_from_this()));
     }
 
     // ================================================================================ //
     //                              GUI SCROOLBAR CONTROLLER                            //
     // ================================================================================ //
     
-    GuiScrollBar::Controller::Controller(sGuiScrollBar scrollbar) noexcept :
-    GuiController(scrollbar->getContext()),
+    GuiScrollBar::Controller::Controller(sGuiContext context, sGuiScrollBar scrollbar) noexcept :
+    GuiController(context),
     m_scrollbar(scrollbar)
     {
         m_limits    = {0., 1.};
@@ -88,69 +142,44 @@ namespace Kiwi
         shouldReceiveActions(false);
     }
     
-    GuiScrollBar::Controller::~Controller() noexcept
-    {
-        lock_guard<mutex> guard(m_lists_mutex);
-        m_lists.clear();
-    }
-    
     void GuiScrollBar::Controller::tick()
     {
-        getView()->redraw();
+        m_visible = false;
+        redraw();
     }
     
     void GuiScrollBar::Controller::draw(sGuiView view, Sketch& sketch)
     {
-        if(m_scrollbar->getThumbDisplayTime() < 0.) {m_visible = true;}
-        sketch.fillAll(m_scrollbar->getBackgroundColor());
-        if(m_visible)
+        sGuiScrollBar scrollbar(getScrollBar());
+        if(scrollbar)
         {
-            const Size size = getSize();
-            sketch.setColor(m_scrollbar->getThumbColor());
-            if(m_scrollbar->getDirection() == Horizontal)
-            {
-                const double ratio = size.width() / (m_limits[1] - m_limits[0]);
-                sketch.fillRectangle((m_range[0] + m_limits[0]) * ratio, 0., (m_range[1] + m_limits[0]) * ratio, size.height());
-            }
-            else
-            {
-                const double ratio = size.height() / (m_limits[1] - m_limits[0]);
-                sketch.fillRectangle(0., (m_range[0] + m_limits[0]) * ratio, size.width(), (m_range[1] + m_limits[0]) * ratio);
-            }
+            scrollbar->draw(static_pointer_cast<Controller>(GuiController::shared_from_this()), sketch);
         }
     }
     
     bool GuiScrollBar::Controller::receive(sGuiView view, MouseEvent const& event)
     {
-        cout << "scroll bar receive mouse event" << endl;
-        if(event.isWheel())
+        sGuiScrollBar scrollbar(getScrollBar());
+        if(scrollbar)
         {
-            m_visible = true;
-            (m_scrollbar->getDirection() == Horizontal) ? scrollTo(event.getWheelOffsetX() + m_range[0]) : scrollTo(event.getWheelOffsetY() + m_range[0]);
-            return true;
-        }
-        else if(event.isDown() || event.isDrag())
-        {
-            if(m_visible)
+            if(scrollbar->receive(static_pointer_cast<Controller>(GuiController::shared_from_this()), event))
             {
-                (m_scrollbar->getDirection() == Horizontal) ? scrollTo(event.getX()) : scrollTo(event.getY());
+                return true;
             }
-            return true;
-        }
-        else
-        {
-            if(m_scrollbar->getThumbDisplayTime() > 1.)
+            else
             {
-                m_visible = false;
-                delay(m_scrollbar->getThumbDisplayTime());
-            }
-            else if(m_scrollbar->getThumbDisplayTime() > 0.)
-            {
-                m_visible = false;
-                view->redraw();
+                if(m_visible && scrollbar->getThumbDisplayTime() > 1.)
+                {
+                    delay(scrollbar->getThumbDisplayTime());
+                }
+                else if(m_visible && scrollbar->getThumbDisplayTime() > 0.)
+                {
+                    m_visible = false;
+                    view->redraw();
+                }
+                return false;
             }
         }
-        
         return false;
     }
     
@@ -186,10 +215,7 @@ namespace Kiwi
             const double offset = m_range[0] - m_limits[0];
             m_range[0] -= offset;
             m_range[1] -= offset;
-            if(m_visible)
-            {
-                redraw();
-            }
+            redraw();
         }
     }
     
@@ -219,26 +245,7 @@ namespace Kiwi
                 redraw();
             }
         }
-    }
-    
-    void GuiScrollBar::Controller::addListener(sListener listener)
-    {
-        if(listener)
-        {
-            lock_guard<mutex> guard(m_lists_mutex);
-            m_lists.insert(listener);
-        }
-    }
-    
-    void GuiScrollBar::Controller::removeListener(sListener listener)
-    {
-        if(listener)
-        {
-            lock_guard<mutex> guard(m_lists_mutex);
-            m_lists.erase(listener);
-        }
-    }
-    
+    }    
 }
 
 

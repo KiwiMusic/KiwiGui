@@ -36,7 +36,7 @@ namespace Kiwi
     {
     private:
         const wGuiDeviceManager m_device;
-        set<sGuiView>           m_windows;
+        set<sGuiModel>          m_top_levels;
         mutex                   m_mutex;
         
     public:
@@ -80,17 +80,17 @@ namespace Kiwi
          */
         Rectangle getScreenBounds(Point const& pt) const noexcept;
         
-        //! Adds a top level window to the context.
-        /** The function adds a the view of a top level window to the context.
-         @param window The view of the top level window.
+        //! Adds a top level view to the context.
+        /** The function adds a top level view to the context.
+         @param view The view.
          */
-        void addWindow(sGuiView window) noexcept;
+        void addTopLevelModel(sGuiModel view) noexcept;
         
-        //! Removes a top level window from the context.
+        //! Removes a top level view from the context.
         /** The function removes a the view of a top level window from the context.
          @param window The view of the top level window.
          */
-        void removeWindow(sGuiView window) noexcept;
+        void removeTopLevelModel(sGuiModel window) noexcept;
     };
 }
 

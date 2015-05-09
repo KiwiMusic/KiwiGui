@@ -29,68 +29,50 @@
 namespace Kiwi
 {    
 	// ================================================================================ //
-	//                                      SKETCHER                                    //
+	//                                     GUI MODEL                                    //
 	// ================================================================================ //
 	
-	//! The sketcher...
-	/** The sketcher...
+	//! The model is a class that allows to create views.
+	/** The model owns the shared members of several views and controllers, ect.
 	 */
-    class GuiSketcher : public inheritable_enable_shared_from_this<GuiSketcher>
+    class GuiModel : public inheritable_enable_shared_from_this<GuiModel>
 	{
 	private:
-        const wGuiContext           m_context;
-		set<wGuiView,
-		owner_less<wGuiView>>       m_views;
-		mutable mutex               m_views_mutex;
-        set<wGuiSketcher,
-        owner_less<wGuiSketcher>>   m_childs;
-        mutable mutex               m_childs_mutex;
+        const wGuiContext   m_context;
+		set<sGuiView>       m_views;
+		mutable mutex       m_views_mutex;
+        set<sGuiModel>      m_childs;
+        mutable mutex       m_childs_mutex;
 	public:
 		
 		//! Constructor.
 		/** The function does nothing.
          @param context The context.
 		 */
-        GuiSketcher(sGuiContext context) noexcept;
+        GuiModel(sGuiContext context) noexcept;
 		
 		//! Destructor.
 		/** The function does nothing.
 		 */
-		virtual ~GuiSketcher() noexcept;
+		virtual ~GuiModel() noexcept;
         
         //! Retrieves the context.
-        /** The function retrieves the context of the sketcher.
+        /** The function retrieves the context of the model.
          @return The context.
          */
-        inline sGuiContext getContext() const noexcept
-        {
-            return m_context.lock();
-        }
+        inline sGuiContext getContext() const noexcept {return m_context.lock();}
         
         //! Retrieves the device manager.
-        /** The function retrieves the device manager of the sketcher.
+        /** The function retrieves the device manager of the model.
          @return The device manager.
          */
         sGuiDeviceManager getDeviceManager() const noexcept;
-		
-		//! The draw method that should be override.
-		/** The function shoulds draw some stuff in the sketch.
-         @param view    The view that ask the draw.
-		 @param sketch  A sketch to draw.
-		 */
-		virtual void draw(scGuiView view, Sketch& sketch) const = 0;
         
         //! Retrieves the absolute mouse position.
         /** The function retrieves the absolute mouse position.
          @return The position.
          */
         Point getMousePosition() const noexcept;
-        
-        //! Retrieves the views.
-        /** The function retrieves the views. The methods also cleans the view list if some of them are not valid anymore.
-         @return The views.
-         */
-        vector<sGuiView> getViews() noexcept;
         
         //! Retrieves the views.
         /** The function retrieves the views.
@@ -104,10 +86,10 @@ namespace Kiwi
          */
         sGuiView getFirstView() const noexcept;
         
-        //! Retrieves if the sketcher has a view.
-        /** The function retrieves if the sketcher has a view.
+        //! Retrieves if the model has a view.
+        /** The function retrieves if the model has a view.
          @param view The view.
-         @return true if the sketcher has the view, otherwise false.
+         @return true if the model has the view, otherwise false.
          */
         bool hasView(sGuiView view) const noexcept;
         
@@ -126,49 +108,43 @@ namespace Kiwi
         void removeView(sGuiView view) noexcept;
         
         //! Receives the notification that a view has been created.
-        /** The function notfies the sketcher that a view has been created.
+        /** The function notfies the model that a view has been created.
          @param view The view.
          */
         virtual void viewCreated(sGuiView view) noexcept {};
         
         //! Receives the notification that a view has been removed.
-        /** The function notfies the sketcher that a view has been removed.
+        /** The function notfies the model that a view has been removed.
          @param view The view.
          */
         virtual void viewRemoved(sGuiView view) noexcept {};
         
-        //! Adds a child sketcher to the sketcher.
-        /** The function adds a child sketcher that will be displayed inside the sketcher.
+        //! Adds a child model to the model.
+        /** The function adds a child model that will be displayed inside the model.
          @param child The child.
          */
-        void addChild(sGuiSketcher child) noexcept;
+        void addChild(sGuiModel child) noexcept;
         
-        //! Remove a child sketcher from the sketcher.
-        /** The function removes a child sketcher and make it invisible.
+        //! Remove a child model from the model.
+        /** The function removes a child model and make it invisible.
          @param child The child.
          */
-        void removeChild(sGuiSketcher child) noexcept;
+        void removeChild(sGuiModel child) noexcept;
         
-        //! Retrives all the child sketchers from the sketcher.
-        /** The function retrieves all the child sketchers from the sketcher. The methods also cleans the childs list if some of them are not valid anymore.
+        //! Retrives all the child sketchers from the model.
+        /** The function retrieves all the child sketchers from the model.
          @return The childs.
          */
-        vector<sGuiSketcher> getChilds() noexcept;
-        
-        //! Retrives all the child sketchers from the sketcher.
-        /** The function retrieves all the child sketchers from the sketcher.
-         @return The childs.
-         */
-        vector<sGuiSketcher> getChilds() const noexcept;
+        vector<sGuiModel> getChilds() const noexcept;
     
-		//! Send a notification to one or all views that the sketcher needs to be redrawn.
-		/** The function sends a notification to one or all views that the sketcher should be redrawn.
+		//! Send a notification to one or all views that the model needs to be redrawn.
+		/** The function sends a notification to one or all views that the model should be redrawn.
          @param view The view that should be redrawn or nothing for all.
 		 */
 		void redraw(sGuiView view = sGuiView()) noexcept;
         
-        //! Send a notification to a view that the sketcher needs the keyboard focus.
-        /** The function sends a notification to a view that the sketcher wants the keyboard focus. If the view is empty, the notification will be sent to the first view.
+        //! Send a notification to a view that the model needs the keyboard focus.
+        /** The function sends a notification to a view that the model wants the keyboard focus. If the view is empty, the notification will be sent to the first view.
          @param view The view that should retrieve the focus.
          */
         void grabFocus(sGuiView view = sGuiView()) noexcept;
@@ -179,7 +155,7 @@ namespace Kiwi
         /** The function creates a controller depending on the inheritance.
          @return The controller.
          */
-        virtual sGuiController createController();
+        virtual sGuiController createController() = 0;
 	};
     
     // ================================================================================ //
