@@ -117,6 +117,9 @@ namespace Kiwi
             {
                 m_childs.push_back(child);
                 child->m_parent_view = shared_from_this();
+                sGuiController childc(child->getController());
+                childc->displayed();
+                m_controller->childCreated(childc);
                 try
                 {
                     addChildView(child);
@@ -147,6 +150,7 @@ namespace Kiwi
                 {
                     
                 }
+                m_controller->childRemoved(child->getController());
             }
         }
     }

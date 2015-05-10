@@ -35,12 +35,13 @@ namespace Kiwi
     //! The controller is a class that manages the drawing and the interactions requested by a view.
     /** The controller is instantiate by a model to serve as a bridge between the its interface and a view.
      */
-    class GuiController : public enable_shared_from_this<GuiController>
+    class GuiController : public inheritable_enable_shared_from_this<GuiController>
     {
     private:
         friend class GuiContext;
         
         const wGuiContext   m_context;
+        const wGuiModel     m_model;
         Rectangle           m_bounds;
         bool                m_want_mouse;
         bool                m_want_keyboard;
@@ -51,9 +52,9 @@ namespace Kiwi
         
         //! The controller constructor.
         /** The function initializes the defaults values of the controller.
-         @context The glocal context.
+         @param model The model to control.
          */
-        GuiController(sGuiContext context) noexcept;
+        GuiController(sGuiModel model) noexcept;
         
         //! The controller destructor.
         /** The function does nothing.
@@ -66,6 +67,12 @@ namespace Kiwi
          */
         inline sGuiView getView() const noexcept {return m_view.lock();}
         
+        //! Retrieves the model of the controller.
+        /** The function retrieves the model of the controller.
+         @return The model.
+         */
+        inline sGuiModel getModel() const noexcept{return m_model.lock();}
+        
         //! Retrieves the context of the controller.
         /** The function retrieves the context of the controller.
          @return The context.
@@ -76,7 +83,30 @@ namespace Kiwi
         /** The function retrieves parent controller.
          @return The parent controller.
          */
-        sGuiController geParent() const noexcept;
+        sGuiController getParent() const noexcept;
+        
+        //! Retrieves the childs controller.
+        /** The function retrieves childs controller.
+         @return The childs controller.
+         */
+        vector<sGuiController> getChilds() const noexcept;
+        
+        //! Receives the notification that a controller has been displayed.
+        /** The function notfies the notification that a controller has been displayed.
+         */
+        virtual void displayed() noexcept {};
+        
+        //! Receives the notification that a child has been created.
+        /** The function notfies the model that a child has been created.
+         @param child The child controller.
+         */
+        virtual void childCreated(sGuiController child) noexcept {};
+        
+        //! Receives the notification that a child has been removed.
+        /** The function notfies the model that a child has been removed.
+         @param vchild The child controller.
+         */
+        virtual void childRemoved(sGuiController child) noexcept {};
         
         //! Receives if the controller wants the mouse.
         /** This function retrieves if the controller wants the mouse.
@@ -178,14 +208,14 @@ namespace Kiwi
         virtual bool performAction(const ulong code) {return false;}
         
         //! Test if the point lies into the controler.
-        /** The tests if the point lies into the controler.
+        /** The funtion tests if the point lies into the controler.
          @param pt The point.
          @return true if the point ies into the controler, otherwise false.
          */
         virtual bool contains(Point const& pt);
         
         //! Test if the rectangle overlaps the controler.
-        /** The tests if the rectangle overlaps the controler.
+        /** The funtion tests if the rectangle overlaps the controler.
          @param rect The rectangle.
          @return true if the rectangle overlaps of the controler, otherwise false.
          */

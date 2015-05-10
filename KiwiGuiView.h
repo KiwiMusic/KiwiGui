@@ -39,7 +39,7 @@ namespace Kiwi
         const sGuiController    m_controller;
         wGuiView                m_parent_view;
         vector<sGuiView>        m_childs;
-        mutex                   m_childs_mutex;
+        mutable mutex           m_childs_mutex;
     public:
         
         //! The view constructor.
@@ -70,6 +70,14 @@ namespace Kiwi
          @return The parent view.
          */
         inline sGuiView getParent() const noexcept {return m_parent_view.lock();}
+        
+        //! Retrieves the childs views of the view.
+        /** The function retrieves the childs views of the view.
+         @return The childs views.
+         */
+        inline vector<sGuiView> getChilds() const noexcept {
+            lock_guard<mutex> guard(m_childs_mutex);
+            return m_childs;}
         
         //! Retrieve the position of the view.
         /** The function retrieves the position of the view.

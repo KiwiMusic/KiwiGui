@@ -30,13 +30,14 @@ namespace Kiwi
     //                                      GUI CONTROLLER                              //
     // ================================================================================ //
     
-    GuiController::GuiController(sGuiContext context) noexcept : m_context(context),
+    GuiController::GuiController(sGuiModel model) noexcept :
+    m_context(model->getContext()), m_model(model),
     m_bounds(), m_want_mouse(false), m_want_keyboard(false), m_want_action(false)
     {
         
     }
     
-    sGuiController GuiController::geParent() const noexcept
+    sGuiController GuiController::getParent() const noexcept
     {
         sGuiView view = getView();
         if(view)
@@ -48,6 +49,20 @@ namespace Kiwi
             }
         }
         return sGuiController();
+    }
+    
+    vector<sGuiController> GuiController::getChilds() const noexcept
+    {
+        vector<sGuiController> childs;
+        sGuiView view = getView();
+        if(view)
+        {
+            for(auto it : view->getChilds())
+            {
+                childs.push_back(it->getController());
+            }
+        }
+        return childs;
     }
     
     void GuiController::setBounds(Rectangle const& bounds) noexcept

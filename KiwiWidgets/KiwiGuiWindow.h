@@ -78,6 +78,18 @@ namespace Kiwi
          */
         inline Color getBackgroundColor() const noexcept {return m_color;}
         
+        //! Sets the header of the window.
+        /** The function sets the header of the window.
+         @param header The header.
+         */
+        void setHeader(sHeader header) noexcept;
+        
+        //! Gets the header of the window.
+        /** The function retrieves the header of the window.
+         @return The header.
+         */
+        inline sHeader getHeader() const noexcept {return m_header;}
+        
         //! Add a new view of the window to the desktop
         /** The function adds new view of the window to the desktop
          */
@@ -93,6 +105,12 @@ namespace Kiwi
          @return The controller.
          */
         sGuiController createController() override;
+        
+        //! Receives the notification that a view has been created.
+        /** The function notfies the model that a view has been created.
+         @param view The view.
+         */
+        void viewCreated(sGuiView view) noexcept override;
     };
     
     // ================================================================================ //
@@ -109,10 +127,9 @@ namespace Kiwi
     public:
         //! The window controller constructor.
         /** The function initialize the window controller.
-         @param context The context.
          @param window  The window to control.
          */
-        Controller(sGuiContext context, sGuiWindow window) noexcept;
+        Controller(sGuiWindow window) noexcept;
         
         //! The controller destructor.
         /** The function does nothing.
@@ -146,16 +163,25 @@ namespace Kiwi
          @param sketch  The sketch to draw.
          */
         void draw(sGuiView view, Sketch& sketch) override;
+        
+        //! Receives the notification that a child has been created.
+        /** The function notfies the model that a child has been created.
+         @param child The child controller.
+         */
+        void childCreated(sGuiController child) noexcept override;
     };
     
     // ================================================================================ //
     //                              GUI WINDOW HEADER                                   //
     // ================================================================================ //
     
-    class GuiWindow::Header : public GuiModel, public GuiMouser, public GuiButton::Listener
+    class GuiWindow::Header : public GuiModel, public GuiButton::Listener
     {
     private:
-        const wGuiWindow m_window;
+        class Controller;
+        typedef shared_ptr<Controller>  sController;
+        typedef weak_ptr<Controller>    wController;
+        
         const sGuiButton m_button_close;
         const sGuiButton m_button_minimize;
         const sGuiButton m_button_maximize;
@@ -169,24 +195,26 @@ namespace Kiwi
         
     public:
         
+        /** The direction of the scroll bar.
+         */
         enum TitleButtons
         {
-            noButton        = 0,
-            minimiseButton  = 1,
-            maximiseButton  = 2,
-            closeButton     = 4,
-            allButtons      = 7
+            noButton        = 0,///< No button
+            minimiseButton  = 1,///< Minimize button
+            maximiseButton  = 2,///< Maximize button
+            closeButton     = 4,///< Close button
+            allButtons      = 7 ///< All buttons
         };
         
         //! The container constructor.
         /** The function does nothing.
-         @param window      The window.
+         @param context     The context.
          @param title       The title to display.
          @param bgcolor     The background color.
          @param bdcolor     The border color.
          @param txtcolor    The text color.
          */
-        Header(sGuiWindow window,
+        Header(sGuiContext context,
                string const& title = "untitled",
                Color const& bgcolor = Color(0.88, 0.89, 0.88, 1.),
                Color const& bdcolor = Color(0.6, 0.6, 0.6, 1.),
@@ -197,97 +225,35 @@ namespace Kiwi
          */
         virtual ~Header() noexcept;
         
-        //! The creation method.
-        /** The function create the header and bind it to the buttons if need.
-         @param window      The window.
-         @param title       The title to display.
-         @param buttons     The buttons available.
-         @param bgcolor     The background color.
-         @param bdcolor     The border color.
-         @param txtcolor    The text color.
-         @return The header.
-         */
-        static inline sHeader create(sGuiWindow window, string const& title = "untitled", const ulong buttons = allButtons, Color const& bgcolor = Color(0.88, 0.89, 0.88, 1.), Color const& bdcolor = Color(0.6, 0.6, 0.6, 1.), Color const& txtcolor = Color(0., 0., 0., 1.)) noexcept
-        {
-            sHeader header = make_shared<Header>(window, title, bgcolor, bdcolor, txtcolor);
-            if(header)
-            {
-                header->setButtons(buttons);
-            }
-            return header;
-        }
-        
-        //! Retreives the shared pointer.
-        /** The function retreives the shared pointer.
-         @return The shared pointer.
-         */
-        inline scHeader getShared() const noexcept
-        {
-            return static_pointer_cast<const Header>(shared_from_this());
-        }
-        
-        //! Retreives the shared pointer.
-        /** The function retreives the shared pointer.
-         @return The shared pointer.
-         */
-        inline sHeader getShared() noexcept
-        {
-            return static_pointer_cast<Header>(shared_from_this());
-        }
-        
-        //! Retreives the window of the header.
-        /** The function retreives the window of the header.
-         @return The window.
-         */
-        inline sGuiWindow getWindow() const noexcept
-        {
-            return m_window.lock();
-        }
-        
         //! Retreives the title of the header.
         /** The function retreives the title of the header.
          @return The title.
          */
-        inline string getTitle() const noexcept
-        {
-            return m_title;
-        }
+        inline string getTitle() const noexcept {return m_title;}
         
         //! Retreives the button of the header.
         /** The function retreives the buttons of the header.
          @return The buttons.
          */
-        inline ulong getButtons() const noexcept
-        {
-            return m_buttons;
-        }
+        inline ulong getButtons() const noexcept {return m_buttons;}
         
         //! Retreives the background color of the header.
         /** The function retreives the background color of the header.
          @return The background color.
          */
-        inline Color getBackgroundColor() const noexcept
-        {
-            return m_bg_color;
-        }
+        inline Color getBackgroundColor() const noexcept {return m_bg_color;}
         
         //! Retreives the border color of the header.
         /** The function retreives the border color of the header.
          @return The border color.
          */
-        inline Color getBorderColor() const noexcept
-        {
-            return m_bd_color;
-        }
+        inline Color getBorderColor() const noexcept {return m_bd_color;}
         
         //! Retreives the text color of the header.
         /** The function retreives the text color of the header.
          @return The text color.
          */
-        inline Color getTextColor() const noexcept
-        {
-            return m_txt_color;
-        }
+        inline Color getTextColor() const noexcept{return m_txt_color;}
         
         //! Sets the title of the header.
         /** The function sets the title of the header.
@@ -319,20 +285,20 @@ namespace Kiwi
          */
         void setTextColor(Color const& color) noexcept;
         
-        //! The paint method that should be override.
-        /** The function shoulds draw some stuff in the sketch.
-         @param ctrl    The controller that ask the draw.
-         @param sketch  A sketch to draw.
+        //! The draw method that should be override.
+        /** The function shoulds draw some stuff.
+         @param ctrl    The controller.
+         @param sketch  The sketch to draw.
          */
-        void draw(scGuiView view, Sketch& sketch) const;
+        virtual void draw(sController ctrl, Sketch& sketch) const;
         
         //! The receive method that should be override.
         /** The function shoulds perform some stuff.
-         @param event    A mouser event.
          @param ctrl     The controller gives the event.
+         @param event    A mouser event.
          @return true if the class has done something with the event otherwise false
          */
-        bool receive(scGuiView view, MouseEvent const& event)  override;
+        virtual bool receive(sController ctrl, MouseEvent const& event) ;
         
         //! Receives the notfivation that a button has been pressed.
         /** The function receives the notfivation that a button has been pressed.
@@ -340,10 +306,65 @@ namespace Kiwi
          */
         void buttonPressed(sGuiButton button) override;
         
-        sGuiController createController() override
-        {
-            return nullptr;
-        }
+        //! Create the controller.
+        /** The function creates a controller for the header's window.
+         @return The controller.
+         */
+        sGuiController createController() override;
+    };
+    
+    // ================================================================================ //
+    //                          GUI WINDOW HEADER CONTROLLER                            //
+    // ================================================================================ //
+    
+    class GuiWindow::Header::Controller : public GuiController, public GuiButton::Listener
+    {
+    private:
+        const wHeader m_header;
+    public:
+        
+        //! The window header controller constructor.
+        /** The function initialize the window header  controller.
+         @param header  The window header to control.
+         */
+        Controller(sHeader header) noexcept;
+        
+        //! The controller destructor.
+        /** The function does nothing.
+         */
+        inline ~Controller() noexcept {};
+        
+        //! Receives the notification that a controller has been displayed.
+        /** The function notfies the notification that a controller has been displayed.
+         */
+        void displayed() noexcept override;
+        
+        //! Retreives the window header of the controller.
+        /** The function retreives the window header of the controller.
+         @return The window header.
+         */
+        inline sHeader getHeader() const noexcept {return m_header.lock();}
+        
+        //! The draw method that should be override.
+        /** The function shoulds draw some stuff.
+         @param view    The view that owns the controller.
+         @param sketch  The sketch to draw.
+         */
+        void draw(sGuiView view, Sketch& sketch) override;
+        
+        //! The mouse receive method that can be override.
+        /** The function shoulds perform some stuff.
+         @param view    The view that owns the controller.
+         @param event   The mouser event.
+         @return true if the class has done something with the event otherwise false
+         */
+        bool receive(sGuiView view, MouseEvent const& event) override;
+        
+        //! Receives the notification that a button is pressed.
+        /** The function receives the notification that a button is pressed.
+         @param button The button.
+         */
+        void buttonPressed(sGuiButton button) override;
     };
 
 }

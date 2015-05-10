@@ -123,15 +123,15 @@ namespace Kiwi
     
     sGuiController GuiScrollBar::createController()
     {
-        return make_shared<Controller>(getContext(), static_pointer_cast<GuiScrollBar>(shared_from_this()));
+        return make_shared<Controller>(static_pointer_cast<GuiScrollBar>(shared_from_this()));
     }
 
     // ================================================================================ //
     //                              GUI SCROOLBAR CONTROLLER                            //
     // ================================================================================ //
     
-    GuiScrollBar::Controller::Controller(sGuiContext context, sGuiScrollBar scrollbar) noexcept :
-    GuiController(context),
+    GuiScrollBar::Controller::Controller(sGuiScrollBar scrollbar) noexcept :
+    GuiController(scrollbar),
     m_scrollbar(scrollbar)
     {
         m_limits    = {0., 1.};

@@ -691,7 +691,7 @@ namespace Kiwi
     //                              TEXT EDITOR CONTROLLER                              //
     // ================================================================================ //
     
-    GuiTextEditor::Controller::Controller(sGuiTextEditor editor) noexcept : GuiController(editor->getContext()), m_editor(editor),
+    GuiTextEditor::Controller::Controller(sGuiTextEditor editor) noexcept : GuiController(editor), m_editor(editor),
         m_caret(make_shared<GuiTextEditor::Caret>(editor))
     {
         m_editor->addCaret(m_caret);

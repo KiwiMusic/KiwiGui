@@ -52,7 +52,7 @@ namespace Kiwi
         sketch.setLineWidth(1.);
         sketch.drawRectangle(bounds);
         sketch.setColor(m_background_color);
-        sketch.fillEllipse(bounds.reduced(0.5));
+        sketch.fillRectangle(bounds.reduced(0.5));
     }
     
     bool GuiButton::receive(sController ctrl, MouseEvent const& event)
@@ -62,17 +62,18 @@ namespace Kiwi
     
     sGuiController GuiButton::createController()
     {
-        return make_shared<Controller>(getContext(), static_pointer_cast<GuiButton>(shared_from_this()));
+        return make_shared<Controller>(static_pointer_cast<GuiButton>(shared_from_this()));
     }
     
     // ================================================================================ //
     //                              GUI BUTTON CONTROLLER                               //
     // ================================================================================ //
     
-    GuiButton::Controller::Controller(sGuiContext context, sGuiButton button) noexcept :
-    GuiController(context),
+    GuiButton::Controller::Controller(sGuiButton button) noexcept :
+    GuiController(button),
     m_button(button)
     {
+        setBounds(Rectangle(0.,0., 20., 20.));
         shouldReceiveMouse(true);
         shouldReceiveKeyboard(false);
         shouldReceiveActions(false);
@@ -83,6 +84,11 @@ namespace Kiwi
         sGuiButton button(getButton());
         if(button)
         {
+            if(event.isMove())
+            {
+                button->redraw();
+                redraw();
+            }
             if(button->receive(static_pointer_cast<Controller>(shared_from_this()), event))
             {
                 vector<sListener> listeners(getListeners());

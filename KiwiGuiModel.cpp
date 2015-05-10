@@ -162,7 +162,7 @@ namespace Kiwi
         }
         else
         {
-            vector<sGuiView> views(getViews());
+            const vector<sGuiView> views(getViews());
             for(auto it : views)
             {
                 it->redraw();
@@ -203,7 +203,7 @@ namespace Kiwi
             }
             if(status)
             {
-                vector<sGuiView> views(getViews());
+                const vector<sGuiView> views(getViews());
                 for(auto it : views)
                 {
                     it->addChild(child->createView());
@@ -223,7 +223,7 @@ namespace Kiwi
             }
             if(status)
             {
-                vector<sGuiView> childviews = child->getViews();
+                const vector<sGuiView> childviews = child->getViews();
                 for(auto it : childviews)
                 {
                     sGuiView view = it->getParent();

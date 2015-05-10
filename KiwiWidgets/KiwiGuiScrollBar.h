@@ -166,10 +166,9 @@ namespace Kiwi
     public:
         //! The scroll bar controller constructor.
         /** The function initialize the scroll bar controller.
-         @param context     The context.
          @param scrollbar   The scroll bar to control.
          */
-        Controller(sGuiContext context, sGuiScrollBar scrollbar) noexcept;
+        Controller(sGuiScrollBar scrollbar) noexcept;
         
         //! The controller destructor.
         /** The function does nothing.

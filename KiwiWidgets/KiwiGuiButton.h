@@ -137,10 +137,9 @@ namespace Kiwi
     public:
         //! The button controller constructor.
         /** The function initialize the button controller.
-         @param context The context.
          @param button  The button to control.
          */
-        Controller(sGuiContext context, sGuiButton button) noexcept;
+        Controller(sGuiButton button) noexcept;
         
         //! The controller destructor.
         /** The function does nothing.
