@@ -108,12 +108,6 @@ namespace Kiwi
          @return The controller.
          */
         sGuiController createController() override;
-        
-        //! Receives the notification that a view has been created.
-        /** The function notfies the model that a view has been created.
-         @param view The view.
-         */
-        void viewCreated(sGuiView view) noexcept override;
     };
     
     // ================================================================================ //

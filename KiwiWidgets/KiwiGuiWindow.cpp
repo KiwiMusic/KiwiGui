@@ -105,11 +105,6 @@ namespace Kiwi
         return make_shared<Controller>(static_pointer_cast<GuiWindow>(shared_from_this()));
     }
     
-    void GuiWindow::viewCreated(sGuiView view) noexcept
-    {
-        
-    }
-    
     // ================================================================================ //
     //                              GUI WINDOW CONTROLLER                               //
     // ================================================================================ //
