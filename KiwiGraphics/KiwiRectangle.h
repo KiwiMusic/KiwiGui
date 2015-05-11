@@ -671,6 +671,16 @@ namespace Kiwi
             return (contains(segment.start()) && contains(segment.end()));
         }
         
+        //! Get if the rectangle contains another rectangle.
+        /** The function returns true if the rectangle contains another rectangle.
+         @param rect The rectangle.
+         @return true if the rectangle contains the other, otherwise false.
+         */
+        bool contains(Rectangle const& rect) const noexcept
+        {
+            return contains(rect.position()) && contains(rect.bottomRight());
+        }
+        
         //! Get if the rectangle intesects a segment.
         /** The function gets if the rectangle intersects a segment.
          @param segment The segment.

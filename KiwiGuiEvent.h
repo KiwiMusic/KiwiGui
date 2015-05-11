@@ -479,6 +479,25 @@ namespace Kiwi
             internalDrawText(text, rect.x(), rect.y(), rect.width(), rect.height(), m_font, j, truncated);
         }
         
+        //! Draw a point.
+        /** The function draws a point (a rectangle with a size of one)
+         @param x    The abscissa of the point.
+         @param y    The ordinate of the point.
+         */
+        inline void drawPoint(const double x, const double y) const noexcept
+        {
+            fillRectangle(x - 0.5, y - 0.5, 1, 1);
+        }
+        
+        //! Draw a point.
+        /** The function draws a point (a rectangle with a size of one)
+         @param point    The position of the point.
+         */
+        inline void drawPoint(Point const& point) const noexcept
+        {
+            fillRectangle(Rectangle(point - 0.5, Size(1, 1)));
+        }
+        
         //! Draw a segment.
         /** The function draws a segment.
          @param segment The segment to draw.
