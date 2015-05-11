@@ -65,6 +65,45 @@ namespace Kiwi
         return childs;
     }
     
+    void GuiController::shouldReceiveMouse(const bool accept) noexcept
+    {
+        if(m_want_mouse != accept)
+        {
+            m_want_mouse = accept;
+            sGuiView view = getView();
+            if(view)
+            {
+                view->behaviorChanged();
+            }
+        }
+    }
+    
+    void GuiController::shouldReceiveKeyboard(const bool accept) noexcept
+    {
+        if(m_want_keyboard != accept)
+        {
+            m_want_keyboard = accept;
+            sGuiView view = getView();
+            if(view)
+            {
+                view->behaviorChanged();
+            }
+        }
+    }
+    
+    void GuiController::shouldReceiveActions(const bool accept) noexcept
+    {
+        if(m_want_action != accept)
+        {
+            m_want_action = accept;
+            sGuiView view = getView();
+            if(view)
+            {
+                view->behaviorChanged();
+            }
+        }
+    }
+    
     void GuiController::setBounds(Rectangle const& bounds) noexcept
     {
         m_bounds = bounds;
@@ -72,33 +111,16 @@ namespace Kiwi
         if(view)
         {
             view->boundsChanged();
-        }
-    }
-    
-    void GuiController::shouldReceiveMouse(const bool accept) noexcept
-    {
-        sGuiView view = getView();
-        if(view)
-        {
-            view->behaviorChanged();
-        }
-    }
-    
-    void GuiController::shouldReceiveKeyboard(const bool accept) noexcept
-    {
-        sGuiView view = getView();
-        if(view)
-        {
-            view->behaviorChanged();
-        }
-    }
-    
-    void GuiController::shouldReceiveActions(const bool accept) noexcept
-    {
-        sGuiView view = getView();
-        if(view)
-        {
-            view->behaviorChanged();
+            this->boundsChanged();
+            sGuiController parent(getParent());
+            if(parent)
+            {
+                parent->childBoundsChanged(shared_from_this());
+            }
+            for(auto it : getChilds())
+            {
+                it->parentBoundsChanged();
+            }
         }
     }
     
@@ -109,6 +131,16 @@ namespace Kiwi
         if(view)
         {
             view->boundsChanged();
+            this->boundsChanged();
+            sGuiController parent(getParent());
+            if(parent)
+            {
+                parent->childBoundsChanged(shared_from_this());
+            }
+            for(auto it : getChilds())
+            {
+                it->parentBoundsChanged();
+            }
         }
     }
     
@@ -119,6 +151,16 @@ namespace Kiwi
         if(view)
         {
             view->positionChanged();
+            this->boundsChanged();
+            sGuiController parent(getParent());
+            if(parent)
+            {
+                parent->childBoundsChanged(shared_from_this());
+            }
+            for(auto it : getChilds())
+            {
+                it->parentBoundsChanged();
+            }
         }
     }
     
@@ -129,6 +171,16 @@ namespace Kiwi
         if(view)
         {
             view->positionChanged();
+            this->boundsChanged();
+            sGuiController parent(getParent());
+            if(parent)
+            {
+                parent->childBoundsChanged(shared_from_this());
+            }
+            for(auto it : getChilds())
+            {
+                it->parentBoundsChanged();
+            }
         }
     }
     
@@ -139,6 +191,16 @@ namespace Kiwi
         if(view)
         {
             view->sizeChanged();
+            this->boundsChanged();
+            sGuiController parent(getParent());
+            if(parent)
+            {
+                parent->childBoundsChanged(shared_from_this());
+            }
+            for(auto it : getChilds())
+            {
+                it->parentBoundsChanged();
+            }
         }
     }
     
@@ -149,6 +211,16 @@ namespace Kiwi
         if(view)
         {
             view->sizeChanged();
+            this->boundsChanged();
+            sGuiController parent(getParent());
+            if(parent)
+            {
+                parent->childBoundsChanged(shared_from_this());
+            }
+            for(auto it : getChilds())
+            {
+                it->parentBoundsChanged();
+            }
         }
     }
     
@@ -215,7 +287,7 @@ namespace Kiwi
         sGuiView view = getView();
         if(view)
         {
-            view->redraw();
+            view->grabFocus();
         }
     }
     
@@ -224,16 +296,16 @@ namespace Kiwi
         sGuiView view = getView();
         if(view)
         {
-            view->redraw();
+            view->toBack();
         }
     }
     
-    void GuiController::toFont() noexcept
+    void GuiController::toFront() noexcept
     {
         sGuiView view = getView();
         if(view)
         {
-            view->redraw();
+            view->toFront();
         }
     }
 }

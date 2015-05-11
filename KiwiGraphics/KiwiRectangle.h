@@ -223,6 +223,24 @@ namespace Kiwi
             return m_size;
         }
         
+        //! Retrieve the ordinate of the top aka the y position of the rectangle.
+        /** The function retrieves the ordinate of the top aka the  y position of the rectangle.
+         @return The ordinate of the top.
+         */
+        inline double top() const noexcept
+        {
+            return y();
+        }
+        
+        //! Retrieve the abscissa of the left aka the x position of the rectangle.
+        /** The function retrieves the abscissa of the left aka the x position of the rectangle.
+         @return The abscissa of the left.
+         */
+        inline double left() const noexcept
+        {
+            return x();
+        }
+        
         //! Retrieve the ordinate of the bottom.
         /** The function retrieves the ordinate of the bottom.
          @return The ordinate of the bottom.

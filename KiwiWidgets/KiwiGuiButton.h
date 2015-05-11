@@ -28,6 +28,12 @@
 
 namespace Kiwi
 {
+    class GuiButton;
+    typedef shared_ptr<GuiButton>               sGuiButton;
+    typedef weak_ptr<GuiButton>                 wGuiButton;
+    typedef shared_ptr<const GuiButton>         scGuiButton;
+    typedef weak_ptr<const GuiButton>           wcGuiButton;
+    
     // ================================================================================ //
     //                                  GUI BUTTON                                      //
     // ================================================================================ //
@@ -42,7 +48,6 @@ namespace Kiwi
         typedef shared_ptr<Listener>    sListener;
         typedef weak_ptr<Listener>      wListener;
         
-    protected:
         class Controller;
         typedef shared_ptr<Controller>  sController;
         typedef weak_ptr<Controller>    wController;

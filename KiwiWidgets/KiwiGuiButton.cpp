@@ -57,7 +57,7 @@ namespace Kiwi
     
     bool GuiButton::receive(sController ctrl, MouseEvent const& event)
     {
-        return event.isDown();
+        return event.isUp() && ctrl->contains(event.getPosition() + ctrl->getPosition());
     }
     
     sGuiController GuiButton::createController()
@@ -84,11 +84,6 @@ namespace Kiwi
         sGuiButton button(getButton());
         if(button)
         {
-            if(event.isMove())
-            {
-                button->redraw();
-                redraw();
-            }
             if(button->receive(static_pointer_cast<Controller>(shared_from_this()), event))
             {
                 vector<sListener> listeners(getListeners());

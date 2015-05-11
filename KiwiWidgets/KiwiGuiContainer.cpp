@@ -29,26 +29,6 @@ namespace Kiwi
     // ================================================================================ //
     //                                  GUI CONTAINER                                   //
     // ================================================================================ //
-	
-    GuiContainer::GuiContainer(sGuiContext context) noexcept : GuiModel(context)
-    {
-        ;
-    }
-    
-    GuiContainer::~GuiContainer() noexcept
-    {
-        ;
-    }
-
-    void GuiContainer::addContent(sGuiModel model) noexcept
-    {
-        addChild(model);
-    }
-    
-    void GuiContainer::removeContent(sGuiModel model) noexcept
-    {
-        removeChild(model);
-    }
 }
 
 

@@ -47,19 +47,22 @@ namespace Kiwi
         typedef weak_ptr<Controller>    wController;
         
     private:
-        sHeader         m_header;
-        Color           m_color;
+        const sGuiResizer   m_resizer;
+        sHeader             m_header;
+        sGuiModel           m_content;
+        Color               m_color;
     public:
         
         //! The window constructor.
         /** The function does nothing.
          @param context The context.
          @param title   The title of the window.
+         @param zones   The title of the window.
          @param color   The background color of the window.
          @param buttons The buttons available at the top of the window.
          @param show    If the window should be popup.
          */
-        GuiWindow(sGuiContext context, Color const& color = Colors::white) noexcept;
+        GuiWindow(sGuiContext context, const ulong zones = GuiResizer::All, Color const& color = Colors::grey) noexcept;
         
         //! The window destructor.
         /** The function does nothing.
@@ -124,6 +127,7 @@ namespace Kiwi
     {
     private:
         const wGuiWindow m_window;
+        Rectangle        m_last_bounds;
     public:
         //! The window controller constructor.
         /** The function initialize the window controller.
@@ -163,19 +167,13 @@ namespace Kiwi
          @param sketch  The sketch to draw.
          */
         void draw(sGuiView view, Sketch& sketch) override;
-        
-        //! Receives the notification that a child has been created.
-        /** The function notfies the model that a child has been created.
-         @param child The child controller.
-         */
-        void childCreated(sGuiController child) noexcept override;
     };
     
     // ================================================================================ //
     //                              GUI WINDOW HEADER                                   //
     // ================================================================================ //
     
-    class GuiWindow::Header : public GuiModel, public GuiButton::Listener
+    class GuiWindow::Header : public GuiModel
     {
     private:
         class Controller;
@@ -186,12 +184,9 @@ namespace Kiwi
         const sGuiButton m_button_minimize;
         const sGuiButton m_button_maximize;
         string          m_title;
-        long            m_buttons;
+        ulong           m_buttons;
         Color           m_bg_color;
-        Color           m_bd_color;
         Color           m_txt_color;
-        Point           m_last_pos;
-        Rectangle       m_last_bounds;
         
     public:
         
@@ -210,15 +205,15 @@ namespace Kiwi
         /** The function does nothing.
          @param context     The context.
          @param title       The title to display.
+         @param buttons     The buttons to display.
          @param bgcolor     The background color.
-         @param bdcolor     The border color.
          @param txtcolor    The text color.
          */
         Header(sGuiContext context,
-               string const& title = "untitled",
-               Color const& bgcolor = Color(0.88, 0.89, 0.88, 1.),
-               Color const& bdcolor = Color(0.6, 0.6, 0.6, 1.),
-               Color const& txtcolor = Color(0., 0., 0., 1.)) noexcept;
+               string const& title  = "untitled",
+               ulong const buttons  = allButtons,
+               Color const& bgcolor = Colors::grey,
+               Color const& txtcolor= Colors::black) noexcept;
         
         //! The container destructor.
         /** The function does nothing.
@@ -243,17 +238,29 @@ namespace Kiwi
          */
         inline Color getBackgroundColor() const noexcept {return m_bg_color;}
         
-        //! Retreives the border color of the header.
-        /** The function retreives the border color of the header.
-         @return The border color.
-         */
-        inline Color getBorderColor() const noexcept {return m_bd_color;}
-        
         //! Retreives the text color of the header.
         /** The function retreives the text color of the header.
          @return The text color.
          */
         inline Color getTextColor() const noexcept{return m_txt_color;}
+        
+        //! Retreives the close button of the header.
+        /** The function retreives the close button of the header.
+         @return The close button.
+         */
+        inline sGuiButton getCloseButton() const noexcept{return m_button_close;}
+        
+        //! Retreives the minimize button of the header.
+        /** The function retreives the minimize button of the header.
+         @return The minimize button.
+         */
+        inline sGuiButton getMinimizeButton() const noexcept{return m_button_minimize;}
+        
+        //! Retreives the maximize button of the header.
+        /** The function retreives the maximize button of the header.
+         @return The maximize button.
+         */
+        inline sGuiButton getMaximizeButton() const noexcept{return m_button_maximize;}
         
         //! Sets the title of the header.
         /** The function sets the title of the header.
@@ -272,12 +279,6 @@ namespace Kiwi
          @param color The background color.
          */
         void setBackgroundColor(Color const& color) noexcept;
-        
-        //! Sets the border color of the header.
-        /** The function sets the border color of the header.
-         @param color The border color.
-         */
-        void setBorderColor(Color const& color) noexcept;
         
         //! Sets the text color of the header.
         /** The function sets the text color of the header.
@@ -300,12 +301,6 @@ namespace Kiwi
          */
         virtual bool receive(sController ctrl, MouseEvent const& event) ;
         
-        //! Receives the notfivation that a button has been pressed.
-        /** The function receives the notfivation that a button has been pressed.
-         @param The button.
-         */
-        void buttonPressed(sGuiButton button) override;
-        
         //! Create the controller.
         /** The function creates a controller for the header's window.
          @return The controller.
@@ -320,7 +315,8 @@ namespace Kiwi
     class GuiWindow::Header::Controller : public GuiController, public GuiButton::Listener
     {
     private:
-        const wHeader m_header;
+        const wHeader   m_header;
+        Point           m_last_pos;
     public:
         
         //! The window header controller constructor.
@@ -334,16 +330,24 @@ namespace Kiwi
          */
         inline ~Controller() noexcept {};
         
-        //! Receives the notification that a controller has been displayed.
-        /** The function notfies the notification that a controller has been displayed.
-         */
-        void displayed() noexcept override;
-        
         //! Retreives the window header of the controller.
         /** The function retreives the window header of the controller.
          @return The window header.
          */
         inline sHeader getHeader() const noexcept {return m_header.lock();}
+        
+        //! Retreives the window's controller.
+        /** The function retreives the window's controller.
+         @return The window's controller.
+         */
+        inline GuiWindow::sController getWindowController() const noexcept
+        {
+            sGuiController pctrl(getParent());
+            if(pctrl) {
+                return static_pointer_cast<GuiWindow::Controller>(pctrl);
+            }
+            return GuiWindow::sController();
+        }
         
         //! The draw method that should be override.
         /** The function shoulds draw some stuff.
@@ -365,6 +369,28 @@ namespace Kiwi
          @param button The button.
          */
         void buttonPressed(sGuiButton button) override;
+        
+        //! Receives the notification that a child has been created.
+        /** The function notfies the model that a child has been created.
+         @param child The child controller.
+         */
+        void childCreated(sGuiController child) noexcept override;
+        
+        //! Receives the notification that a child has been removed.
+        /** The function notfies the model that a child has been removed.
+         @param child The child controller.
+         */
+        void childRemoved(sGuiController child) noexcept override;
+        
+        //! Receives the notification that the parent controller changed.
+        /** The function notifies that the parent controller changed or has been setted.
+         */
+        void parentChanged() noexcept override;
+        
+        //! Receives the notification that the bounds of the parent controller changed.
+        /** The function notifies that the bounds of the parent controller changed.
+         */
+        void parentBoundsChanged() noexcept override;
     };
 
 }

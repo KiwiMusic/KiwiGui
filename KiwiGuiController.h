@@ -79,11 +79,26 @@ namespace Kiwi
          */
         inline sGuiContext getContext() const noexcept{return m_context.lock();}
 
+        //! Receives the notification that the bounds of the parent controller changed.
+        /** The function notifies that the bounds of the parent controller changed.
+         */
+        virtual void boundsChanged() noexcept {};
+        
         //! Retrieves the parent controller.
         /** The function retrieves parent controller.
          @return The parent controller.
          */
         sGuiController getParent() const noexcept;
+        
+        //! Receives the notification that the parent controller changed.
+        /** The function notifies that the parent controller changed or has been setted.
+         */
+        virtual void parentChanged() noexcept {};
+        
+        //! Receives the notification that the bounds of the parent controller changed.
+        /** The function notifies that the bounds of the parent controller changed.
+         */
+        virtual void parentBoundsChanged() noexcept {};
         
         //! Retrieves the childs controller.
         /** The function retrieves childs controller.
@@ -91,22 +106,23 @@ namespace Kiwi
          */
         vector<sGuiController> getChilds() const noexcept;
         
-        //! Receives the notification that a controller has been displayed.
-        /** The function notfies the notification that a controller has been displayed.
-         */
-        virtual void displayed() noexcept {};
-        
         //! Receives the notification that a child has been created.
-        /** The function notfies the model that a child has been created.
+        /** The function notifies the controller that a child has been created.
          @param child The child controller.
          */
         virtual void childCreated(sGuiController child) noexcept {};
         
         //! Receives the notification that a child has been removed.
-        /** The function notfies the model that a child has been removed.
-         @param vchild The child controller.
+        /** The function notifies the controller that a child has been removed.
+         @param child The child controller.
          */
         virtual void childRemoved(sGuiController child) noexcept {};
+        
+        //! Receives the notification that the bounds of a child changed.
+        /** The function notifies the controller that the bounds of a child changed.
+         @param child The child controller.
+         */
+        virtual void childBoundsChanged(sGuiController child) noexcept {};
         
         //! Receives if the controller wants the mouse.
         /** This function retrieves if the controller wants the mouse.
@@ -210,7 +226,7 @@ namespace Kiwi
         //! Test if the point lies into the controler.
         /** The funtion tests if the point lies into the controler.
          @param pt The point.
-         @return true if the point ies into the controler, otherwise false.
+         @return true if the point lies into the controler, otherwise false.
          */
         virtual bool contains(Point const& pt);
         
@@ -293,7 +309,7 @@ namespace Kiwi
         //! Sends the notification to the view that the controller needs to go in front of the other controllers.
         /** This function sends a notification to the view that the controller needs to in front of the other controllers.
          */
-        void toFont() noexcept;
+        void toFront() noexcept;
     };
 }
 

@@ -193,4 +193,5 @@ namespace Kiwi
     const Color Colors::blue        = Color(0., 0., 1., 1.);
     const Color Colors::yellow      = Color(1., 1., 0., 1.);
     const Color Colors::transparent = Color(0., 0., 0., 0.);
+    const Color Colors::grey        = Color(0.5, 0.5, 0.5, 1.);
 }

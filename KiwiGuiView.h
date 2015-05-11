@@ -97,6 +97,13 @@ namespace Kiwi
          */
         inline Rectangle getBounds() const noexcept {return m_controller->getBounds();}
         
+        //! Test if the point lies into the view.
+        /** The funtion tests if the point lies into the view.
+         @param pt The point.
+         @return true if the point lies into the view, otherwise false.
+         */
+        inline bool contains(const Point &pt) const noexcept {return m_controller->contains(pt);}
+        
         //! Receives if the view wants the mouse.
         /** This function retrieves if the view wants the mouse.
          @return true if the view wants the mouse, othrewise false.
@@ -237,7 +244,7 @@ namespace Kiwi
         //! Receives the notification that the model needs to go in front of the other viewes.
         /** This function is called by the model whenever it needs to go in front of the other viewes.
          */
-        virtual void toFont() = 0;
+        virtual void toFront() = 0;
         
         //! Adds the view to the desktop.
         /** This function adds the view to the desktop as a top level window.

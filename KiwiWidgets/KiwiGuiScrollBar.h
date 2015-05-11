@@ -28,11 +28,17 @@
 
 namespace Kiwi
 {
+    class GuiScrollBar;
+    typedef shared_ptr<GuiScrollBar>            sGuiScrollBar;
+    typedef weak_ptr<GuiScrollBar>              wGuiScrollBar;
+    typedef shared_ptr<const GuiScrollBar>      scGuiScrollBar;
+    typedef weak_ptr<const GuiScrollBar>        wcGuiScrollBar;
+    
     // ================================================================================ //
     //                                  GUI SCROOLBAR                                   //
     // ================================================================================ //
     
-    //! The scrool bar is a graphical range slider.
+    //! The scroll bar is a graphical range slider.
     /** The scroll bar is a graphical range slider that generally is used to control the view ports.
      */
     class GuiScrollBar : public GuiModel

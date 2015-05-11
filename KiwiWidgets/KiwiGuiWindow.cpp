@@ -30,10 +30,12 @@ namespace Kiwi
     //                                  GUI WINDOW                                      //
     // ================================================================================ //
 	
-    GuiWindow::GuiWindow(sGuiContext context, Color const& color) noexcept : GuiModel(context),
+    GuiWindow::GuiWindow(sGuiContext context, const ulong zones, Color const& color) noexcept : GuiModel(context),
+    m_resizer(make_shared<GuiResizer>(context, zones)),
     m_color(Colors::white)
     {
         setBackgroundColor(color);
+        addChild(m_resizer);
     }
     
     GuiWindow::~GuiWindow() noexcept
@@ -75,6 +77,7 @@ namespace Kiwi
             if(ctxt)
             {
                 view->addToDesktop();
+                ctxt->addTopLevelModel(shared_from_this());
             }
             else
             {
@@ -94,6 +97,7 @@ namespace Kiwi
                 removeView(it);
             }
         }
+        ctxt->addTopLevelModel(shared_from_this());
     }
     
     sGuiController GuiWindow::createController()
@@ -139,7 +143,26 @@ namespace Kiwi
     
     void GuiWindow::Controller::maximize()
     {
-        
+        sGuiContext ctxt(getContext());
+        if(ctxt)
+        {
+            Rectangle bounds = getBounds();
+            const Rectangle screen = ctxt->getScreenBounds(bounds.centre());
+            if(screen == bounds)
+            {
+                setBounds(m_last_bounds);
+            }
+            else
+            {
+                m_last_bounds = bounds;
+                setBounds(screen);
+            }
+            bounds = getBounds();
+            for(auto it : getChilds())
+            {
+                it->setSize(Size(bounds.width(), it->getSize().height()));
+            }
+        }
     }
     
     void GuiWindow::Controller::draw(sGuiView view, Sketch& sketch)
@@ -151,23 +174,14 @@ namespace Kiwi
         }
     }
     
-    void GuiWindow::Controller::childCreated(sGuiController child) noexcept
-    {
-        sGuiWindow wm(getWindow());
-        if(wm && child)
-        {
-            ;
-        }
-    }
-    
     // ================================================================================ //
     //                              GUI WINDOW HEADER                                   //
     // ================================================================================ //
     
     GuiWindow::Header::Header(sGuiContext context,
                               string const& title,
+                              ulong const buttons,
                               Color const& bgcolor,
-                              Color const& bdcolor,
                               Color const& txtcolor) noexcept :
     GuiModel(context),
     m_button_close(make_shared<GuiButton>(getContext(), Colors::red.brighter(0.4))),
@@ -176,10 +190,9 @@ namespace Kiwi
     m_title(title),
     m_buttons(noButton),
     m_bg_color(bgcolor),
-    m_bd_color(bdcolor),
     m_txt_color(txtcolor)
     {
-        ;
+        setButtons(buttons);
     }
     
     GuiWindow::Header::~Header() noexcept
@@ -203,32 +216,26 @@ namespace Kiwi
             if((buttons & closeButton) && !(m_buttons & closeButton))
             {
                 addChild(m_button_close);
-                m_button_close->addListener(static_pointer_cast<Header>(shared_from_this()));
             }
             else if(!(buttons & closeButton) && (m_buttons & closeButton))
             {
                 removeChild(m_button_close);
-                m_button_close->removeListener(static_pointer_cast<Header>(shared_from_this()));
             }
             if((buttons & minimiseButton) && !(m_buttons & minimiseButton))
             {
                 addChild(m_button_minimize);
-                m_button_minimize->addListener(static_pointer_cast<Header>(shared_from_this()));
             }
             else if(!(buttons & minimiseButton) && (m_buttons & minimiseButton))
             {
                 removeChild(m_button_minimize);
-                m_button_minimize->removeListener(static_pointer_cast<Header>(shared_from_this()));
             }
             if((buttons & maximiseButton) && !(m_buttons & maximiseButton))
             {
                 addChild(m_button_maximize);
-                m_button_maximize->addListener(static_pointer_cast<Header>(shared_from_this()));
             }
             else if(!(buttons & maximiseButton) && (m_buttons & maximiseButton))
             {
                 removeChild(m_button_maximize);
-                m_button_maximize->removeListener(static_pointer_cast<Header>(shared_from_this()));
             }
             m_buttons = buttons;
         }
@@ -239,15 +246,6 @@ namespace Kiwi
         if(color != m_bg_color)
         {
             m_bg_color = color;
-            redraw();
-        }
-    }
-    
-    void GuiWindow::Header::setBorderColor(Color const& color) noexcept
-    {
-        if(color != m_bd_color)
-        {
-            m_bd_color = color;
             redraw();
         }
     }
@@ -265,87 +263,16 @@ namespace Kiwi
     {
         const Size size = ctrl->getSize();
         sketch.fillAll(m_bg_color);
-        sketch.setColor(m_bd_color);
-        sketch.drawRectangle(sketch.getBounds().withZeroOrigin(), 1.);
         sketch.setColor(m_txt_color);
-        sketch.drawText(m_title, 60., 0., size.width() - 120., size.height(), Font::Centred);
+        Font font;
+        font.setHeight(ctrl->getSize().height() - 8.);
+        sketch.setFont(font);
+        sketch.drawText(m_title, 60., 0., size.width() - 120., size.height(), Font::HorizontallyCentered);
     }
     
     bool GuiWindow::Header::receive(sController ctrl, MouseEvent const& event)
     {
-        if(event.isDown())
-        {
-            m_last_pos = getMousePosition();
-        }
-        else if(event.isDrag())
-        {
-            const Point position = getMousePosition();
-            /*
-            sGuiWindow window = getWindow();
-            if(window)
-            {
-                //window->setPosition(window->getPosition() + position - m_last_pos);
-            }
-             */
-            m_last_pos = position;
-        }
-        else if(event.isDoubleClick())
-        {
-            /*
-            sGuiWindow window = getWindow();
-            if(window)
-            {
-                sGuiContext ctxt = getContext();
-                if(ctxt)
-                {
-             
-                    const Rectangle bounds = window->getBounds();
-                    const Rectangle screen = ctxt->getScreenBounds(bounds.centre());
-                    if(screen == bounds)
-                    {
-                        window->setBounds(m_last_bounds);
-                    }
-                    else
-                    {
-                        m_last_bounds = bounds;
-                        window->setBounds(screen);
-                    }
-             
-                }
-            }
-             */
-        }
         return true;
-    }
-    
-    void GuiWindow::Header::buttonPressed(sGuiButton button)
-    {
-        /*
-        if(button == m_button_close)
-        {
-            
-            sGuiWindow window = getWindow();
-            if(window)
-            {
-                //window->close();
-            }
-        }
-        else if(button == m_button_minimize)
-        {
-            sGuiWindow window = getWindow();
-            if(window)
-            {
-                //window->minimize();
-            }
-        }
-        else if(button == m_button_maximize)
-        {
-            sGuiWindow window = getWindow();
-            if(window)
-            {
-                
-            }
-        }*/
     }
     
     sGuiController GuiWindow::Header::createController()
@@ -354,22 +281,16 @@ namespace Kiwi
     }
     
     // ================================================================================ //
-    //                              GUI WINDOW CONTROLLER                               //
+    //                          GUI WINDOW HEADER CONTROLLER                            //
     // ================================================================================ //
         
     GuiWindow::Header::Controller::Controller(sHeader header) noexcept : GuiController(header),
     m_header(header)
     {
         setBounds(Rectangle(0., 0., 800., 24.));
-    }
-    
-    void GuiWindow::Header::Controller::displayed() noexcept
-    {
-        sGuiController parent(getParent());
-        if(parent)
-        {
-            setSize(Size(parent->getSize().width(), getSize().height()));
-        }
+        shouldReceiveMouse(true);
+        shouldReceiveKeyboard(false);
+        shouldReceiveActions(false);
     }
     
     void GuiWindow::Header::Controller::draw(sGuiView view, Sketch& sketch)
@@ -383,17 +304,144 @@ namespace Kiwi
     
     bool GuiWindow::Header::Controller::receive(sGuiView view, MouseEvent const& event)
     {
-        sHeader header(getHeader());
-        if(header)
+        if(event.isDown())
         {
-            header->receive(static_pointer_cast<Controller>(shared_from_this()), event);
+            m_last_pos = getMousePosition();
+        }
+        else if(event.isDrag())
+        {
+            const Point position = getMousePosition();
+            sGuiController pctrl(getParent());
+            if(pctrl)
+            {
+                pctrl->setPosition(pctrl->getPosition() + position - m_last_pos);
+            }
+            m_last_pos = position;
+        }
+        else if(event.isDoubleClick())
+        {
+            GuiWindow::sController pctrl(getWindowController());
+            if(pctrl)
+            {
+                pctrl->maximize();
+            }
         }
         return true;
     }
     
     void GuiWindow::Header::Controller::buttonPressed(sGuiButton button)
     {
-        
+        sHeader header(getHeader());
+        if(header && button)
+        {
+            if(button == header->getCloseButton())
+            {
+                GuiWindow::sController pctrl(getWindowController());
+                if(pctrl)
+                {
+                    pctrl->close();
+                }
+            }
+            else if(button == header->getMinimizeButton())
+            {
+                GuiWindow::sController pctrl(getWindowController());
+                if(pctrl)
+                {
+                    pctrl->minimize();
+                }
+            }
+            else if(button == header->getMaximizeButton())
+            {
+                GuiWindow::sController pctrl(getWindowController());
+                if(pctrl)
+                {
+                    pctrl->maximize();
+                }
+            }
+        }
+    }
+    
+    void GuiWindow::Header::Controller::childCreated(sGuiController child) noexcept
+    {
+        sHeader header(getHeader());
+        if(header && child)
+        {
+            const ulong buttons = header->getButtons();
+            sGuiModel childm(child->getModel());
+            if(childm == header->getCloseButton())
+            {
+                GuiButton::sController bctrl = static_pointer_cast<GuiButton::Controller>(child);
+                bctrl->setBounds(Rectangle(6., 6., 12., 12.));
+                bctrl->addListener(static_pointer_cast<Controller>(shared_from_this()));
+            }
+            else if(childm == header->getMinimizeButton())
+            {
+                GuiButton::sController bctrl = static_pointer_cast<GuiButton::Controller>(child);
+                bctrl->setBounds(Rectangle(6. + (buttons && closeButton) * 18., 6., 12., 12.));
+                bctrl->addListener(static_pointer_cast<Controller>(shared_from_this()));
+            }
+            else if(childm == header->getMaximizeButton())
+            {
+                GuiButton::sController bctrl = static_pointer_cast<GuiButton::Controller>(child);
+                bctrl->setBounds(Rectangle(6. + (buttons && closeButton) * 18. + (buttons && minimiseButton) * 18., 6., 12., 12.));
+                bctrl->addListener(static_pointer_cast<Controller>(shared_from_this()));
+            }
+        }
+    }
+    
+    void GuiWindow::Header::Controller::childRemoved(sGuiController child) noexcept
+    {
+        sHeader header(getHeader());
+        if(header && child)
+        {
+            const ulong buttons = header->getButtons();
+            sGuiModel childm(child->getModel());
+            if(childm == header->getCloseButton() || childm == header->getMinimizeButton() || childm == header->getMaximizeButton())
+            {
+                static_pointer_cast<GuiButton::Controller>(child)->removeListener(static_pointer_cast<Controller>(shared_from_this()));
+                vector<sGuiController> childs(getChilds());
+                for(auto it : getChilds())
+                {
+                    if(it->getModel() == header->getCloseButton())
+                    {
+                        GuiButton::sController bctrl = static_pointer_cast<GuiButton::Controller>(it);
+                        bctrl->setBounds(Rectangle(6., 6., 12., 12.));
+                        bctrl->addListener(static_pointer_cast<Controller>(shared_from_this()));
+                    }
+                    else if(it->getModel() == header->getMinimizeButton())
+                    {
+                        GuiButton::sController bctrl = static_pointer_cast<GuiButton::Controller>(it);
+                        bctrl->setBounds(Rectangle(6. + (buttons && closeButton) * 18., 6., 12., 12.));
+                        bctrl->addListener(static_pointer_cast<Controller>(shared_from_this()));
+                    }
+                    else if(it->getModel() == header->getMaximizeButton())
+                    {
+                        GuiButton::sController bctrl = static_pointer_cast<GuiButton::Controller>(it);
+                        bctrl->setBounds(Rectangle(6. + (buttons && closeButton) * 18. + (buttons && minimiseButton) * 18., 6., 12., 12.));
+                        bctrl->addListener(static_pointer_cast<Controller>(shared_from_this()));
+                    }
+                }
+            }
+        }
+    }
+    
+    void GuiWindow::Header::Controller::parentChanged() noexcept
+    {
+        sGuiController parent(getParent());
+        if(parent)
+        {
+            setSize(Size(parent->getSize().width(), 24.));
+            toBack();
+        }
+    }
+    
+    void GuiWindow::Header::Controller::parentBoundsChanged() noexcept
+    {
+        sGuiController parent(getParent());
+        if(parent)
+        {
+            setSize(Size(parent->getSize().width(), 24.));
+        }
     }
 }
 
