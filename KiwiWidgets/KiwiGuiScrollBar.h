@@ -56,7 +56,6 @@ namespace Kiwi
             Horizontal  = true  ///< Horizontal.
         };
         
-    protected:
         class Controller;
         typedef shared_ptr<Controller>  sController;
         typedef weak_ptr<Controller>    wController;
@@ -161,14 +160,14 @@ namespace Kiwi
     //! The scroll bar controller.
     /** The scroll bar controller manage a view of a scroll bar.
      */
-    class GuiScrollBar::Controller : public GuiController, public Broadcaster<Listener>, public Clock
+    class GuiScrollBar::Controller : public GuiController, public Clock
     {
     private:
         const wGuiScrollBar     m_scrollbar;
         array<double, 2>        m_limits;
         array<double, 2>        m_range;
         atomic_bool             m_visible;
-        
+        ListenerSet<Listener>   m_listeners;
     public:
         //! The scroll bar controller constructor.
         /** The function initialize the scroll bar controller.
@@ -251,6 +250,22 @@ namespace Kiwi
         /** The tick function is called by a clock after a delay.
          */
         void tick() override;
+        
+        //! Add an view port listener in the binding list of the view port.
+        /** The function adds an view port listener in the binding list of the view port.
+        If the view port listener is already in the binding list, the function doesn't do anything.
+         @param listener  The pointer of the view port listener.
+         @see unbind
+         */
+        void addListener(sListener listener);
+        
+        //! Remove an view port listener from the binding list of the view port.
+        /** The function removes an view port listener from the binding list of the view port.
+         If the view port listener isn't in the binding list, the function doesn't do anything.
+         @param listener  The pointer of the view port listener.
+         @see bind
+         */
+        void removeListener(sListener listener);
     };
     
     // ================================================================================ //
@@ -272,7 +287,7 @@ namespace Kiwi
         /** The function receivesthe notification that a scroll bar moved.
          @param scrollbar The scroll bar.
          */
-        virtual void scrollBarMoved(sGuiScrollBar scrollbar) = 0;
+        virtual void scrollBarMoved(sController scrollbar) = 0;
     };
 }
 

@@ -39,9 +39,11 @@ namespace Kiwi
     {
     private:
         class Controller;
+        
+        
         const sGuiScrollBar m_scrollbar_h;
         const sGuiScrollBar m_scrollbar_v;
-        sGuiModel        m_content;
+        sGuiModel           m_content;
     public:
         
         //! The view port constructor.
@@ -65,43 +67,54 @@ namespace Kiwi
         /** The function retrieves the content model of the view port.
          @return The content model.
          */
-        inline sGuiModel getContent() const noexcept
-        {
-            return m_content;
-        }
+        inline sGuiModel getContent() const noexcept {return m_content;}
         
-        //! Sets the content model position.
-        /** The function sets the content model position.
-         @param position The position of the content.
+        //! Create the controller.
+        /** The function creates a controller depending on the inheritance.
+         @return The controller.
          */
-        void setContentPosition(Point const& position);
-        
-        //! Gets the content model position.
-        /** The function retrieves the content model position.
-         @return The position of the content.
-         */
-        inline Point getContentPosition() const noexcept
-        {
-            int todo;
-            return Point();//m_container->getPosition();
-        }
-        
-        //! The draw method that should be override.
-        /** The function shoulds draw some stuff in the sketch.
-         @param ctrl    The controller that ask the draw.
-         @param sketch  A sketch to draw.
-         */
-        void draw(scGuiView view, Sketch& sketch) const {sketch.fillAll(Colors::white);}
-        
-        sGuiController createController() override
-        {
-            return nullptr;
-        }
+        sGuiController createController() override;
     };
     
-    class GuiViewPort::Controller : public GuiController
+    // ================================================================================ //
+    //                              GUI VIEW PORT CONTROLLER                            //
+    // ================================================================================ //
+    
+    class GuiViewPort::Controller : public GuiController, public GuiScrollBar::Listener
     {
+    private:
+        const wGuiViewPort m_view_port;
+    public:
         
+        //! The view port controller constructor.
+        /** The function initialize the view port controller.
+         @param view port  The view port to control.
+         */
+        Controller(sGuiViewPort viewport) noexcept;
+        
+        //! The controller destructor.
+        /** The function does nothing.
+         */
+        inline ~Controller() noexcept {};
+        
+        //! Gets the view port.
+        /** The function retrieves the view port.
+         @return The view port.
+         */
+        inline sGuiViewPort getViewPort() const noexcept {return m_view_port.lock();}
+        
+        //! The draw method that can be override.
+        /** The function shoulds draw some stuff.
+         @param view    The view that owns the controller.
+         @param sketch  The sketch to draw.
+         */
+        void draw(sGuiView view, Sketch& sketch) override {};
+        
+        //! Receives the notification that a scroll bar moved.
+        /** The function receivesthe notification that a scroll bar moved.
+         @param scrollbar The scroll bar.
+         */
+        void scrollBarMoved(GuiScrollBar::sController scrollbar) override;
     };
 }
 

@@ -93,6 +93,30 @@ namespace Kiwi
          */
         inline sHeader getHeader() const noexcept {return m_header;}
         
+        //! Gets if the window has an header.
+        /** The function retrieves if the window has an header.
+         @return true if the window has an header, otherwise false.
+         */
+        inline bool hasHeader() const noexcept {return bool(m_header);}
+        
+        //! Sets the content of the window.
+        /** The function sets the content of the window.
+         @param content The content.
+         */
+        void setContent(sGuiModel content) noexcept;
+        
+        //! Gets the content of the window.
+        /** The function retrieves the content of the window.
+         @return The content.
+         */
+        inline sGuiModel getContent() const noexcept {return m_content;}
+        
+        //! Gets if the window has a content.
+        /** The function retrieves if the window has a content.
+         @return true if the window has a content, otherwise false.
+         */
+        inline bool hasContent() const noexcept {return bool(m_content);}
+        
         //! Add a new view of the window to the desktop
         /** The function adds new view of the window to the desktop
          */
@@ -120,8 +144,13 @@ namespace Kiwi
     class GuiWindow::Controller : public GuiController
     {
     private:
-        const wGuiWindow m_window;
+        const wGuiWindow    m_window;
+        sGuiController      m_resizer;
+        sGuiController      m_header;
+        sGuiController      m_content;
+        
         Rectangle        m_last_bounds;
+        
     public:
         //! The window controller constructor.
         /** The function initialize the window controller.
@@ -161,6 +190,23 @@ namespace Kiwi
          @param sketch  The sketch to draw.
          */
         void draw(sGuiView view, Sketch& sketch) override;
+        
+        //! Receives the notification that a child has been created.
+        /** The function notifies the controller that a child has been created.
+         @param child The child controller.
+         */
+        void childCreated(sGuiController child) noexcept override;
+        
+        //! Receives the notification that a child has been removed.
+        /** The function notifies the controller that a child has been removed.
+         @param child The child controller.
+         */
+        void childRemoved(sGuiController child) noexcept override;
+        
+        //! Receives the notification that the bounds of the parent controller changed.
+        /** The function notifies that the bounds of the parent controller changed.
+         */
+        void boundsChanged() noexcept override;
     };
     
     // ================================================================================ //

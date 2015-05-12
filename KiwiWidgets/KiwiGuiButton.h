@@ -119,8 +119,6 @@ namespace Kiwi
             }
         }
         
-    private:
-        
         //! Create the controller.
         /** The function creates a controller depending on the inheritance.
          @return The controller.
