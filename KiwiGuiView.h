@@ -226,10 +226,15 @@ namespace Kiwi
          */
         virtual void sizeChanged() = 0;
         
-        //! Receives the notification that the behavior of the controller changed.
-        /** This function is called by the controller whenever its behavior changed.
+        //! Receives the notification that the controller's behavior changed.
+        /** This function is called by the controller whenever its behavio changed.
          */
         virtual void behaviorChanged() = 0;
+        
+        //! Receives the notification that the view needs its cursor to be changed.
+        /** This function is called whenever its mouse cursor needs to be changed.
+         */
+        virtual void setMouseCursor(Kiwi::MouseCursor const& cursor) = 0;
         
         //! Receives the notification that the model needs the keyboard focus.
         /** This function is called by the model whenever it needs the keyboard focus.

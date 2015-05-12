@@ -310,6 +310,11 @@ namespace Kiwi
         /** This function sends a notification to the view that the controller needs to in front of the other controllers.
          */
         void toFront() noexcept;
+        
+        //! Sends the notification to the view that the controller needs another mouse cursor.
+        /** This function sends the notification to the view that the controller needs another mouse cursor.
+         */
+        void setMouseCursor(MouseCursor const& cursor) noexcept;
     };
 }
 

@@ -308,20 +308,14 @@ namespace Kiwi
             view->toFront();
         }
     }
+    
+    void GuiController::setMouseCursor(MouseCursor const& cursor) noexcept
+    {
+        sGuiView view = getView();
+        if(view)
+        {
+            view->setMouseCursor(cursor);
+        }
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

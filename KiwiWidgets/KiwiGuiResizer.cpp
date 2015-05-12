@@ -80,6 +80,11 @@ namespace Kiwi
         shouldReceiveActions(false);
     }
     
+    MouseCursor GuiResizer::Controller::getCursorForZone() const noexcept
+    {
+        
+    }
+    
     bool GuiResizer::Controller::contains(Point const& pt)
     {
         sGuiResizer resizer(getResizer());
@@ -191,19 +196,3 @@ namespace Kiwi
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

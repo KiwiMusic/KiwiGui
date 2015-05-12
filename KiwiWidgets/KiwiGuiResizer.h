@@ -136,6 +136,8 @@ namespace Kiwi
         const wGuiResizer   m_resizer;
         Rectangle           m_last_bounds;
         Zone                m_zone;
+        
+        MouseCursor getCursorForZone() const noexcept;
     public:
         //! The resizer controller constructor.
         /** The function initialize the resizer controller.
