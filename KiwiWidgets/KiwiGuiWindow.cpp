@@ -63,7 +63,20 @@ namespace Kiwi
         {
             addChild(header);
             m_header = header;
-            int todo_move_content;
+        }
+    }
+    
+    void GuiWindow::setContent(sGuiModel content) noexcept
+    {
+        if(m_content)
+        {
+            removeChild(content);
+            m_content = sGuiModel();
+        }
+        if(content)
+        {
+            addChild(content);
+            m_content = content;
         }
     }
     
@@ -141,7 +154,7 @@ namespace Kiwi
         sGuiContext ctxt(getContext());
         if(ctxt)
         {
-            Rectangle bounds = getBounds();
+            const Rectangle bounds = getBounds();
             const Rectangle screen = ctxt->getScreenBounds(bounds.centre());
             if(screen == bounds)
             {
@@ -152,11 +165,8 @@ namespace Kiwi
                 m_last_bounds = bounds;
                 setBounds(screen);
             }
-            bounds = getBounds();
-            for(auto it : getChilds())
-            {
-                it->setSize(Size(bounds.width(), it->getSize().height()));
-            }
+            boundsChanged();
+            
         }
     }
     
@@ -166,6 +176,84 @@ namespace Kiwi
         if(window)
         {
             sketch.fillAll(window->getBackgroundColor());
+        }
+    }
+    
+    void GuiWindow::Controller::childCreated(sGuiController child) noexcept
+    {
+        sGuiWindow window(getWindow());
+        if(child && window)
+        {
+            sGuiModel model(child->getModel());
+            if(model == window->m_resizer)
+            {
+                m_resizer = child;
+                m_resizer->setBounds(getBounds());
+            }
+            else if(model == window->getHeader())
+            {
+                m_header = child;
+                const Rectangle bounds(getBounds());
+                const double offset = m_header->getSize().height();
+                m_header->setBounds(Rectangle(0., 0.,bounds.width(),offset));
+                if(m_content)
+                {
+                    m_content->setBounds(Rectangle(0., offset, bounds.width(), bounds.height() - offset));
+                }
+            }
+            else if(model == window->getContent())
+            {
+                m_content = child;
+                if(m_header)
+                {
+                    const Rectangle bounds(getBounds());
+                    const double offset = m_header->getSize().height();
+                    m_content->setBounds(Rectangle(0., offset, bounds.width(), bounds.height() - offset));
+                }
+                else
+                {
+                    m_content->setBounds(getBounds());
+                }
+            }
+        }
+    }
+    
+    void GuiWindow::Controller::childRemoved(sGuiController child) noexcept
+    {
+        if(child)
+        {
+            if(child == m_resizer)
+            {
+                m_resizer = sGuiController();
+            }
+            else if(child == m_header)
+            {
+                m_header = sGuiController();
+                m_content->setBounds(getBounds());
+            }
+            else if(child == m_content)
+            {
+                m_content = sGuiController();
+            }
+        }
+    }
+    
+    void GuiWindow::Controller::boundsChanged() noexcept
+    {
+        double header_height = 0.;
+        const Rectangle bounds(getBounds());
+        if(m_resizer)
+        {
+            m_resizer->setBounds(bounds);
+        }
+        if(m_header)
+        {
+            header_height =  m_header->getSize().height();
+            m_header->setBounds(Rectangle(0., 0., bounds.width(), header_height));
+        }
+        if(m_content)
+        {
+            m_content->setBounds(Rectangle(0., header_height, bounds.width(), bounds.height() - header_height));
         }
     }
     

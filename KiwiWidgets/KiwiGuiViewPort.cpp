@@ -34,12 +34,6 @@ namespace Kiwi
     m_scrollbar_h(make_shared<GuiScrollBar>(context, GuiScrollBar::Horizontal)),
     m_scrollbar_v(make_shared<GuiScrollBar>(context, GuiScrollBar::Vertical))
     {
-        /*
-        Rectangle bounds = getBounds();
-        m_container->setBounds(bounds);
-        m_scrollbar_h->setBounds(Rectangle(0., bounds.height() - 10., bounds.width(), 10.));
-        m_scrollbar_v->setBounds(Rectangle(bounds.width() - 10., 0., 10., bounds.height()));
-         */
         addChild(m_scrollbar_h);
         addChild(m_scrollbar_v);
     }
@@ -58,23 +52,25 @@ namespace Kiwi
         addChild(m_content);
     }
     
-    void GuiViewPort::setContentPosition(Point const& position)
+    sGuiController GuiViewPort::createController()
     {
-        //m_container->setPosition(-position);
-        //m_container->setSize(getSize() + Size(position.x(), position.y()));
+        return make_shared<Controller>(static_pointer_cast<GuiViewPort>(shared_from_this()));
     }
-    /*
-    bool GuiViewPort::notify(sAttr attr)
+    
+    // ================================================================================ //
+    //                              GUI VIEW PORT CONTROLLER                            //
+    // ================================================================================ //
+    
+    GuiViewPort::Controller::Controller(sGuiViewPort viewport) noexcept : GuiController(viewport),
+    m_view_port(viewport)
     {
-        if(attr->getName() == Tags::size)
-        {
-            const Point pos = m_container->getPosition();
-            m_container->setSize(getSize());
-            //m_container->setSize(getSize() + Size(pos.x(), pos.y()));
-        }
-        return true;
+        ;
     }
-     */
+    
+    void GuiViewPort::Controller::scrollBarMoved(GuiScrollBar::sController scrollbar)
+    {
+        
+    }
 
 }
 

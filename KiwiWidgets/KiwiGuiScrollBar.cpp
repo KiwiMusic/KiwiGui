@@ -245,7 +245,17 @@ namespace Kiwi
                 redraw();
             }
         }
-    }    
+    }
+    
+    void GuiScrollBar::Controller::addListener(sListener listener)
+    {
+        m_listeners.add(listener);
+    }
+    
+    void GuiScrollBar::Controller::removeListener(sListener listener)
+    {
+        m_listeners.remove(listener);
+    }
 }
 
 
