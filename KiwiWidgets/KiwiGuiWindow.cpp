@@ -371,12 +371,12 @@ namespace Kiwi
     {
         const Size size = ctrl->getSize();
         sketch.fillAll(m_bg_color.contrasted(0.8));
-        sketch.setColor(m_txt_color);
+        sketch.setColor(m_bg_color.contrasted(0.4));
+        //sketch.setColor(m_txt_color);
         Font font;
         font.setHeight(ctrl->getSize().height() - 8.);
         sketch.setFont(font);
         sketch.drawText(m_title, 60., 0., size.width() - 64., size.height(), Font::VerticallyCentred);
-        
     }
     
     bool GuiWindow::Header::receive(sController ctrl, MouseEvent const& event)
@@ -415,21 +415,21 @@ namespace Kiwi
     {
         if(event.isDown())
         {
-            m_last_down_pos = getMousePosition();
-            
             sGuiController pctrl(getParent());
             if(pctrl)
             {
                 m_last_window_pos = pctrl->getPosition();
             }
+            m_last_down_pos = getMousePosition();
+            return true;
         }
         else if(event.isDrag())
         {
-            const Point position = getMousePosition();
             sGuiController pctrl(getParent());
             if(pctrl)
             {
-                pctrl->setPosition(m_last_window_pos + position - m_last_down_pos);
+                pctrl->setPosition(m_last_window_pos + getMousePosition() - m_last_down_pos);
+                return true;
             }
         }
         else if(event.isDoubleClick())
@@ -438,9 +438,10 @@ namespace Kiwi
             if(pctrl)
             {
                 pctrl->maximize();
+                return true;
             }
         }
-        return true;
+        return false;
     }
     
     void GuiWindow::Header::Controller::buttonPressed(sGuiButton button)
@@ -448,26 +449,18 @@ namespace Kiwi
         sHeader header(getHeader());
         if(header && button)
         {
-            if(button == header->getCloseButton())
+            GuiWindow::sController pctrl(getWindowController());
+            if(pctrl)
             {
-                GuiWindow::sController pctrl(getWindowController());
-                if(pctrl)
+                if(button == header->getCloseButton())
                 {
                     pctrl->close();
                 }
-            }
-            else if(button == header->getMinimizeButton())
-            {
-                GuiWindow::sController pctrl(getWindowController());
-                if(pctrl)
+                else if(button == header->getMinimizeButton())
                 {
                     pctrl->minimize();
                 }
-            }
-            else if(button == header->getMaximizeButton())
-            {
-                GuiWindow::sController pctrl(getWindowController());
-                if(pctrl)
+                else if(button == header->getMaximizeButton())
                 {
                     pctrl->maximize();
                 }

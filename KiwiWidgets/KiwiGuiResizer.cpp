@@ -167,8 +167,7 @@ namespace Kiwi
                                                                 event.hasShift(), event.hasAlt());
                 
                 const Rectangle sb = ctx->getScreenBounds(newrect.centre());
-                parent->setBounds(newrect.withClippedEdges(sb.top(), sb.right(), sb.bottom(), sb.left()));
-                
+                parent->setBounds(newrect.withClippedEdges(sb.left(), sb.top(), sb.right(), sb.bottom()));
                 setMouseCursor(getCursorForZone());
             }
             return true;
