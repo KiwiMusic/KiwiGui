@@ -158,12 +158,17 @@ namespace Kiwi
          */
         void removeChild(sGuiView child) noexcept;
         
-        //! The mouse receive method.
-        /** The function pass the mouse event to the model if it inherits from mouser.
-         @param event    A mouser event.
-         @return true if the class has done something with the event otherwise false
+        //! The draw method.
+        /** The function pass tells the controller to draw.
+         @param sketch  A sketch to draw.
          */
         inline void draw(Sketch& sketch) {m_controller->draw(shared_from_this(), sketch);}
+        
+        //! The draw method.
+        /** The function pass tells the controller to draw.
+         @param sketch  A sketch to draw.
+         */
+        inline void drawOver(Sketch& sketch) {m_controller->drawOver(shared_from_this(), sketch);}
         
         //! The mouse receive method.
         /** The function pass the mouse event to the model if it inherits from mouser.
@@ -250,6 +255,11 @@ namespace Kiwi
         /** This function is called by the model whenever it needs to go in front of the other viewes.
          */
         virtual void toFront() = 0;
+        
+        //! Receives the notification that the view will always need to be in front of its siblings.
+        /** This function is called to indicate that this view will always need to be in front of its siblings.
+         */
+        virtual void alwaysOnTop(const bool alwaysOnTop) = 0;
         
         //! Adds the view to the desktop.
         /** This function adds the view to the desktop as a top level window.

@@ -29,6 +29,31 @@
 namespace Kiwi
 {
     // ================================================================================ //
+    //                                  BOUNDS CHECKER                                  //
+    // ================================================================================ //
+    
+    //! The bounds checker is a pure virtual class you should override to filter changes of the controller's bounds.
+    /** The bounds checker is a pure virtual class you should override to filter changes of the controller's bounds.
+     */
+    class BoundsChecker
+    {
+    public:
+        virtual ~BoundsChecker() = default;
+        
+        //! Filter changes of the controller's bounds.
+        /** The function can be used to filter changes of the controller's bounds.
+         @param newBounds The new bounds.
+         @param oldBounds The old bounds.
+         */
+        virtual void check(Rectangle& newBounds, Rectangle const& oldBounds) const noexcept = 0;
+    };
+    
+    typedef shared_ptr<BoundsChecker>       sBoundsChecker;
+    typedef weak_ptr<BoundsChecker>         wBoundsChecker;
+    typedef shared_ptr<const BoundsChecker> scBoundsChecker;
+    typedef weak_ptr<const BoundsChecker>   wcBoundsChecker;
+    
+    // ================================================================================ //
     //                                  GUI CONTROLLER                                  //
     // ================================================================================ //
     
@@ -43,6 +68,7 @@ namespace Kiwi
         const wGuiContext   m_context;
         const wGuiModel     m_model;
         Rectangle           m_bounds;
+        sBoundsChecker      m_bounds_checker;
         bool                m_want_mouse;
         bool                m_want_keyboard;
         bool                m_want_action;
@@ -179,6 +205,13 @@ namespace Kiwi
          */
         virtual void draw(sGuiView view, Sketch& sketch) = 0;
         
+        //! The draw over method that can be overridden.
+        /** The function can draw some stuff over all of its children.
+         @param view    The view that owns the controller.
+         @param sketch  The sketch to draw.
+         */
+        virtual void drawOver(sGuiView view, Sketch& sketch) {};
+        
         //! The mouse receive method that can be override.
         /** The function shoulds perform some stuff.
          @param view    The view that owns the controller.
@@ -291,6 +324,13 @@ namespace Kiwi
          */
         void setSize(Size&& size) noexcept;
         
+        //! Set the bounds checker.
+        /** The function sets a new bounds checker.
+         @param boundsChecker The bounds checker, pass nullptr to remove it.
+         @see BoundsChecker
+         */
+        void setBoundsChecker(sBoundsChecker boundsChecker) noexcept;
+        
         //! Send a notification to the view that the controller needs to be redrawn.
         /** The function sends a notification to the view that the controller should be redrawn.
          */
@@ -310,6 +350,11 @@ namespace Kiwi
         /** This function sends a notification to the view that the controller needs to in front of the other controllers.
          */
         void toFront() noexcept;
+        
+        //! Send the notification that the view will always need to be in front of its siblings.
+        /** This function is called to indicate that this view will always need to be in front of its siblings.
+         */
+        void alwaysOnTop(const bool onTop) noexcept;
         
         //! Sends the notification to the view that the controller needs another mouse cursor.
         /** This function sends the notification to the view that the controller needs another mouse cursor.

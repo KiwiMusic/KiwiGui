@@ -104,124 +104,81 @@ namespace Kiwi
         }
     }
     
-    void GuiController::setBounds(Rectangle const& bounds) noexcept
+    void GuiController::setBounds(Rectangle const& newBounds) noexcept
     {
-        m_bounds = bounds;
-        sGuiView view = getView();
-        if(view)
-        {
-            view->boundsChanged();
-            this->boundsChanged();
-            sGuiController parent(getParent());
-            if(parent)
-            {
-                parent->childBoundsChanged(shared_from_this());
-            }
-            for(auto it : getChilds())
-            {
-                it->parentBoundsChanged();
-            }
-        }
+        setBounds(Rectangle(newBounds));
     }
     
     void GuiController::setBounds(Rectangle&& bounds) noexcept
     {
-        m_bounds = forward<Rectangle>(bounds);
-        sGuiView view = getView();
-        if(view)
+        Rectangle newBounds = forward<Rectangle>(bounds);
+        const Rectangle oldBounds = getBounds();
+        
+        if(m_bounds_checker)
         {
-            view->boundsChanged();
+            m_bounds_checker->check(newBounds, oldBounds);
+        }
+        
+        const bool moved = newBounds.position() != oldBounds.position();
+        const bool resized = newBounds.size() != oldBounds.size();
+        
+        if(moved || resized)
+        {
+            m_bounds = newBounds;
             this->boundsChanged();
-            sGuiController parent(getParent());
-            if(parent)
+            
+            sGuiView view = getView();
+            if(view)
             {
-                parent->childBoundsChanged(shared_from_this());
-            }
-            for(auto it : getChilds())
-            {
-                it->parentBoundsChanged();
+                if(!resized)
+                {
+                    view->positionChanged();
+                }
+                else if(!moved)
+                {
+                    view->sizeChanged();
+                }
+                else
+                {
+                    view->boundsChanged();
+                }
+                
+                sGuiController parent(getParent());
+                if(parent)
+                {
+                    parent->childBoundsChanged(shared_from_this());
+                }
+                for(auto it : getChilds())
+                {
+                    it->parentBoundsChanged();
+                }
             }
         }
     }
     
     void GuiController::setPosition(Point const& position) noexcept
     {
-        m_bounds.position(position);
-        sGuiView view = getView();
-        if(view)
-        {
-            view->positionChanged();
-            this->boundsChanged();
-            sGuiController parent(getParent());
-            if(parent)
-            {
-                parent->childBoundsChanged(shared_from_this());
-            }
-            for(auto it : getChilds())
-            {
-                it->parentBoundsChanged();
-            }
-        }
+        setBounds(m_bounds.withPosition(position));
     }
     
     void GuiController::setPosition(Point&& position) noexcept
     {
-        m_bounds.position(forward<Point>(position));
-        sGuiView view = getView();
-        if(view)
-        {
-            view->positionChanged();
-            this->boundsChanged();
-            sGuiController parent(getParent());
-            if(parent)
-            {
-                parent->childBoundsChanged(shared_from_this());
-            }
-            for(auto it : getChilds())
-            {
-                it->parentBoundsChanged();
-            }
-        }
+        setBounds(m_bounds.withPosition(forward<Point>(position)));
     }
     
     void GuiController::setSize(Size const& size) noexcept
     {
-        m_bounds.size(size);
-        sGuiView view = getView();
-        if(view)
-        {
-            view->sizeChanged();
-            this->boundsChanged();
-            sGuiController parent(getParent());
-            if(parent)
-            {
-                parent->childBoundsChanged(shared_from_this());
-            }
-            for(auto it : getChilds())
-            {
-                it->parentBoundsChanged();
-            }
-        }
+        setBounds(m_bounds.withSize(size));
     }
     
     void GuiController::setSize(Size&& size) noexcept
     {
-        m_bounds.size(forward<Size>(size));
-        sGuiView view = getView();
-        if(view)
-        {
-            view->sizeChanged();
-            this->boundsChanged();
-            sGuiController parent(getParent());
-            if(parent)
-            {
-                parent->childBoundsChanged(shared_from_this());
-            }
-            for(auto it : getChilds())
-            {
-                it->parentBoundsChanged();
-            }
-        }
+        setBounds(m_bounds.withSize(forward<Size>(size)));
+    }
+    
+    void GuiController::setBoundsChecker(sBoundsChecker boundsChecker) noexcept
+    {
+        m_bounds_checker = boundsChecker;
     }
     
     bool GuiController::contains(Point const& pt)
@@ -306,6 +263,15 @@ namespace Kiwi
         if(view)
         {
             view->toFront();
+        }
+    }
+    
+    void GuiController::alwaysOnTop(const bool onTop) noexcept
+    {
+        sGuiView view = getView();
+        if(view)
+        {
+            view->alwaysOnTop(onTop);
         }
     }
     
