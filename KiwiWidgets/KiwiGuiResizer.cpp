@@ -163,7 +163,7 @@ namespace Kiwi
                 const Point delta = event.getPosition() - event.getDownPosition();
                 
                 const Rectangle newrect = m_last_bounds.resized(getRectangleBorders(),
-                                                                delta, Point(100., 100.), Point(0., 0.),
+                                                                delta, Point(100., 32.), Point(0., 0.),
                                                                 event.hasShift(), event.hasAlt());
                 
                 const Rectangle sb = ctx->getScreenBounds(newrect.centre());

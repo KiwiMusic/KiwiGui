@@ -369,14 +369,22 @@ namespace Kiwi
     
     void GuiWindow::Header::draw(sController ctrl, Sketch& sketch) const
     {
-        const Size size = ctrl->getSize();
+        const Rectangle bounds = ctrl->getBounds().withZeroOrigin();
         sketch.fillAll(m_bg_color.contrasted(0.8));
         sketch.setColor(m_bg_color.contrasted(0.4));
         //sketch.setColor(m_txt_color);
         Font font;
-        font.setHeight(ctrl->getSize().height() - 8.);
+        font.setHeight(bounds.height() * 0.6);
+        font.setStyle(Font::Bold);
         sketch.setFont(font);
-        sketch.drawText(m_title, 60., 0., size.width() - 64., size.height(), Font::VerticallyCentred);
+        if(font.getLineWidth(m_title) < bounds.width() - 120)
+        {
+            sketch.drawTextLine(m_title, bounds, Font::Centred, false);
+        }
+        else
+        {
+            sketch.drawTextLine(m_title, 60., 0., bounds.width() - 64., bounds.height(), Font::Left, true);
+        }
     }
     
     bool GuiWindow::Header::receive(sController ctrl, MouseEvent const& event)
@@ -538,7 +546,7 @@ namespace Kiwi
         if(parent)
         {
             //setSize(Size(parent->getSize().width(), 24.));
-            toBack();
+            //toBack();
         }
     }
     
