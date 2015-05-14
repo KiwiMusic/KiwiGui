@@ -123,7 +123,7 @@ namespace Kiwi
                 removeView(it);
             }
         }
-        ctxt->addTopLevelModel(shared_from_this());
+        ctxt->removeTopLevelModel(shared_from_this());
     }
     
     sGuiController GuiWindow::createController()
@@ -265,20 +265,18 @@ namespace Kiwi
     
     void GuiWindow::Controller::boundsChanged() noexcept
     {
-        const Rectangle bounds(getBounds());
-        double header_height = 0.;
+        const Rectangle bounds(getBounds().withZeroOrigin().reduced(2.));
         if(m_resizer)
         {
             m_resizer->setBounds(bounds);
         }
         if(m_header)
         {
-            header_height = m_header->getSize().height();
-            m_header->setBounds(Rectangle(2., 2., bounds.width() - 4., header_height));
+            m_header->setBounds(bounds.withHeight(m_header->getSize().height()));
         }
         if(m_content)
         {
-            m_content->setBounds(Rectangle(0., header_height, bounds.width(), bounds.height() - header_height));
+            m_content->setBounds(m_header ? bounds.withTop(m_header->getBounds().bottom()) : bounds);
         }
     }
     
