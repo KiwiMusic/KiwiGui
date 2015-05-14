@@ -136,9 +136,22 @@ namespace Kiwi
          @param size The size.
          @return The new rectangle.
          */
-        static inline  Rectangle withCentre(Point const& centre, Size const& size) noexcept
+        static inline Rectangle withCentre(Point const& centre, Size const& size) noexcept
         {
             return Rectangle(centre - Point(size) * 0.5, size);
+        }
+        
+        //! Return a rectangle by specifying its edges.
+        /** The function returns a rectangle with the center positions and the size.
+         @param left    The left edge.
+         @param top     The top edge.
+         @param right   The right edge.
+         @param bottom  The bottom edge.
+         @return A rectangle.
+         */
+        static inline Rectangle withEdges(const double left, const double top, const double right, const double bottom) noexcept
+        {
+            return Rectangle(left, top, right - left, bottom - top);
         }
         
         //! Return the same rectangle with a different position.
@@ -159,6 +172,66 @@ namespace Kiwi
         inline Rectangle withPosition(Point&& newpos) const noexcept
         {
             return Rectangle(forward<Point>(newpos), size());
+        }
+        
+        //! Return the same rectangle with a different abscissa position.
+        /** The function returns the same rectangle with a different abscissa position.
+         @param abscissa The new abscissa position of the rectangle.
+         @return The new rectangle.
+         */
+        inline Rectangle withX(const double abscissa) const noexcept
+        {
+            return Rectangle(Point(abscissa, y()), size());
+        }
+        
+        //! Return the same rectangle with a different ordinate position.
+        /** The function returns the same rectangle with a different ordinate position.
+         @param ordinate The new ordinate position of the rectangle.
+         @return The new rectangle.
+         */
+        inline Rectangle withY(const double ordinate) const noexcept
+        {
+            return Rectangle(Point(x(), ordinate), size());
+        }
+        
+        //! Return the same rectangle with a different size.
+        /** The function returns the same rectangle with a different size.
+         @param newSize The new size of the rectangle.
+         @return The new rectangle.
+         */
+        inline Rectangle withSize(Size const& newSize) const noexcept
+        {
+            return Rectangle(m_position, newSize);
+        }
+        
+        //! Return the same rectangle with a different size.
+        /** The function returns the same rectangle with a different size.
+         @param newSize The new size of the rectangle.
+         @return The new rectangle.
+         */
+        inline Rectangle withSize(Size&& newSize) const noexcept
+        {
+            return Rectangle(position(), forward<Size>(newSize));
+        }
+        
+        //! Return the same rectangle with a different width.
+        /** The function returns the same rectangle with a different width.
+         @param width The new width of the rectangle.
+         @return The new rectangle.
+         */
+        inline Rectangle withWidth(const double newWidth) const noexcept
+        {
+            return Rectangle(position(), Size(newWidth, height()));
+        }
+        
+        //! Return the same rectangle with a different width.
+        /** The function returns the same rectangle with a different width.
+         @param width The new width of the rectangle.
+         @return The new rectangle.
+         */
+        inline Rectangle withHeight(const double newHeight) const noexcept
+        {
+            return Rectangle(position(), Size(width(), newHeight));
         }
         
         //! Return the same rectangle with a position at zero origin.
@@ -639,6 +712,37 @@ namespace Kiwi
         inline Rectangle reduced(const double value) const noexcept
         {
             return reduced(Point(value, value));
+        }
+        
+        //! Return a resized version of this rectangle.
+        /** The function returns a resized version of this rectangle.
+         @param borderflag      The border flag from which to resize the rectangle.
+         @param delta           The amount of reduction.
+         @param smin            The minimum size.
+         @param smax            The maximum size.
+         @param delta           The amount of reduction.
+         @param preserveRatio   True if you want to preserve the original width over height ratio.
+         @param opposite        True if you want to resize the opposite border.
+         @return A rectangle.
+         */
+        Rectangle resized(const ulong borderflag, Point const& delta,
+                          const Point smin = Point(0., 0.), const Point smax = Point(0., 0.),
+                          const bool preserveRatio = false, const bool opposite = false) const noexcept;
+        
+        //! Return a new version of this rectangle with its edges clipped.
+        /** The function returns a new version of this rectangle with its edges clipped.
+         @param left    The left edge.
+         @param top     The top edge.
+         @param right   The right edge.
+         @param bottom  The bottom edge.
+         @return A rectangle.
+         */
+        Rectangle withClippedEdges(const double left, const double top, const double right, const double bottom) const noexcept
+        {
+            return Rectangle::withEdges(max(left, this->left()),
+                                        max(top, this->top()),
+                                        min(right, this->right()),
+                                        min(bottom, this->bottom()));
         }
         
         //! Get if the rectangle overlaps another rectangle.
