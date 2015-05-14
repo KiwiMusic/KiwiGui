@@ -139,8 +139,8 @@ namespace Kiwi
             return path.m_nodes;
         }
         
-        //! Draws a line of text within a rectangle.
-        /** The function draws a line of text within a rectangle.
+        //! Draws a top-left justified text within a rectangle.
+        /** The function draws a top-left justified text within a rectangle.
          @param text The text.
          @param x The abscissa of the rectangle.
          @param y The ordinate of the rectangle.
@@ -152,6 +152,13 @@ namespace Kiwi
         virtual void internalDrawText(string const& text, double x, double y, double w, double h, Font const& font,
                                       Font::Justification j, bool truncated) const noexcept = 0;
         
+        virtual void internalDrawText(wstring const& text, double x, double y, double w, double h, Font const& font,
+                                      Font::Justification j, bool truncated) const noexcept
+        {
+            wstring_convert<codecvt_utf8<wchar_t>> cv;
+            internalDrawText(cv.to_bytes(text), x, y, w, h, m_font, j, truncated);
+        }
+        
         //! Draws a line of text within a rectangle.
         /** The function draws a line of text within a rectangle.
          @param text The text.
@@ -162,11 +169,14 @@ namespace Kiwi
          @param j The justification.
          @param truncated If the text should be truncated if it goes out the boundaries.
          */
-        virtual void internalDrawText(wstring const& text, double x, double y, double w, double h, Font const& font,
-                                      Font::Justification j, bool truncated) const noexcept
+        virtual void internalDrawTextLine(string const& text, double x, double y, double w, double h, Font const& font,
+                                          Font::Justification j, bool ellipses = false) const noexcept = 0;
+        
+        virtual void internalDrawTextLine(wstring const& text, double x, double y, double w, double h, Font const& font,
+                                          Font::Justification j, bool ellipses = false) const noexcept
         {
             wstring_convert<codecvt_utf8<wchar_t>> cv;
-            internalDrawText(cv.to_bytes(text), x, y, w, h, m_font, j, truncated);
+            internalDrawTextLine(cv.to_bytes(text), x, y, w, h, m_font, j, ellipses);
         }
         
         //! Fill a path.
@@ -477,6 +487,60 @@ namespace Kiwi
         void drawText(string const& text, Rectangle const& rect, Font::Justification j, bool truncated = false) const noexcept
         {
             internalDrawText(text, rect.x(), rect.y(), rect.width(), rect.height(), m_font, j, truncated);
+        }
+        
+        //! Draws a line of text within a rectangle.
+        /** The function draws a line of text within a rectangle.
+         @param text The text.
+         @param x The abscissa of the rectangle.
+         @param y The ordinate of the rectangle.
+         @param w The width of the rectangle.
+         @param h The height of the rectangle.
+         @param j The justification.
+         @param truncated If the text should be truncated if it goes out the boundaries.
+         */
+        void drawTextLine(string const& text, double x, double y, double w, double h, Font::Justification j, bool ellipses = false) const noexcept
+        {
+            internalDrawTextLine(text, x, y, w, h, m_font, j, ellipses);
+        }
+        
+        //! Draw a line of text within a rectangle.
+        /** The function draws a line of text within a rectangle.
+         @param text The text.
+         @param rect The rectangle.
+         @param j The justification.
+         @param truncated If the text should be truncated if it goes out the boundaries.
+         */
+        void drawTextLine(string const& text, Rectangle const& rect, Font::Justification j, bool ellipses = false) const noexcept
+        {
+            internalDrawTextLine(text, rect.x(), rect.y(), rect.width(), rect.height(), m_font, j, ellipses);
+        }
+        
+        //! Draws a line of text within a rectangle.
+        /** The function draws a line of text within a rectangle.
+         @param text The text.
+         @param x The abscissa of the rectangle.
+         @param y The ordinate of the rectangle.
+         @param w The width of the rectangle.
+         @param h The height of the rectangle.
+         @param j The justification.
+         @param truncated If the text should be truncated if it goes out the boundaries.
+         */
+        void drawTextLine(wstring const& text, double x, double y, double w, double h, Font::Justification j, bool ellipses = false) const noexcept
+        {
+            internalDrawTextLine(text, x, y, w, h, m_font, j, ellipses);
+        }
+        
+        //! Draw a line of text within a rectangle.
+        /** The function draws a line of text within a rectangle.
+         @param text The text.
+         @param rect The rectangle.
+         @param j The justification.
+         @param truncated If the text should be truncated if it goes out the boundaries.
+         */
+        void drawTextLine(wstring const& text, Rectangle const& rect, Font::Justification j, bool ellipses = false) const noexcept
+        {
+            internalDrawTextLine(text, rect.x(), rect.y(), rect.width(), rect.height(), m_font, j, ellipses);
         }
         
         //! Draw a point.
