@@ -234,6 +234,46 @@ namespace Kiwi
             return Rectangle(position(), Size(width(), newHeight));
         }
         
+        //! Return the same rectangle with a new left position.
+        /** The function returns the same rectangle with a new left position.
+         @param newTop The new left position of the rectangle.
+         @return The new rectangle.
+         */
+        inline Rectangle withLeft(const double newLeft) const noexcept
+        {
+            return Rectangle(Point(newLeft, y()), Size(width() - newLeft, height()));
+        }
+        
+        //! Return the same rectangle with a new top position.
+        /** The function returns the same rectangle with a new top position.
+         @param newTop The new top position of the rectangle.
+         @return The new rectangle.
+         */
+        inline Rectangle withTop(const double newTop) const noexcept
+        {
+            return Rectangle(Point(x(), newTop), Size(width(), bottom() - newTop));
+        }
+        
+        //! Return the same rectangle with a new right position.
+        /** The function returns the same rectangle with a new right position.
+         @param newRight The new right position of the rectangle.
+         @return The new rectangle.
+         */
+        inline Rectangle withRight(const double newRight) const noexcept
+        {
+            return Rectangle(position(), Size(newRight - x(), height()));
+        }
+        
+        //! Return the same rectangle with a new bottom position.
+        /** The function returns the same rectangle with a new bottom position.
+         @param newRight The new bottom position of the rectangle.
+         @return The new rectangle.
+         */
+        inline Rectangle withBottom(const double newBottom) const noexcept
+        {
+            return Rectangle(position(), Size(width(), newBottom - y()));
+        }
+        
         //! Return the same rectangle with a position at zero origin.
         /** The function returns the same rectangle with a position at zero origin.
          @return The new rectangle.
