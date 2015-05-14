@@ -28,41 +28,45 @@ namespace Kiwi
 {
     GuiResizer::Zone GuiResizer::getZone(Rectangle const& rect, Point const& pt) const noexcept
     {
-        const bool left     = pt.x() < m_size;
-        const bool right    = pt.x() > rect.width() - m_size;
-        const bool top      = pt.y() < m_size;
-        const bool bottom   = pt.y() > rect.height() - m_size;
-        if(m_zones & CornerTopLeft && left && top)
+        if(rect.contains(pt))
         {
-            return CornerTopLeft;
-        }
-        else if(m_zones & CornerBottomLeft && left && bottom)
-        {
-            return CornerBottomLeft;
-        }
-        else if(m_zones & CornerTopRight && right && top)
-        {
-            return CornerTopRight;
-        }
-        else if(m_zones & CornerBottomRight && right && bottom)
-        {
-            return CornerBottomRight;
-        }
-        else if(m_zones & BorderLeft && left)
-        {
-            return BorderLeft;
-        }
-        else if(m_zones & BorderRight && right)
-        {
-            return BorderRight;
-        }
-        else if(m_zones & BorderTop && top)
-        {
-            return BorderTop;
-        }
-        else if(m_zones & BorderBottom && bottom)
-        {
-            return BorderBottom;
+            const bool left     = pt.x() < m_size;
+            const bool right    = pt.x() > rect.width() - m_size;
+            const bool top      = pt.y() < m_size;
+            const bool bottom   = pt.y() > rect.height() - m_size;
+            
+            if(m_zones & CornerTopLeft && left && top)
+            {
+                return CornerTopLeft;
+            }
+            else if(m_zones & CornerBottomLeft && left && bottom)
+            {
+                return CornerBottomLeft;
+            }
+            else if(m_zones & CornerTopRight && right && top)
+            {
+                return CornerTopRight;
+            }
+            else if(m_zones & CornerBottomRight && right && bottom)
+            {
+                return CornerBottomRight;
+            }
+            else if(m_zones & BorderLeft && left)
+            {
+                return BorderLeft;
+            }
+            else if(m_zones & BorderRight && right)
+            {
+                return BorderRight;
+            }
+            else if(m_zones & BorderTop && top)
+            {
+                return BorderTop;
+            }
+            else if(m_zones & BorderBottom && bottom)
+            {
+                return BorderBottom;
+            }
         }
         return Zone::Nothing;
     }
@@ -82,7 +86,37 @@ namespace Kiwi
     
     MouseCursor GuiResizer::Controller::getCursorForZone() const noexcept
     {
-        
+        MouseCursor mc;
+        switch(m_zone)
+        {
+            case CornerTopLeft:         mc = MouseCursor::ResizingTopLeft; break;
+            case CornerBottomLeft:      mc = MouseCursor::ResizingBottomLeft; break;
+            case CornerTopRight:        mc = MouseCursor::ResizingTopRight; break;
+            case CornerBottomRight:     mc = MouseCursor::ResizingBottomRight; break;
+            case BorderLeft:            mc = MouseCursor::RezizingLeftRight; break;
+            case BorderRight:           mc = MouseCursor::RezizingLeftRight; break;
+            case BorderBottom:          mc = MouseCursor::RezizingUpDown; break;
+            case BorderTop:             mc = MouseCursor::RezizingUpDown; break;
+            default: break;
+        }
+        return mc;
+    }
+    
+    ulong GuiResizer::Controller::getRectangleBorders() const noexcept
+    {
+        switch(m_zone)
+        {
+            case BorderLeft:            return (Rectangle::Left);
+            case BorderRight:           return (Rectangle::Right);
+            case BorderBottom:          return (Rectangle::Bottom);
+            case BorderTop:             return (Rectangle::Top);
+            case CornerTopLeft:         return (Rectangle::Top | Rectangle::Left);
+            case CornerBottomLeft:      return (Rectangle::Bottom | Rectangle::Left);
+            case CornerTopRight:        return (Rectangle::Top | Rectangle::Right);
+            case CornerBottomRight:     return (Rectangle::Bottom | Rectangle::Right);
+            default: break;
+        }
+        return 0;
     }
     
     bool GuiResizer::Controller::contains(Point const& pt)
@@ -92,10 +126,7 @@ namespace Kiwi
         {
             return resizer->getZone(getBounds(), pt) != Zone::Nothing;
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
     
     bool GuiResizer::Controller::receive(sGuiView view, MouseEvent const& event)
@@ -106,6 +137,7 @@ namespace Kiwi
             if(resizer)
             {
                 m_zone = resizer->getZone(getBounds(), event.getPosition());
+                setMouseCursor(getCursorForZone());
             }
             return true;
         }
@@ -115,58 +147,29 @@ namespace Kiwi
             sGuiController parent(getParent());
             if(parent && resizer)
             {
+                //Size size(parent->getSize().width(), parent->getSize().height(), 100., 100., 1.);
                 m_last_bounds = parent->getBounds();
                 m_zone        = resizer->getZone(getBounds(), event.getPosition());
+                setMouseCursor(getCursorForZone());
             }
             return true;
         }
         else if(event.isDrag())
         {
             sGuiController parent(getParent());
-            if(parent)
+            sGuiContext ctx = getContext();
+            if(parent && ctx)
             {
-                switch(m_zone)
-                {
-                    case CornerTopLeft:
-                        ;
-                        break;
-                    case CornerBottomLeft:
-                        ;
-                        break;
-                    case CornerTopRight:
-                        ;
-                        break;
-                    case CornerBottomRight:
-                        ;
-                        break;
-                    case BorderLeft:
-                    {
-                        const double left = m_last_bounds.left() + event.getPosition().x() - event.getDownPosition().x();
-                        parent->setBounds(Rectangle(left, m_last_bounds.y(), m_last_bounds.right() - left, m_last_bounds.height()));
-                    }
-                        break;
-                    case BorderRight:
-                    {
-                        const double width = m_last_bounds.width() + event.getPosition().x() - event.getDownPosition().x();
-                        parent->setBounds(Rectangle(m_last_bounds.position(), Size(width, m_last_bounds.height())));
-                    }
-                        break;
-                    case BorderBottom:
-                    {
-                        const double height = m_last_bounds.height() + event.getPosition().y() - event.getDownPosition().y();
-                        parent->setBounds(Rectangle(m_last_bounds.position(), Size(m_last_bounds.width(), height)));
-                    }
-                        break;
-                    case BorderTop:
-                    {
-                        const double top = m_last_bounds.top() + event.getPosition().y() - event.getDownPosition().y();
-                        parent->setBounds(Rectangle(m_last_bounds.x(), top, m_last_bounds.width(), m_last_bounds.bottom() - top));
-                    }
-                        break;
-                        
-                    default:
-                        break;
-                }
+                const Point delta = event.getPosition() - event.getDownPosition();
+                
+                const Rectangle newrect = m_last_bounds.resized(getRectangleBorders(),
+                                                                delta, Point(100., 100.), Point(0., 0.),
+                                                                event.hasShift(), event.hasAlt());
+                
+                const Rectangle sb = ctx->getScreenBounds(newrect.centre());
+                parent->setBounds(newrect.withClippedEdges(sb.top(), sb.right(), sb.bottom(), sb.left()));
+                
+                setMouseCursor(getCursorForZone());
             }
             return true;
         }

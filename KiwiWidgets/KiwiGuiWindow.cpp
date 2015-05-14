@@ -32,7 +32,8 @@ namespace Kiwi
 	
     GuiWindow::GuiWindow(sGuiContext context, const ulong zones, Color const& color) noexcept : GuiModel(context),
     m_resizer(make_shared<GuiResizer>(context, zones)),
-    m_color(Colors::white)
+    m_color(Colors::white),
+    m_roundness(4.)
     {
         setBackgroundColor(color);
         addChild(m_resizer);
@@ -51,6 +52,18 @@ namespace Kiwi
             redraw();
         }
     }
+    
+    void GuiWindow::setRoundness(double roundness) noexcept
+    {
+        if(roundness < 0.) roundness = 0.;
+        if(roundness != m_roundness)
+        {
+            m_roundness = roundness;
+            redraw();
+        }
+    }
+    
+    void setRoundness(const double roundness) noexcept;
     
     void GuiWindow::setHeader(sHeader header) noexcept
     {
@@ -125,6 +138,7 @@ namespace Kiwi
     GuiWindow::Controller::Controller(sGuiWindow window) noexcept : GuiController(window),
     m_window(window)
     {
+        setBoundsChecker(make_shared<ScreenBoundsChecker>(window->getContext()));
         shouldReceiveMouse(false);
         shouldReceiveKeyboard(false);
         shouldReceiveActions(false);
@@ -165,8 +179,6 @@ namespace Kiwi
                 m_last_bounds = bounds;
                 setBounds(screen);
             }
-            boundsChanged();
-            
         }
     }
     
@@ -175,7 +187,19 @@ namespace Kiwi
         sGuiWindow window(getWindow());
         if(window)
         {
-            sketch.fillAll(window->getBackgroundColor());
+            sketch.setColor(window->getBackgroundColor());
+            sketch.fillRectangle(getBounds().withZeroOrigin(), window->getRoundness());
+        }
+    }
+    
+    void GuiWindow::Controller::drawOver(sGuiView view, Sketch& sketch)
+    {
+        sGuiWindow window = getWindow();
+        if(window)
+        {
+            sketch.setColor(window->getBackgroundColor().contrasted(0.8));
+            sketch.setLineWidth(3);
+            sketch.drawRectangle(getBounds().withZeroOrigin().reduced(1.5), window->getRoundness());
         }
     }
     
@@ -189,13 +213,14 @@ namespace Kiwi
             {
                 m_resizer = child;
                 m_resizer->setBounds(getBounds());
+                m_resizer->alwaysOnTop(true);
             }
             else if(model == window->getHeader())
             {
                 m_header = child;
                 const Rectangle bounds(getBounds());
                 const double offset = m_header->getSize().height();
-                m_header->setBounds(Rectangle(0., 0.,bounds.width(),offset));
+                m_header->setBounds(Rectangle(0., 0., bounds.width(),offset));
                 if(m_content)
                 {
                     m_content->setBounds(Rectangle(0., offset, bounds.width(), bounds.height() - offset));
@@ -240,16 +265,16 @@ namespace Kiwi
     
     void GuiWindow::Controller::boundsChanged() noexcept
     {
-        double header_height = 0.;
         const Rectangle bounds(getBounds());
+        double header_height = 0.;
         if(m_resizer)
         {
             m_resizer->setBounds(bounds);
         }
         if(m_header)
         {
-            header_height =  m_header->getSize().height();
-            m_header->setBounds(Rectangle(0., 0., bounds.width(), header_height));
+            header_height = m_header->getSize().height();
+            m_header->setBounds(Rectangle(2., 2., bounds.width() - 4., header_height));
         }
         if(m_content)
         {
@@ -345,12 +370,13 @@ namespace Kiwi
     void GuiWindow::Header::draw(sController ctrl, Sketch& sketch) const
     {
         const Size size = ctrl->getSize();
-        sketch.fillAll(m_bg_color);
+        sketch.fillAll(m_bg_color.contrasted(0.8));
         sketch.setColor(m_txt_color);
         Font font;
         font.setHeight(ctrl->getSize().height() - 8.);
         sketch.setFont(font);
-        sketch.drawText(m_title, 60., 0., size.width() - 120., size.height(), Font::HorizontallyCentered);
+        sketch.drawText(m_title, 60., 0., size.width() - 64., size.height(), Font::VerticallyCentred);
+        
     }
     
     bool GuiWindow::Header::receive(sController ctrl, MouseEvent const& event)
@@ -389,7 +415,13 @@ namespace Kiwi
     {
         if(event.isDown())
         {
-            m_last_pos = getMousePosition();
+            m_last_down_pos = getMousePosition();
+            
+            sGuiController pctrl(getParent());
+            if(pctrl)
+            {
+                m_last_window_pos = pctrl->getPosition();
+            }
         }
         else if(event.isDrag())
         {
@@ -397,9 +429,8 @@ namespace Kiwi
             sGuiController pctrl(getParent());
             if(pctrl)
             {
-                pctrl->setPosition(pctrl->getPosition() + position - m_last_pos);
+                pctrl->setPosition(m_last_window_pos + position - m_last_down_pos);
             }
-            m_last_pos = position;
         }
         else if(event.isDoubleClick())
         {
@@ -513,7 +544,7 @@ namespace Kiwi
         sGuiController parent(getParent());
         if(parent)
         {
-            setSize(Size(parent->getSize().width(), 24.));
+            //setSize(Size(parent->getSize().width(), 24.));
             toBack();
         }
     }
@@ -523,23 +554,8 @@ namespace Kiwi
         sGuiController parent(getParent());
         if(parent)
         {
-            setSize(Size(parent->getSize().width(), 24.));
+            //setSize(Size(parent->getSize().width(), 24.));
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -51,6 +51,7 @@ namespace Kiwi
         sHeader             m_header;
         sGuiModel           m_content;
         Color               m_color;
+        double              m_roundness;
     public:
         
         //! The window constructor.
@@ -80,6 +81,18 @@ namespace Kiwi
          @return The background color.
          */
         inline Color getBackgroundColor() const noexcept {return m_color;}
+        
+        //! Set the roundness of the window's corners.
+        /** The function sets the roundness of the window's corners.
+         @param roundness The roundness of the corners.
+         */
+        void setRoundness(double roundness) noexcept;
+        
+        //! Retreive the roundness of the window's corners.
+        /** The function retreives the roundness of the window's corners.
+         @return The roundness of the corners.
+         */
+        inline double getRoundness() const noexcept {return m_roundness;}
         
         //! Sets the header of the window.
         /** The function sets the header of the window.
@@ -143,13 +156,35 @@ namespace Kiwi
      */
     class GuiWindow::Controller : public GuiController
     {
+    public:
+        
+        class ScreenBoundsChecker : public BoundsChecker
+        {
+        private:
+            wGuiContext m_context;
+        public:
+            ScreenBoundsChecker(sGuiContext context) noexcept : m_context(context) {}
+            
+            void check(Rectangle& newBounds, Rectangle const& oldBounds) const noexcept override
+            {
+                sGuiContext ctxt = m_context.lock();
+                if(ctxt)
+                {
+                    const Rectangle screen = ctxt->getScreenBounds(newBounds.centre());
+                    if(newBounds.y() < screen.y())
+                    {
+                        newBounds.y(screen.y());
+                    }
+                }
+            }
+        };
+        
     private:
         const wGuiWindow    m_window;
         sGuiController      m_resizer;
         sGuiController      m_header;
         sGuiController      m_content;
-        
-        Rectangle        m_last_bounds;
+        Rectangle           m_last_bounds;
         
     public:
         //! The window controller constructor.
@@ -189,7 +224,14 @@ namespace Kiwi
          @param view    The view that owns the controller.
          @param sketch  The sketch to draw.
          */
-        void draw(sGuiView view, Sketch& sketch) override;
+        virtual void draw(sGuiView view, Sketch& sketch) override;
+        
+        //! The draw over method that can be overridden.
+        /** The function can draw some stuff over all of its children.
+         @param view    The view that owns the controller.
+         @param sketch  The sketch to draw.
+         */
+        virtual void drawOver(sGuiView view, Sketch& sketch) override;
         
         //! Receives the notification that a child has been created.
         /** The function notifies the controller that a child has been created.
@@ -339,7 +381,7 @@ namespace Kiwi
          @param event    A mouser event.
          @return true if the class has done something with the event otherwise false
          */
-        virtual bool receive(sController ctrl, MouseEvent const& event) ;
+        virtual bool receive(sController ctrl, MouseEvent const& event);
         
         //! Create the controller.
         /** The function creates a controller for the header's window.
@@ -356,7 +398,8 @@ namespace Kiwi
     {
     private:
         const wHeader   m_header;
-        Point           m_last_pos;
+        Point           m_last_window_pos;
+        Point           m_last_down_pos;
     public:
         
         //! The window header controller constructor.
@@ -394,7 +437,7 @@ namespace Kiwi
          @param view    The view that owns the controller.
          @param sketch  The sketch to draw.
          */
-        void draw(sGuiView view, Sketch& sketch) override;
+        virtual void draw(sGuiView view, Sketch& sketch) override;
         
         //! The mouse receive method that can be override.
         /** The function shoulds perform some stuff.

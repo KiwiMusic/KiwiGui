@@ -82,17 +82,17 @@ namespace Kiwi
          */
         inline ~GuiResizer() noexcept {}
         
-        //! Gets the border size of the resizer.
-        /** The function retrieves the border size of the resizer.
+        //! Gets the border thickness of the resizer.
+        /** The function retrieves the border thickness of the resizer.
          @return The border size.
          */
-        inline double getResizableSize() const noexcept {return m_size;}
+        inline double getThickness() const noexcept {return m_size;}
         
-        //! Sets the border size of the resizer.
-        /** The function sets the border size of the resizer.
-         @param size The border size.
+        //! Sets the border thickness of the resizer.
+        /** The function sets the border thickness of the resizer.
+         @param size The border thickness.
          */
-        void setResizableSize(const double size) noexcept {m_size = max(0., size);}
+        void setThickness(const double thickness) noexcept {m_size = max(0., thickness);}
         
         //! Gets the zones that are resizables.
         /** The function retrieves the zones that are resizables.
@@ -138,6 +138,7 @@ namespace Kiwi
         Zone                m_zone;
         
         MouseCursor getCursorForZone() const noexcept;
+        ulong getRectangleBorders() const noexcept;
     public:
         //! The resizer controller constructor.
         /** The function initialize the resizer controller.
