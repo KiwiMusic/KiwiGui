@@ -63,8 +63,6 @@ namespace Kiwi
         }
     }
     
-    void setRoundness(const double roundness) noexcept;
-    
     void GuiWindow::setHeader(sHeader header) noexcept
     {
         if(m_header)
