@@ -21,7 +21,7 @@
  ==============================================================================
 */
 
-#include "KiwiGuiViewPort.h"
+#include "KiwiGuiViewport.h"
 #include "KiwiGuiDevice.h"
 
 namespace Kiwi
@@ -30,7 +30,7 @@ namespace Kiwi
     //                                  GUI VIEW PORT                                   //
     // ================================================================================ //
     
-    GuiViewPort::GuiViewPort(sGuiContext context) noexcept : GuiModel(context),
+    GuiViewport::GuiViewport(sGuiContext context) noexcept : GuiModel(context),
     m_scrollbar_h(make_shared<GuiScrollBar>(context, GuiScrollBar::Horizontal)),
     m_scrollbar_v(make_shared<GuiScrollBar>(context, GuiScrollBar::Vertical))
     {
@@ -38,12 +38,12 @@ namespace Kiwi
         addChild(m_scrollbar_v);
     }
     
-    GuiViewPort::~GuiViewPort() noexcept
+    GuiViewport::~GuiViewport() noexcept
     {
         ;
     }
     
-    void GuiViewPort::setContent(sGuiModel model) noexcept
+    void GuiViewport::setContent(sGuiModel model) noexcept
     {
         if(m_content)
         {
@@ -52,22 +52,22 @@ namespace Kiwi
         addChild(m_content);
     }
     
-    sGuiController GuiViewPort::createController()
+    sGuiController GuiViewport::createController()
     {
-        return make_shared<Controller>(static_pointer_cast<GuiViewPort>(shared_from_this()));
+        return make_shared<Controller>(static_pointer_cast<GuiViewport>(shared_from_this()));
     }
     
     // ================================================================================ //
     //                              GUI VIEW PORT CONTROLLER                            //
     // ================================================================================ //
     
-    GuiViewPort::Controller::Controller(sGuiViewPort viewport) noexcept : GuiController(viewport),
+    GuiViewport::Controller::Controller(sGuiViewport viewport) noexcept : GuiController(viewport),
     m_view_port(viewport)
     {
         ;
     }
     
-    void GuiViewPort::Controller::scrollBarMoved(GuiScrollBar::sController scrollbar)
+    void GuiViewport::Controller::scrollBarMoved(GuiScrollBar::sController scrollbar)
     {
         
     }

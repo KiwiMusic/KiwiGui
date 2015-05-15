@@ -35,12 +35,11 @@ namespace Kiwi
     //! The view port is a model that ...
     /** The view port
      */
-    class GuiViewPort : public GuiModel
+    class GuiViewport : public GuiModel
     {
     private:
         class Controller;
-        
-        
+
         const sGuiScrollBar m_scrollbar_h;
         const sGuiScrollBar m_scrollbar_v;
         sGuiModel           m_content;
@@ -50,12 +49,12 @@ namespace Kiwi
         /** The function intialize the model and allocates a container.
          @param context The context.
          */
-        GuiViewPort(sGuiContext context) noexcept;
+        GuiViewport(sGuiContext context) noexcept;
         
         //! The view port destructor.
         /** The function frees the memory.
          */
-        ~GuiViewPort() noexcept;
+        ~GuiViewport() noexcept;
         
         //! Sets the content model of the view port.
         /** The function sets the content model of the view port.
@@ -80,17 +79,17 @@ namespace Kiwi
     //                              GUI VIEW PORT CONTROLLER                            //
     // ================================================================================ //
     
-    class GuiViewPort::Controller : public GuiController, public GuiScrollBar::Listener
+    class GuiViewport::Controller : public GuiController, public GuiScrollBar::Listener
     {
     private:
-        const wGuiViewPort m_view_port;
+        const wGuiViewport m_view_port;
     public:
         
         //! The view port controller constructor.
         /** The function initialize the view port controller.
          @param view port  The view port to control.
          */
-        Controller(sGuiViewPort viewport) noexcept;
+        Controller(sGuiViewport viewport) noexcept;
         
         //! The controller destructor.
         /** The function does nothing.
@@ -101,7 +100,7 @@ namespace Kiwi
         /** The function retrieves the view port.
          @return The view port.
          */
-        inline sGuiViewPort getViewPort() const noexcept {return m_view_port.lock();}
+        inline sGuiViewport getViewport() const noexcept {return m_view_port.lock();}
         
         //! The draw method that can be override.
         /** The function shoulds draw some stuff.

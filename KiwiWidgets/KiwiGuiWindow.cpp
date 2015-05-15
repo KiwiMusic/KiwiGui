@@ -63,8 +63,6 @@ namespace Kiwi
         }
     }
     
-    void setRoundness(const double roundness) noexcept;
-    
     void GuiWindow::setHeader(sHeader header) noexcept
     {
         if(m_header)
@@ -83,13 +81,13 @@ namespace Kiwi
     {
         if(m_content)
         {
-            removeChild(content);
+            removeChild(m_content);
             m_content = sGuiModel();
         }
         if(content)
         {
-            addChild(content);
             m_content = content;
+            addChild(content);
         }
     }
     
@@ -122,8 +120,9 @@ namespace Kiwi
                 it->removeFromDesktop();
                 removeView(it);
             }
+            
+            ctxt->removeTopLevelModel(shared_from_this());
         }
-        ctxt->removeTopLevelModel(shared_from_this());
     }
     
     sGuiController GuiWindow::createController()
@@ -198,7 +197,7 @@ namespace Kiwi
         if(window)
         {
             sketch.setColor(window->getBackgroundColor().contrasted(0.8));
-            sketch.setLineWidth(3);
+            sketch.setLineWidth(3.);
             sketch.drawRectangle(getBounds().withZeroOrigin().reduced(1.5), window->getRoundness());
         }
     }
@@ -218,27 +217,19 @@ namespace Kiwi
             else if(model == window->getHeader())
             {
                 m_header = child;
-                const Rectangle bounds(getBounds());
-                const double offset = m_header->getSize().height();
-                m_header->setBounds(Rectangle(0., 0., bounds.width(),offset));
+                const Rectangle bounds(getBounds().withZeroOrigin().reduced(2.));
+                m_header->setBounds(bounds.withHeight(m_header->getSize().height()));
+                
                 if(m_content)
                 {
-                    m_content->setBounds(Rectangle(0., offset, bounds.width(), bounds.height() - offset));
+                    m_content->setBounds(m_header ? bounds.withTop(m_header->getBounds().bottom()) : bounds);
                 }
             }
             else if(model == window->getContent())
             {
                 m_content = child;
-                if(m_header)
-                {
-                    const Rectangle bounds(getBounds());
-                    const double offset = m_header->getSize().height();
-                    m_content->setBounds(Rectangle(0., offset, bounds.width(), bounds.height() - offset));
-                }
-                else
-                {
-                    m_content->setBounds(getBounds());
-                }
+                const Rectangle bounds(getBounds().withZeroOrigin().reduced(2.));
+                m_content->setBounds(m_header ? bounds.withTop(m_header->getBounds().bottom()) : bounds);
             }
         }
     }
@@ -254,7 +245,10 @@ namespace Kiwi
             else if(child == m_header)
             {
                 m_header = sGuiController();
-                m_content->setBounds(getBounds());
+                if(m_content)
+                {
+                    m_content->setBounds(getBounds().withZeroOrigin().reduced(2.));
+                }
             }
             else if(child == m_content)
             {

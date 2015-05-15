@@ -64,11 +64,11 @@ namespace Kiwi
     typedef shared_ptr<const GuiView>           scGuiView;
     typedef weak_ptr<const GuiView>             wcGuiView;
     
-    class GuiViewPort;
-    typedef shared_ptr<GuiViewPort>             sGuiViewPort;
-    typedef weak_ptr<GuiViewPort>               wGuiViewPort;
-    typedef shared_ptr<const GuiViewPort>       scGuiViewPort;
-    typedef weak_ptr<const GuiViewPort>         wcGuiViewPort;
+    class GuiViewport;
+    typedef shared_ptr<GuiViewport>             sGuiViewport;
+    typedef weak_ptr<GuiViewport>               wGuiViewport;
+    typedef shared_ptr<const GuiViewport>       scGuiViewport;
+    typedef weak_ptr<const GuiViewport>         wcGuiViewport;
     
     class GuiWindow;
     typedef shared_ptr<GuiWindow>               sGuiWindow;

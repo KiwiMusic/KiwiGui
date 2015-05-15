@@ -279,12 +279,10 @@ namespace Kiwi
     {
     public:
         //! The listener destructor.
-        /** The function frees the memory.
-         */
-        virtual ~Listener() noexcept {};
+        virtual ~Listener() = default;
         
         //! Receives the notification that a scroll bar moved.
-        /** The function receivesthe notification that a scroll bar moved.
+        /** The function receives the notification that a scroll bar moved.
          @param scrollbar The scroll bar.
          */
         virtual void scrollBarMoved(sController scrollbar) = 0;
