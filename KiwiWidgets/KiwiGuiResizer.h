@@ -169,7 +169,14 @@ namespace Kiwi
          @param pt The point.
          @return true if the point lies into the controler, otherwise false.
          */
-        bool contains(Point const& pt) override;
+        bool hitTest(Point const& pt) const noexcept override;
+    
+        //! Test if the point lies into the controler.
+        /** The funtion tests if the point lies into the controler.
+         @param pt The point.
+         @return true if the point lies into the controler, otherwise false.
+         */
+        bool contains(Point const& pt) const noexcept override;
         
         //! The mouse receive method.
         /** The function pass the mouse event to the model if it inherits from mouser.

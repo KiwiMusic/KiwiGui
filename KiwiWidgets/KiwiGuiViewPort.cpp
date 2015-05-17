@@ -27,12 +27,13 @@
 namespace Kiwi
 {
     // ================================================================================ //
-    //                                  GUI VIEW PORT                                   //
+    //                                  GUI VIEWPORT                                    //
     // ================================================================================ //
     
     GuiViewport::GuiViewport(sGuiContext context) noexcept : GuiModel(context),
     m_scrollbar_h(make_shared<GuiScrollBar>(context, GuiScrollBar::Horizontal)),
-    m_scrollbar_v(make_shared<GuiScrollBar>(context, GuiScrollBar::Vertical))
+    m_scrollbar_v(make_shared<GuiScrollBar>(context, GuiScrollBar::Vertical)),
+    m_scrollbar_thickness(10)
     {
         addChild(m_scrollbar_h);
         addChild(m_scrollbar_v);
@@ -45,11 +46,24 @@ namespace Kiwi
     
     void GuiViewport::setContent(sGuiModel model) noexcept
     {
-        if(m_content)
+        if(m_content != model)
         {
             removeChild(m_content);
         }
-        addChild(m_content);
+        if(model)
+        {
+            m_content = model;
+            addChild(m_content);
+        }
+    }
+    
+    void GuiViewport::setScrollBarThickness(double thickness) noexcept
+    {
+        if(thickness < 0.) thickness = 0.;
+        if(thickness != m_scrollbar_thickness)
+        {
+            m_scrollbar_thickness = thickness;
+        }
     }
     
     sGuiController GuiViewport::createController()
@@ -58,11 +72,80 @@ namespace Kiwi
     }
     
     // ================================================================================ //
-    //                              GUI VIEW PORT CONTROLLER                            //
+    //                                VIEWPORT CONTROLLER                               //
     // ================================================================================ //
     
     GuiViewport::Controller::Controller(sGuiViewport viewport) noexcept : GuiController(viewport),
-    m_view_port(viewport)
+    m_viewport(viewport)
+    {
+        shouldReceiveMouse(true, false);
+    }
+    
+    void GuiViewport::Controller::boundsChanged() noexcept
+    {
+        const Rectangle bounds = getLocalBounds();
+        
+        if(m_content)
+        {
+            //m_content->setBounds(bounds.reduced(10));
+            m_content->setBounds(bounds);
+        }
+        
+        if(m_scrollbar_v || m_scrollbar_h)
+        {
+            sGuiViewport vp = getViewport();
+            if(vp)
+            {
+                double thickness = vp->getScrollBarThickness();
+                if(m_scrollbar_v)
+                {
+                    m_scrollbar_v->setBounds(bounds.withLeft(bounds.right() - thickness).withBottom(bounds.bottom() - thickness));
+                }
+                if(m_scrollbar_h)
+                {
+                    m_scrollbar_h->setBounds(bounds.withTop(bounds.bottom() - thickness).withRight(bounds.right() - thickness));
+                }
+            }
+        }
+    }
+    
+    void GuiViewport::Controller::childCreated(sGuiController child) noexcept
+    {
+        sGuiViewport vp = getViewport();
+        if(vp && child)
+        {
+            sGuiModel childM = child->getModel();
+            if(childM)
+            {
+                if(childM == vp->getContent())
+                {
+                    m_content = child;
+                    boundsChanged();
+                }
+                else if(childM == vp->getVerticalScrollBar())
+                {
+                    m_scrollbar_v = static_pointer_cast<GuiScrollBar::Controller>(child);
+                    boundsChanged();
+                }
+                else if(childM == vp->getHorizontalScrollBar())
+                {
+                    m_scrollbar_h = static_pointer_cast<GuiScrollBar::Controller>(child);
+                    boundsChanged();
+                }
+            }
+        }
+    }
+    
+    bool GuiViewport::Controller::receive(sGuiView view, MouseEvent const& event)
+    {
+        if(event.isWheel())
+        {
+            cout << "vp wheel" << endl;
+        }
+        return false;
+    }
+    
+    void GuiViewport::Controller::childRemoved(sGuiController child) noexcept
     {
         ;
     }
@@ -73,19 +156,5 @@ namespace Kiwi
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

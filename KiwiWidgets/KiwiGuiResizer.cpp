@@ -119,7 +119,17 @@ namespace Kiwi
         return 0;
     }
     
-    bool GuiResizer::Controller::contains(Point const& pt)
+    bool GuiResizer::Controller::hitTest(Point const& pt) const noexcept
+    {
+        sGuiResizer resizer(getResizer());
+        if(resizer)
+        {
+            return resizer->getZone(getLocalBounds(), pt) != Zone::Nothing;
+        }
+        return false;
+    }
+    
+    bool GuiResizer::Controller::contains(Point const& pt) const noexcept
     {
         sGuiResizer resizer(getResizer());
         if(resizer)

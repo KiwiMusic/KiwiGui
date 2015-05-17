@@ -69,7 +69,8 @@ namespace Kiwi
     
     void GuiScrollBar::draw(sController ctrl, Sketch& sketch) const
     {
-        sketch.fillAll(m_background_color);
+        //sketch.fillAll(m_background_color);
+        sketch.fillAll(Colors::blue);
         if(ctrl->isThumbVisible())
         {
             const array<double, 2> limits = ctrl->getRangeLimits(), range = ctrl->getCurrentRange();

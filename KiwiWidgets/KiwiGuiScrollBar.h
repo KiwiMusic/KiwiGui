@@ -79,7 +79,7 @@ namespace Kiwi
         GuiScrollBar(sGuiContext context,
                      const Direction direction,
                      const double time = 150.,
-                     Color const& tbcolor = Colors::black,
+                     Color const& thumbColor = Colors::black,
                      Color const& bgcolor = Colors::transparent) noexcept;
         
         //! The scroll bar destructor.

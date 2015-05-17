@@ -39,10 +39,10 @@ namespace Kiwi
     {
     private:
         class Controller;
-
         const sGuiScrollBar m_scrollbar_h;
         const sGuiScrollBar m_scrollbar_v;
         sGuiModel           m_content;
+        double              m_scrollbar_thickness;
     public:
         
         //! The view port constructor.
@@ -68,6 +68,30 @@ namespace Kiwi
          */
         inline sGuiModel getContent() const noexcept {return m_content;}
         
+        //! Gets the horizontal scrollbar model of the viewport.
+        /** The function retrieves the horizontal scrollbar model of the viewport.
+         @return The horizontal scrollbar model.
+         */
+        inline sGuiScrollBar getHorizontalScrollBar() const noexcept {return m_scrollbar_h;}
+        
+        //! Gets the vertical scrollbar model of the viewport.
+        /** The function retrieves the vertical scrollbar model of the viewport.
+         @return The vertical scrollbar model.
+         */
+        inline sGuiScrollBar getVerticalScrollBar() const noexcept {return m_scrollbar_v;}
+        
+        //! Sets the scrollbars' thickness.
+        /** The function sets the scrollbars' thickness.
+         @param thickness The thickness.
+         */
+        void setScrollBarThickness(double thickness) noexcept;
+        
+        //! Get the scrollbars' thickness.
+        /** The function retrieves the scrollbars' thickness.
+         @return The scrollbars' thickness.
+         */
+        inline double getScrollBarThickness() const noexcept {return m_scrollbar_thickness;}
+        
         //! Create the controller.
         /** The function creates a controller depending on the inheritance.
          @return The controller.
@@ -82,7 +106,11 @@ namespace Kiwi
     class GuiViewport::Controller : public GuiController, public GuiScrollBar::Listener
     {
     private:
-        const wGuiViewport m_view_port;
+        const wGuiViewport          m_viewport;
+        sGuiController              m_content;
+        GuiScrollBar::sController   m_scrollbar_v;
+        GuiScrollBar::sController   m_scrollbar_h;
+        
     public:
         
         //! The view port controller constructor.
@@ -94,20 +122,48 @@ namespace Kiwi
         //! The controller destructor.
         /** The function does nothing.
          */
-        inline ~Controller() noexcept {};
+        inline ~Controller() noexcept {;}
         
         //! Gets the view port.
         /** The function retrieves the view port.
          @return The view port.
          */
-        inline sGuiViewport getViewport() const noexcept {return m_view_port.lock();}
+        inline sGuiViewport getViewport() const noexcept {return m_viewport.lock();}
+        
+        //! Receives the notification that the bounds of the parent controller changed.
+        /** The function notifies that the bounds of the parent controller changed.
+         */
+        virtual void boundsChanged() noexcept override;
+        
+        //! The mouse receive method that can be override.
+        /** The function shoulds perform some stuff.
+         @param view    The view that owns the controller.
+         @param event   The mouser event.
+         @return true if the class has done something with the event otherwise false
+         */
+        bool receive(sGuiView view, MouseEvent const& event) override;
         
         //! The draw method that can be override.
         /** The function shoulds draw some stuff.
          @param view    The view that owns the controller.
          @param sketch  The sketch to draw.
          */
-        void draw(sGuiView view, Sketch& sketch) override {};
+        void draw(sGuiView view, Sketch& sketch) override
+        {
+            sketch.fillAll(Colors::blue.withAlpha(0.2));
+        }
+        
+        //! Receives the notification that a child has been created.
+        /** The function notfies the model that a child has been created.
+         @param child The child controller.
+         */
+        void childCreated(sGuiController child) noexcept override;
+        
+        //! Receives the notification that a child has been removed.
+        /** The function notfies the model that a child has been removed.
+         @param child The child controller.
+         */
+        void childRemoved(sGuiController child) noexcept override;
         
         //! Receives the notification that a scroll bar moved.
         /** The function receivesthe notification that a scroll bar moved.
