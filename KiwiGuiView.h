@@ -75,9 +75,11 @@ namespace Kiwi
         /** The function retrieves the childs views of the view.
          @return The childs views.
          */
-        inline vector<sGuiView> getChilds() const noexcept {
+        inline vector<sGuiView> getChilds() const noexcept
+        {
             lock_guard<mutex> guard(m_childs_mutex);
-            return m_childs;}
+            return m_childs;
+        }
         
         //! Retrieve the position of the view.
         /** The function retrieves the position of the view.
@@ -98,27 +100,40 @@ namespace Kiwi
         inline Rectangle getBounds() const noexcept {return m_controller->getBounds();}
         
         //! Test if the point lies into the view.
+        /** The funtion tests if the point lies into the view (the point to test is inside the view bounds).
+         @param pt The point.
+         @return true if the point lies into the view, otherwise false.
+         */
+        inline bool hitTest(Point const& pt) const noexcept {return m_controller->hitTest(pt);}
+        
+        //! Test if the point lies into the view.
         /** The funtion tests if the point lies into the view.
          @param pt The point.
          @return true if the point lies into the view, otherwise false.
          */
-        inline bool contains(const Point &pt) const noexcept {return m_controller->contains(pt);}
+        inline bool contains(Point const& pt) const noexcept {return m_controller->contains(pt);}
         
         //! Receives if the view wants the mouse.
         /** This function retrieves if the view wants the mouse.
-         @return true if the view wants the mouse, othrewise false.
+         @return true if the view wants the mouse, otherwise false.
          */
         inline bool wantMouse() const noexcept {return m_controller->wantMouse();}
         
+        //! Receives if the view wants the mouse on children.
+        /** This function retrieves if the view wants the mouse on children.
+         @return true if the view wants the mouse on children, otherwise false.
+         */
+        inline bool wantMouseOnChildren() const noexcept {return m_controller->wantMouse();}
+        
         //! Receives if the view wants the keyboard.
         /** This function retrieves if the view wants the keyboard.
-         @return true if the view wants the keyboard, othrewise false.
+         @return true if the view wants the keyboard, otherwise false.
          */
         inline bool wantKeyboard() const noexcept {return m_controller->wantKeyboard();}
         
         //! Receives if the view wants actions.
         /** This function retrieves if the view wants the actions.
-         @return true if the view wants the actions, othrewise false.
+         @return true if the view wants the actions, otherwise false.
          */
         inline bool wantActions() const noexcept  {return m_controller->wantActions();}
         
@@ -129,19 +144,21 @@ namespace Kiwi
         Point getGlobalPosition() const noexcept;
         
         //! Retrieve the position of the parent view.
-        /** The function retrieves the position of the parent view or the screen area if it is a top level view.
+        /** The function retrieves the position of the parent view, or the screen area if it's a top-level view.
          @return The position of the parent view.
          */
         Point getParentPosition() const noexcept;
         
         //! Retrieve the size of the view.
-        /** The function retrieves the size of the view if it is a top level view.
+        /** The function retrieves the size of the parent view. 
+         If the view is a top-level view, it will return the screen size.
          @return The size of the view.
          */
         Size getParentSize() const noexcept;
         
         //! Retrieve the bounds of the view.
-        /** The function retrieves the bounds of the view if it is a top level view.
+        /** The function retrieves the bounds of the parent view.
+         If the view is a top-level view, it will return the screen bounds.
          @return The bounds of the view.
          */
         Rectangle getParentBounds() const noexcept;

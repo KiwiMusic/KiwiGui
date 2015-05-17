@@ -70,6 +70,7 @@ namespace Kiwi
         Rectangle           m_bounds;
         sBoundsChecker      m_bounds_checker;
         bool                m_want_mouse;
+        bool                m_want_mouse_on_children;
         bool                m_want_keyboard;
         bool                m_want_action;
         wGuiView            m_view;
@@ -186,6 +187,13 @@ namespace Kiwi
          */
         inline Rectangle getBounds() const noexcept {return m_bounds;}
         
+        //! Retrieve the bounds of the controller with a zero origin position.
+        /** The function retrieves the bounds of the controller with a zero origin position.
+         This is just a shortcut to getBounds().withZeroOrigin()
+         @return The bounds of the controller with a zero origin position.
+         */
+        inline Rectangle getLocalBounds() const noexcept {return m_bounds.withZeroOrigin();}
+        
         //! Retrieves the absolute mouse position.
         /** The function retrieves the absolute mouse position.
          @return The position.
@@ -256,25 +264,33 @@ namespace Kiwi
          */
         virtual bool performAction(const ulong code) {return false;}
         
+        //! Test if the point lies into the view.
+        /** The funtion tests if the point lies into the view.
+         @param pt The point.
+         @return true if the point lies into the view, otherwise false.
+         */
+        virtual bool hitTest(Point const& pt) const noexcept;
+        
         //! Test if the point lies into the controler.
         /** The funtion tests if the point lies into the controler.
          @param pt The point.
          @return true if the point lies into the controler, otherwise false.
          */
-        virtual bool contains(Point const& pt);
+        virtual bool contains(Point const& pt) const noexcept;
         
         //! Test if the rectangle overlaps the controler.
         /** The funtion tests if the rectangle overlaps the controler.
          @param rect The rectangle.
          @return true if the rectangle overlaps of the controler, otherwise false.
          */
-        virtual bool overlaps(Rectangle const& rect);
+        virtual bool overlaps(Rectangle const& rect) const noexcept;
         
         //! Sets if the controller should receive mouse events.
         /** The function sets if the controller should receive mouse events.
-         @param accept true if the controller shoulds receive the mouse events, otherwise false.
+         @param accept          True if the controller shoulds receive the mouse events, otherwise false.
+         @param acceptOnChilds  True if the children controllers shoulds receive the mouse events, otherwise false.
          */
-        void shouldReceiveMouse(const bool accept) noexcept;
+        void shouldReceiveMouse(const bool accept, const bool acceptOnChilds = true) noexcept;
         
         //! Sets if the controller should receive keyboard events.
         /** The function sets if the controller should keyboard mouse events.
