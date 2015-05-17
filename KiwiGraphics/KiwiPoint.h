@@ -372,6 +372,46 @@ namespace Kiwi
             return m_data[0] != pt.x() || m_data[1] != pt.y();
         }
         
+        //! Test if this point is greather than another.
+        /** The function return true if x > other.x and y > other.y.
+         @param pt The other point.
+         @return true if this point is greather than another, otherwise false.
+         */
+        inline bool operator>(Point const& pt) const noexcept
+        {
+            return m_data[0] > pt.x() && m_data[1] > pt.y();
+        }
+        
+        //! Test if this point is greather than or equal to another.
+        /** The function return true if x >= other.x and y >= other.y.
+         @param pt The other point.
+         @return true if this point is greather than or equal to another, otherwise false.
+         */
+        inline bool operator>=(Point const& pt) const noexcept
+        {
+            return m_data[0] >= pt.x() && m_data[1] >= pt.y();
+        }
+        
+        //! Test if this point is smaller than another.
+        /** The function return true if x < other.x and y < other.y.
+         @param pt The other point.
+         @return true if this point is smaller than another, otherwise false.
+         */
+        inline bool operator<(Point const& pt) const noexcept
+        {
+            return m_data[0] < pt.x() && m_data[1] < pt.y();
+        }
+        
+        //! Test if this point is smaller than or equal to another.
+        /** The function return true if x <= other.x and y <= other.y.
+         @param pt The other point.
+         @return true if this point is smaller than or equal to another, otherwise false.
+         */
+        inline bool operator<=(Point const& pt) const noexcept
+        {
+            return m_data[0] <= pt.x() && m_data[1] <= pt.y();
+        }
+        
         //! Retrieve a copy and apply a rotation from the origin.
         /** The function retrieves a copy and applies a rotation from the origin.
          @param angle The angle
