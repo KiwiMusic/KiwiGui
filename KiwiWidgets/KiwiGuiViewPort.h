@@ -133,7 +133,7 @@ namespace Kiwi
         //! Receives the notification that the bounds of the parent controller changed.
         /** The function notifies that the bounds of the parent controller changed.
          */
-        virtual void boundsChanged() noexcept override;
+        virtual void resized() noexcept override;
         
         //! The mouse receive method that can be override.
         /** The function shoulds perform some stuff.

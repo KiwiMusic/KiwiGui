@@ -106,10 +106,15 @@ namespace Kiwi
          */
         inline sGuiContext getContext() const noexcept{return m_context.lock();}
 
-        //! Receives the notification that the bounds of the parent controller changed.
-        /** The function notifies that the bounds of the parent controller changed.
+        //! Receives the notification that the position of the parent controller changed.
+        /** The function notifies that the position of the parent controller changed.
          */
-        virtual void boundsChanged() noexcept {};
+        virtual void moved() noexcept {};
+        
+        //! Receives the notification that the size of the parent controller changed.
+        /** The function notifies that the size of the parent controller changed.
+         */
+        virtual void resized() noexcept {};
         
         //! Retrieves the parent controller.
         /** The function retrieves parent controller.

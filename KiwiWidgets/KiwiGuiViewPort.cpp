@@ -81,7 +81,7 @@ namespace Kiwi
         shouldReceiveMouse(true, false);
     }
     
-    void GuiViewport::Controller::boundsChanged() noexcept
+    void GuiViewport::Controller::resized() noexcept
     {
         const Rectangle bounds = getLocalBounds();
         
@@ -120,17 +120,17 @@ namespace Kiwi
                 if(childM == vp->getContent())
                 {
                     m_content = child;
-                    boundsChanged();
+                    resized();
                 }
                 else if(childM == vp->getVerticalScrollBar())
                 {
                     m_scrollbar_v = static_pointer_cast<GuiScrollBar::Controller>(child);
-                    boundsChanged();
+                    resized();
                 }
                 else if(childM == vp->getHorizontalScrollBar())
                 {
                     m_scrollbar_h = static_pointer_cast<GuiScrollBar::Controller>(child);
-                    boundsChanged();
+                    resized();
                 }
             }
         }

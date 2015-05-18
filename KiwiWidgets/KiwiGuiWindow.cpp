@@ -257,9 +257,9 @@ namespace Kiwi
         }
     }
     
-    void GuiWindow::Controller::boundsChanged() noexcept
+    void GuiWindow::Controller::resized() noexcept
     {
-        const Rectangle bounds(getBounds().withZeroOrigin().reduced(2.));
+        const Rectangle bounds(getLocalBounds().reduced(2.));
         if(m_resizer)
         {
             m_resizer->setBounds(bounds);

@@ -124,33 +124,36 @@ namespace Kiwi
         if(moved || resized)
         {
             m_bounds = newBounds;
-            this->boundsChanged();
             
             sGuiView view = getView();
             if(view)
             {
                 if(!resized)
                 {
+                    this->moved();
                     view->positionChanged();
                 }
                 else if(!moved)
                 {
+                    this->resized();
                     view->sizeChanged();
                 }
                 else
                 {
+                    this->moved();
+                    this->resized();
                     view->boundsChanged();
                 }
-                
-                sGuiController parent(getParent());
-                if(parent)
-                {
-                    parent->childBoundsChanged(shared_from_this());
-                }
-                for(auto it : getChilds())
-                {
-                    it->parentBoundsChanged();
-                }
+            }
+            
+            sGuiController parent(getParent());
+            if(parent)
+            {
+                parent->childBoundsChanged(shared_from_this());
+            }
+            for(auto it : getChilds())
+            {
+                it->parentBoundsChanged();
             }
         }
     }

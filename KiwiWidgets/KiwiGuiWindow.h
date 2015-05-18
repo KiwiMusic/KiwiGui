@@ -245,10 +245,10 @@ namespace Kiwi
          */
         void childRemoved(sGuiController child) noexcept override;
         
-        //! Receives the notification that the bounds of the parent controller changed.
-        /** The function notifies that the bounds of the parent controller changed.
+        //! Receives the notification that the size of the parent controller changed.
+        /** The function notifies that the size of the parent controller changed.
          */
-        void boundsChanged() noexcept override;
+        void resized() noexcept override;
     };
     
     // ================================================================================ //
