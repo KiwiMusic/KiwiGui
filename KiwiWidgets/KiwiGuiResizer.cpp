@@ -93,10 +93,10 @@ namespace Kiwi
             case CornerBottomLeft:      mc = MouseCursor::ResizingBottomLeft; break;
             case CornerTopRight:        mc = MouseCursor::ResizingTopRight; break;
             case CornerBottomRight:     mc = MouseCursor::ResizingBottomRight; break;
-            case BorderLeft:            mc = MouseCursor::RezizingLeftRight; break;
-            case BorderRight:           mc = MouseCursor::RezizingLeftRight; break;
-            case BorderBottom:          mc = MouseCursor::RezizingUpDown; break;
-            case BorderTop:             mc = MouseCursor::RezizingUpDown; break;
+            case BorderLeft:            mc = MouseCursor::ResizingLeftRight; break;
+            case BorderRight:           mc = MouseCursor::ResizingLeftRight; break;
+            case BorderBottom:          mc = MouseCursor::ResizingUpDown; break;
+            case BorderTop:             mc = MouseCursor::ResizingUpDown; break;
             default: break;
         }
         return mc;

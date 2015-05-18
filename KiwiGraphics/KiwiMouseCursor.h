@@ -52,8 +52,8 @@ namespace Kiwi
             Copying,                    ///< Copying
             HandPointing,               ///< Pointing Hand
             HandDragging,               ///< Dragging Hand
-            RezizingLeftRight,          ///< Left-Right
-            RezizingUpDown,             ///< Up-Down
+            ResizingLeftRight,          ///< Left-Right
+            ResizingUpDown,             ///< Up-Down
             ResizingFourWay,            ///< Four Way
             ResizingTop,                ///< Top Edge
             ResizingBottom,             ///< Bottom Edge
