@@ -156,9 +156,10 @@ namespace Kiwi
     
     void GuiModel::redraw(sGuiView view) noexcept
     {
-        if(view && hasView(view))
+        if(view)
         {
-            view->redraw();
+            if(hasView(view))
+                view->redraw();
         }
         else
         {
