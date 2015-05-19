@@ -77,28 +77,28 @@ namespace Kiwi
         }
     }
     
-    void GuiController::shouldReceiveKeyboard(const bool accept) noexcept
+    void GuiController::shouldReceiveKeyboard(const bool wanted) noexcept
     {
-        if(m_want_keyboard != accept)
+        if(m_want_keyboard != wanted)
         {
-            m_want_keyboard = accept;
+            m_want_keyboard = wanted;
             sGuiView view = getView();
             if(view)
             {
-                view->behaviorChanged();
+                view->setWantKeyboard(wanted);
             }
         }
     }
     
-    void GuiController::shouldReceiveActions(const bool accept) noexcept
+    void GuiController::shouldReceiveActions(const bool wanted) noexcept
     {
-        if(m_want_action != accept)
+        if(m_want_action != wanted)
         {
-            m_want_action = accept;
+            m_want_action = wanted;
             sGuiView view = getView();
             if(view)
             {
-                view->behaviorChanged();
+                view->setWantActions(wanted);
             }
         }
     }

@@ -67,28 +67,6 @@ namespace Kiwi
         }
     }
     
-    void GuiScrollBar::draw(sController ctrl, Sketch& sketch) const
-    {
-        //sketch.fillAll(m_background_color);
-        sketch.fillAll(Colors::blue);
-        if(ctrl->isThumbVisible())
-        {
-            const array<double, 2> limits = ctrl->getRangeLimits(), range = ctrl->getCurrentRange();
-            const Size size = ctrl->getSize();
-            sketch.setColor(m_thumb_color);
-            if(m_direction == Horizontal)
-            {
-                const double ratio = size.width() / (limits[1] - limits[0]);
-                sketch.fillRectangle((range[0] + limits[0]) * ratio, 0., (range[1] + limits[0]) * ratio, size.height());
-            }
-            else
-            {
-                const double ratio = size.height() / (limits[1] - limits[0]);
-                sketch.fillRectangle(0., (range[0] + limits[0]) * ratio, size.width(), (range[1] + limits[0]) * ratio);
-            }
-        }
-    }
-    
     bool GuiScrollBar::receive(sController ctrl, MouseEvent const& event)
     {
         if(event.isWheel())
@@ -110,11 +88,11 @@ namespace Kiwi
             {
                 if(m_direction == Horizontal)
                 {
-                    ctrl-> scrollTo(event.getX());
+                    ctrl->scrollTo(event.getX());
                 }
                 else
                 {
-                    ctrl-> scrollTo(event.getY());
+                    ctrl->scrollTo(event.getY());
                 }
             }
             return true;
@@ -154,7 +132,26 @@ namespace Kiwi
         sGuiScrollBar scrollbar(getScrollBar());
         if(scrollbar)
         {
-            scrollbar->draw(static_pointer_cast<Controller>(GuiController::shared_from_this()), sketch);
+            //sketch.fillAll(m_background_color);
+            sketch.fillAll(Colors::blue);
+            //if(isThumbVisible())
+            if(1)
+            {
+                cout << "thumb visible" << endl;
+                const array<double, 2> limits = getRangeLimits(), range = getCurrentRange();
+                const Size size = getSize();
+                sketch.setColor(scrollbar->m_thumb_color);
+                if(scrollbar->m_direction == Horizontal)
+                {
+                    const double ratio = size.width() / (limits[1] - limits[0]);
+                    sketch.fillRectangle((range[0] + limits[0]) * ratio, 0., (range[1] + limits[0]) * ratio, size.height());
+                }
+                else
+                {
+                    const double ratio = size.height() / (limits[1] - limits[0]);
+                    sketch.fillRectangle(0., (range[0] + limits[0]) * ratio, size.width(), (range[1] + limits[0]) * ratio);
+                }
+            }
         }
     }
     
@@ -171,6 +168,7 @@ namespace Kiwi
             {
                 if(m_visible && scrollbar->getThumbDisplayTime() > 1.)
                 {
+                    m_visible = true;
                     delay(scrollbar->getThumbDisplayTime());
                 }
                 else if(m_visible && scrollbar->getThumbDisplayTime() > 0.)

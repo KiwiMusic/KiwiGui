@@ -129,13 +129,6 @@ namespace Kiwi
          */
         void setThumbColor(Color const& color) noexcept;
         
-        //! The draw method that can be override.
-        /** The function shoulds draw some stuff in the sketch. The default implementation draws a simple rectangle for the thumb. Another implementation can draw more differents or complex shapes.
-         @param ctrl    The controller that ask to be redraw.
-         @param sketch  A sketch to draw.
-         */
-        virtual void draw(sController ctrl, Sketch& sketch) const;
-        
         //! The mouse receive method that can be override.
         /** The function should return true if the scroll has been well performed, otherwise it should return false. The default implementation returns true whenever there is a mouse wheel event or when the thumb is visible whith the mouse drown and drag events. Another implementation cans define another behavior.
          @param ctrl    The controller that ask to be redraw.
@@ -204,8 +197,10 @@ namespace Kiwi
          */
         inline array<double, 2> getCurrentRange() noexcept {return m_range;};
         
-        //! The paint method that can be override.
-        /** The function shoulds draw some stuff in the sketch.
+        //! The draw method that can be overridden.
+        /** The function shoulds draw some stuff in the sketch. 
+         The default implementation draws a simple rectangle for the thumb. 
+         Another implementation can draw more differents or complex shapes.
          @param view    The view that ask to draw.
          @param sketch  A sketch to draw.
          */

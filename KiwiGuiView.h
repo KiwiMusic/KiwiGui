@@ -248,10 +248,15 @@ namespace Kiwi
          */
         virtual void sizeChanged() = 0;
         
-        //! Receives the notification that the controller's behavior changed.
-        /** This function is called by the controller whenever its behavio changed.
+        //! Receives the notification that the controller wants/dont want to receive keyboard events.
+        /** This function is called by the controller to indicate the view to send or not keyboard events.
          */
-        virtual void behaviorChanged() = 0;
+        virtual void setWantKeyboard(const bool wanted) = 0;
+        
+        //! Receives the notification that the controller wants/dont want to receive action events.
+        /** This function is called by the controller to indicate the view to send or not action events.
+         */
+        virtual void setWantActions(const bool wanted) = 0;
         
         //! Receives the notification that the view needs its cursor to be changed.
         /** This function is called whenever its mouse cursor needs to be changed.
