@@ -48,12 +48,16 @@ namespace Kiwi
     {
         if(m_content != model)
         {
-            removeChild(m_content);
-        }
-        if(model)
-        {
-            m_content = model;
-            addChild(m_content);
+            if(m_content)
+            {
+                removeChild(m_content);
+            }
+            
+            if(model)
+            {
+                m_content = model;
+                addChild(model);
+            }
         }
     }
     
@@ -136,6 +140,31 @@ namespace Kiwi
         }
     }
     
+    void GuiViewport::Controller::childRemoved(sGuiController child) noexcept
+    {
+        sGuiViewport vp = getViewport();
+        if(vp && child)
+        {
+            sGuiModel childM = child->getModel();
+            if(childM)
+            {
+                if(childM == vp->getContent())
+                {
+                    m_content.reset();
+                    resized();
+                }
+                else if(childM == vp->getVerticalScrollBar())
+                {
+                    m_scrollbar_v.reset();
+                }
+                else if(childM == vp->getHorizontalScrollBar())
+                {
+                    m_scrollbar_h.reset();
+                }
+            }
+        }
+    }
+    
     bool GuiViewport::Controller::receive(sGuiView view, MouseEvent const& event)
     {
         if(event.isWheel())
@@ -143,11 +172,6 @@ namespace Kiwi
             cout << "vp wheel" << endl;
         }
         return false;
-    }
-    
-    void GuiViewport::Controller::childRemoved(sGuiController child) noexcept
-    {
-        ;
     }
     
     void GuiViewport::Controller::scrollBarMoved(GuiScrollBar::sController scrollbar)
