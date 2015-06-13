@@ -41,7 +41,7 @@ namespace Kiwi
     public:
         
         //! Enum describing the type of predefined mouse cursor
-        enum Type
+        enum class Type : ulong
         {
             Default = 0,                ///< Default (parent view cursor)
             None,                       ///< None
@@ -74,7 +74,7 @@ namespace Kiwi
         /** Initializes a mouse cursor.
          @param type The type of cursor as defined by the Type \Enum.
          */
-        constexpr MouseCursor(const Type type = Default) noexcept : m_type(type) {}
+        constexpr MouseCursor(const Type type = Type::Default) noexcept : m_type(type) {}
         
         //! Destructor.
         inline ~MouseCursor() noexcept {}

@@ -50,7 +50,7 @@ namespace Kiwi
         
         /** The direction of the scroll bar.
          */
-        enum Direction
+        enum class Direction : bool
         {
             Vertical    = false,///< Vertical.
             Horizontal  = true  ///< Horizontal.

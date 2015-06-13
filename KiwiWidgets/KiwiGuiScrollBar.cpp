@@ -72,7 +72,7 @@ namespace Kiwi
         if(event.isWheel())
         {
             const array<double, 2> range = ctrl->getCurrentRange();
-            if(m_direction == Horizontal)
+            if(m_direction == Direction::Horizontal)
             {
                 ctrl->scrollTo(event.getWheelOffsetX() + (range[1] - range[0]) * 0.5);
             }
@@ -86,7 +86,7 @@ namespace Kiwi
         {
             if(ctrl->isThumbVisible() || m_thumb_time < 0.)
             {
-                if(m_direction == Horizontal)
+                if(m_direction == Direction::Horizontal)
                 {
                     ctrl->scrollTo(event.getX());
                 }
@@ -141,7 +141,7 @@ namespace Kiwi
                 const array<double, 2> limits = getRangeLimits(), range = getCurrentRange();
                 const Size size = getSize();
                 sketch.setColor(scrollbar->m_thumb_color);
-                if(scrollbar->m_direction == Horizontal)
+                if(scrollbar->m_direction == Direction::Horizontal)
                 {
                     const double ratio = size.width() / (limits[1] - limits[0]);
                     sketch.fillRectangle((range[0] + limits[0]) * ratio, 0., (range[1] + limits[0]) * ratio, size.height());

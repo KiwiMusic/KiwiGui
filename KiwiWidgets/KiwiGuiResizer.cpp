@@ -89,14 +89,14 @@ namespace Kiwi
         MouseCursor mc;
         switch(m_zone)
         {
-            case CornerTopLeft:         mc = MouseCursor::ResizingTopLeft; break;
-            case CornerBottomLeft:      mc = MouseCursor::ResizingBottomLeft; break;
-            case CornerTopRight:        mc = MouseCursor::ResizingTopRight; break;
-            case CornerBottomRight:     mc = MouseCursor::ResizingBottomRight; break;
-            case BorderLeft:            mc = MouseCursor::ResizingLeftRight; break;
-            case BorderRight:           mc = MouseCursor::ResizingLeftRight; break;
-            case BorderBottom:          mc = MouseCursor::ResizingUpDown; break;
-            case BorderTop:             mc = MouseCursor::ResizingUpDown; break;
+            case CornerTopLeft:         mc = MouseCursor::Type::ResizingTopLeft; break;
+            case CornerBottomLeft:      mc = MouseCursor::Type::ResizingBottomLeft; break;
+            case CornerTopRight:        mc = MouseCursor::Type::ResizingTopRight; break;
+            case CornerBottomRight:     mc = MouseCursor::Type::ResizingBottomRight; break;
+            case BorderLeft:            mc = MouseCursor::Type::ResizingLeftRight; break;
+            case BorderRight:           mc = MouseCursor::Type::ResizingLeftRight; break;
+            case BorderBottom:          mc = MouseCursor::Type::ResizingUpDown; break;
+            case BorderTop:             mc = MouseCursor::Type::ResizingUpDown; break;
             default: break;
         }
         return mc;

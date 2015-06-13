@@ -31,8 +31,8 @@ namespace Kiwi
     // ================================================================================ //
     
     GuiViewport::GuiViewport(sGuiContext context) noexcept : GuiModel(context),
-    m_scrollbar_h(make_shared<GuiScrollBar>(context, GuiScrollBar::Horizontal)),
-    m_scrollbar_v(make_shared<GuiScrollBar>(context, GuiScrollBar::Vertical)),
+    m_scrollbar_h(make_shared<GuiScrollBar>(context, GuiScrollBar::Direction::Horizontal)),
+    m_scrollbar_v(make_shared<GuiScrollBar>(context, GuiScrollBar::Direction::Vertical)),
     m_scrollbar_thickness(10)
     {
         addChild(m_scrollbar_h);
