@@ -24,6 +24,6 @@
 #ifndef __DEF_KIWI_GUI_WIDGETS__
 #define __DEF_KIWI_GUI_WIDGETS__
 
-#include "KiwiGuiWindow.h"
+#include "KiwiGuiTextEditor.h"
 
 #endif
