@@ -38,8 +38,6 @@ namespace Kiwi
     
     GuiContext::~GuiContext() noexcept
     {
-        lock_guard<mutex> guard(m_mutex);
-        m_top_levels.clear();
     }
     
     sGuiView GuiContext::createView(sGuiController ctrl) const noexcept
@@ -81,24 +79,6 @@ namespace Kiwi
         else
         {
             return Rectangle();
-        }
-    }
-    
-    void GuiContext::addTopLevelModel(sGuiModel view) noexcept
-    {
-        if(view)
-        {
-            lock_guard<mutex> gard(m_mutex);
-            m_top_levels.insert(view);
-        }
-    }
-    
-    void GuiContext::removeTopLevelModel(sGuiModel view) noexcept
-    {
-        if(view)
-        {
-            lock_guard<mutex> gard(m_mutex);
-            m_top_levels.erase(view);
         }
     }
 }
