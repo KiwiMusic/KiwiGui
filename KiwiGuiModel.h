@@ -269,55 +269,6 @@ namespace Kiwi
          */
         virtual bool performAction(const ulong code) = 0;
     };
-    
-    template<class T> class ModelListener
-    {
-        
-    };
-    
-    template<class T> class ListenerDispatcher
-    {
-    protected:
-        typedef T           Broadcaster;
-        typedef typename T::Listener Listener;
-        
-        typedef shared_ptr<Listener>    sListener;
-        typedef shared_ptr<Broadcaster> sBroadcaster;
-        
-    public:
-        constexpr inline ListenerDispatcher()
-        {
-            static_assert(is_base_of<GuiController, Broadcaster>::value, "The template must be a broadcaster.");
-        }
-        
-        inline ~ListenerDispatcher() {}
-        
-        //! Add an instance listener in the binding list of the manager.
-        /** The function adds an instance listener in the binding list of the manager.
-         @param listener  The listener.
-         */
-        void addListener(sListener listener)
-        {
-            if(listener)
-            {
-                ;
-            }
-        }
-        
-        //! Remove an instance listener from the binding list of the manager.
-        /** The function removes an instance listener from the binding list of the manager.
-         @param listener  The listener.
-         */
-        void removeListener(sListener listener)
-        {
-            if(listener)
-            {
-                ;
-            }
-        }
-    };
-    
-    
 }
 
 #endif
