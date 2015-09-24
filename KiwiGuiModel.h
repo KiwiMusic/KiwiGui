@@ -162,9 +162,9 @@ namespace Kiwi
     //                                      MOUSER                                      //
     // ================================================================================ //
     
-    //! The mouser is the virutal class that receive mouse events.
+    //! The mouser is the virtual class that receive mouse events.
     /**
-     The mouser is a virtual class with a receive method that should be override to receveie a mouse event.
+     The mouser is a virtual class with a receive method that should be overriden to receive a mouse event.
      */
     class GuiMouser
     {

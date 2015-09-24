@@ -66,7 +66,8 @@ namespace Kiwi
         virtual Point getMousePosition() const noexcept = 0;
         
         //! Retrieves the screen bounds.
-        /** The function retrieves the screen bounds for a point. Since there can be several screens, the point determines wichs screen to select.
+        /** The function retrieves the screen bounds for a point. 
+         Since there can be several screens, the point determines the screen to select.
          @param pt The point.
          @return The screen bounds.
          */

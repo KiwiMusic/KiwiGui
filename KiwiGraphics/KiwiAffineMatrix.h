@@ -101,7 +101,7 @@ namespace Kiwi
         //! Apply this affine transformation matrix to a point.
         /** The function applies this affine transformation matrix to a point.
          */
-        template <typename PointType> void applyTo(PointType& pt) const noexcept
+        template <class PointType> void applyTo(PointType& pt) const noexcept
         {
             const double old_x = pt.x();
             pt.x(m_matrix[0] * old_x + m_matrix[1] * pt.y() + m_matrix[2]);
@@ -111,7 +111,7 @@ namespace Kiwi
         //! Apply this affine transformation matrix to a vector of points.
         /** The function applies this affine transformation matrix to a vector of points.
          */
-        template <typename PointType> void applyTo(vector<PointType> const& points) const noexcept
+        template <class PointType> void applyTo(vector<PointType> const& points) const noexcept
         {
             for(auto pt : points)
             {
