@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_AFFINEMATRIX__
 #define __DEF_KIWI_GUI_AFFINEMATRIX__
 
-#include "../../KiwiCore/KiwiCore.h"
+#include "../KiwiGuiDefines.h"
 
 namespace Kiwi
 {

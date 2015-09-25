@@ -24,7 +24,7 @@
 #ifndef __DEF_KIWI_GUI_SKETCHER__
 #define __DEF_KIWI_GUI_SKETCHER__
 
-#include "KiwiGuiEvent.h"
+#include "KiwiGuiAction.h"
 
 namespace Kiwi
 {    
@@ -157,118 +157,6 @@ namespace Kiwi
          */
         virtual sGuiController createController() = 0;
 	};
-    
-    // ================================================================================ //
-    //                                      MOUSER                                      //
-    // ================================================================================ //
-    
-    //! The mouser is the virtual class that receive mouse events.
-    /**
-     The mouser is a virtual class with a receive method that should be overriden to receive a mouse event.
-     */
-    class GuiMouser
-    {
-    public:
-        //! Constructor.
-        /** The function does nothing.
-         */
-        constexpr inline GuiMouser() noexcept {};
-        
-        //! Destructor.
-        /** The function does nothing.
-         */
-        virtual ~GuiMouser() noexcept {};
-        
-        //! The receive method that should be override.
-        /** The function shoulds perform some stuff.
-         @param event    A mouser event.
-         @param ctrl     The controller gives the event.
-         @return true if the class has done something with the event otherwise false
-         */
-        virtual bool receive(scGuiView view, MouseEvent const& event) = 0;
-    };
-    
-    // ================================================================================ //
-    //                                     KEYBOARDER                                   //
-    // ================================================================================ //
-    
-    //! The mouser is the virutal class that receive keyboard events.
-    /**
-     The mouser is a virtual class with a receive method that should be override to receveie a keyboard events.
-     */
-    class GuiKeyboarder
-    {
-    public:
-        //! Constructor.
-        /** The function does nothing.
-         */
-        constexpr inline GuiKeyboarder() noexcept {};
-        
-        //! Destructor.
-        /** The function does nothing.
-         */
-        virtual inline ~GuiKeyboarder() noexcept {};
-        
-        //! The receive method that should be override.
-        /** The function shoulds perform some stuff.
-         @param event    A keyboard event.
-         @return true if the class has done something with the event otherwise false
-         */
-        virtual bool receive(scGuiView view, KeyboardEvent const& event) = 0;
-        
-        //! The receive method that should be override.
-        /** The function shoulds perform some stuff.
-         @param event    A focus event.
-         @return true if the class has done something with the event otherwise false
-         */
-        virtual bool receive(scGuiView view, KeyboardFocus const  event)
-        {
-            return false;
-        }
-    };
-    
-    // ================================================================================ //
-    //                                     ACTION MANAGER                               //
-    // ================================================================================ //
-    
-    //! The...
-    /**
-     The...
-     */
-    class GuiActionManager
-    {
-    public:
-        
-        //! Constructor.
-        /** The function does nothing.
-         */
-        constexpr inline GuiActionManager() noexcept {};
-        
-        //! Destructor.
-        /** The function does nothing.
-         */
-        virtual inline ~GuiActionManager() noexcept {};
-        
-        //! Retrieves the action codes.
-        /** The function retreives the action codes from the the manager.
-         @return The action codes.
-         */
-        virtual vector<Action::Code> getActionCodes() = 0;
-        
-        //! Retrieves an action from the manager.
-        /** The function retreives an action from the the manager.
-         @param code The code of the action.
-         @return The action.
-         */
-        virtual Action getAction(const ulong code) = 0;
-        
-        //! Performs an action.
-        /** The function performs an action.
-         @param code The code of the action.
-         @return true if the action has been performed, otherwise false.
-         */
-        virtual bool performAction(const ulong code) = 0;
-    };
 }
 
 #endif
