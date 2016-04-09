@@ -47,7 +47,7 @@ namespace Kiwi
         
         double m_data[4];
         bool   m_mode;
-        static constexpr inline double cclip(const double val){return (val > 1.) ? 1 : ((val > 0.) ? val : 0.);}
+        static constexpr inline double cclip(const double val){return (val > 1.) ? 1. : ((val > 0.) ? val : 0.);}
         static const string m_hex_digits;
         static double hueToRGB(double const v1, double const v2, double vH);
     public:
